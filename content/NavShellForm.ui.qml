@@ -18,7 +18,7 @@ Rectangle {
     // NAV
     Rectangle {
         id: nav
-        width: 260
+        width: 117
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.bottom: parent.bottom
@@ -32,6 +32,7 @@ Rectangle {
         Column {
             anchors.fill: parent
             anchors.margins: 16
+            anchors.rightMargin: 156
             spacing: 12
 
             Button {
@@ -40,8 +41,8 @@ Rectangle {
                 checkable: true
                 checked: true
                 ButtonGroup.group: navGroup
-                width: 233
-                height: 185
+                width: 80
+                height: 80
 
                 background: Rectangle {
                     radius: 14
@@ -58,8 +59,8 @@ Rectangle {
                 text: qsTr("Protocols")
                 checkable: true
                 ButtonGroup.group: navGroup
-                width: 233
-                height: 185
+                width: 80
+                height: 80
 
                 background: Rectangle {
                     radius: 14
@@ -76,8 +77,8 @@ Rectangle {
                 text: qsTr("Settings")
                 checkable: true
                 ButtonGroup.group: navGroup
-                width: 233
-                height: 185
+                width: 80
+                height: 80
 
                 background: Rectangle {
                     radius: 14
@@ -94,8 +95,8 @@ Rectangle {
                 text: qsTr("Calibration")
                 checkable: true
                 ButtonGroup.group: navGroup
-                width: 233
-                height: 185
+                width: 80
+                height: 80
 
                 background: Rectangle {
                     radius: 14
@@ -112,8 +113,8 @@ Rectangle {
                 text: qsTr("About")
                 checkable: true
                 ButtonGroup.group: navGroup
-                width: 233
-                height: 185
+                width: 80
+                height: 80
 
                 background: Rectangle {
                     radius: 14
