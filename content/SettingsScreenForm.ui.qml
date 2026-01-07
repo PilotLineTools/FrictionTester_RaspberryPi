@@ -3,8 +3,8 @@
   Qt Design Studio UI file (.ui.qml)
   Keep this declarative (layout + styling). Put logic in HomeScreen.qml.
 */
-import QtQuick 6.5
-import QtQuick.Controls 6.5
+import QtQuick
+import QtQuick.Controls
 import PilotLine_FrictionTester
 
 Rectangle {
