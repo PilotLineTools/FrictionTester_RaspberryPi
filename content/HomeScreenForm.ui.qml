@@ -5,13 +5,15 @@
 */
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 import PilotLine_FrictionTester
 
 Rectangle {
     id: root
-    width: Constants.width - 260
+    width: Constants.width
     height: Constants.height
     color: Constants.bgPrimary
+    radius: 0
 
     // ✅ EXPOSE UI ELEMENTS
     property alias positionText: positionText
@@ -22,188 +24,244 @@ Rectangle {
     property alias speedSlider: speedSlider
     property alias motorToggleButton: motorToggleButton
 
-    // ================================================
-    //  Content Area - Jog Control
-    // ================================================
-    Rectangle {
-        id: jog_control_content
-        x: 71
-        y: 66
-        width: 943
-        height: 329
-        color: Constants.bgCard
+    // Page padding
+    readonly property int pad: 12
+    readonly property int gap: 12
 
-        Text {
-            id: jog_control_title
-            x: 48
-            y: 45
-            width: 337
-            height: 63
-            text: qsTr("Jog Control")
-            font.pixelSize: 45
-            color: "#F3F4F6"
-        }
+    GridLayout {
+        id: grid
+        anchors.fill: parent
+        anchors.margins: root.pad
+        rowSpacing: root.gap
+        columnSpacing: root.gap
+        columns: 2
 
-        Text {
-            id: speedText
-            x: 543
-            y: 93
-            width: 235
-            text: qsTr("Speed: --")
-            height: 70
-            font.pixelSize: 45
-            color: "#F3F4F6"
-        }
+        // Make left column wider than right
+        //columnStretchFactor: [3, 2]
 
-        Slider {
-            id: speedSlider
-            x: 485
-            y: 139
-            width: 350
-            height: 93
-            from: 1
-            to: 50
-            value: 1
-        }
+        // =========================
+        // Jog Control (top-left)
+        // =========================
+        Rectangle {
+            id: jog_control_content
+            color: Constants.bgCard
+            radius: 12
 
-        Row {
-            id: posittion_control_row
-            x: 48
-            y: 127
+            Layout.fillWidth: true
+            Layout.fillHeight: true
 
-            spacing: 40
+            // Give this row more height than bottom row
+            Layout.preferredHeight: 230
 
-            Button {
-                id: jogUpButton
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 14
+                spacing: 10
 
-                width: 156
-                height: 75
-                text: qsTr("↑ UP")
-                font.pixelSize: 25
-            }
+                RowLayout {
+                    Layout.fillWidth: true
 
-            Button {
-                id: jogDownButton
+                    Text {
+                        id: jog_control_title
+                        text: qsTr("Jog Control")
+                        color: "#F3F4F6"
+                        font.pixelSize: 22
+                        Layout.fillWidth: true
+                        elide: Text.ElideRight
+                    }
 
-                width: 156
-                height: 75
-                text: qsTr("↓ DOWN")
-                font.pixelSize: 25
-            }
-        }
+                    Text {
+                        id: speedText
+                        text: qsTr("Speed: --")
+                        color: "#F3F4F6"
+                        font.pixelSize: 18
+                        horizontalAlignment: Text.AlignRight
+                        Layout.preferredWidth: 160
+                    }
+                }
 
-        Button {
-            id: resetButton
-            x: 48
-            y: 232
-            width: 372
-            height: 75
-            text: qsTr("Reset Position")
-            font.pixelSize: 25
-        }
-    }
+                Slider {
+                    id: speedSlider
+                    from: 1
+                    to: 50
+                    value: 1
+                    Layout.fillWidth: true
+                }
 
-    // ================================================
-    //  Content Area - Live Readings
-    // ================================================
-    Rectangle {
-        id: live_readings_content
-        x: 1059
-        y: 66
-        width: 552
-        height: 329
-        color: Constants.bgCard
+                RowLayout {
+                    id: posittion_control_row
+                    Layout.fillWidth: true
+                    spacing: 10
 
-        Text {
-            id: live_readings_title
-            x: 25
-            y: 40
-            width: 337
-            height: 63
-            color: "#f3f4f6"
-            text: qsTr("Live Readings")
-            font.pixelSize: 45
-        }
+                    Button {
+                        id: jogUpButton
+                        text: qsTr("↑ UP")
+                        font.pixelSize: 16
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 44
+                    }
 
-        Column {
-            id: readout
-            x: 25
-            y: 109
-            Text {
-                id: positionText
+                    Button {
+                        id: jogDownButton
+                        text: qsTr("↓ DOWN")
+                        font.pixelSize: 16
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 44
+                    }
+                }
 
-                width: 519
-                height: 42
-                color: "#f3f4f6"
-                text: qsTr("Position: --")
-                font.pixelSize: 30
-            }
-
-            Text {
-                id: live_pullforce
-
-                width: 519
-                height: 42
-                color: "#f3f4f6"
-
-                text: qsTr("Pull Force: --")
-                font.pixelSize: 30
-            }
-            Text {
-                id: live_clampforce
-
-                width: 519
-                height: 42
-                color: "#f3f4f6"
-
-                text: qsTr("Clamp Force: --")
-                font.pixelSize: 30
-            }
-            Text {
-                id: live_watertemp
-
-                width: 519
-                height: 42
-                color: "#f3f4f6"
-
-                text: qsTr("Water Temp: --")
-                font.pixelSize: 30
+                Button {
+                    id: resetButton
+                    text: qsTr("Reset Position")
+                    font.pixelSize: 16
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 44
+                    rotation: 0
+                }
             }
         }
-    }
 
-    // ================================================
-    //  Content Area - Water Bath
-    // ================================================
-    Rectangle {
-        id: water_bath_content
-        x: 79
-        y: 455
-        width: 935
-        height: 383
-        color: Constants.bgCard
+        // =========================
+        // Live Readings (top-right)
+        // =========================
+        Rectangle {
+            id: live_readings_content
+            color: Constants.bgCard
+            radius: 12
 
-        Button {
-            id: motorToggleButton
-            x: 503
-            y: 232
-            width: 372
-            height: 75
-            font.pixelSize: 25
-            text: qsTr("Motor: OFF")
-            checkable: true
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.preferredHeight: 230
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 14
+                spacing: 10
+
+                Text {
+                    id: live_readings_title
+                    text: qsTr("Live Readings")
+                    color: "#F3F4F6"
+                    font.pixelSize: 22
+                    Layout.fillWidth: true
+                    elide: Text.ElideRight
+                }
+
+                ColumnLayout {
+                    id: readout
+                    Layout.fillWidth: true
+                    spacing: 6
+
+                    Text {
+                        id: positionText
+                        text: qsTr("Position: --")
+                        color: "#F3F4F6"
+                        font.pixelSize: 16
+                        Layout.fillWidth: true
+                        elide: Text.ElideRight
+                    }
+
+                    Text {
+                        id: live_pullforce
+                        text: qsTr("Pull Force: --")
+                        color: "#F3F4F6"
+                        font.pixelSize: 16
+                        Layout.fillWidth: true
+                        elide: Text.ElideRight
+                    }
+
+                    Text {
+                        id: live_clampforce
+                        text: qsTr("Clamp Force: --")
+                        color: "#F3F4F6"
+                        font.pixelSize: 16
+                        Layout.fillWidth: true
+                        elide: Text.ElideRight
+                    }
+
+                    Text {
+                        id: live_watertemp
+                        text: qsTr("Water Temp: --")
+                        color: "#F3F4F6"
+                        font.pixelSize: 16
+                        Layout.fillWidth: true
+                        elide: Text.ElideRight
+                    }
+                }
+
+                Item {
+                    Layout.fillHeight: true
+                } // spacer
+            }
         }
-    }
 
-    // ================================================
-    //  Content Area - Test Protocol
-    // ================================================
-    Rectangle {
-        id: test_protocol_content
-        x: 1059
-        y: 482
-        width: 552
-        height: 329
-        color: Constants.bgCard
+        // =========================
+        // Water Bath (bottom-left)
+        // =========================
+        Rectangle {
+            id: water_bath_content
+            color: Constants.bgCard
+            radius: 12
+
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.preferredHeight: 200
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 14
+                spacing: 10
+
+                Text {
+                    text: qsTr("Water Bath")
+                    color: "#F3F4F6"
+                    font.pixelSize: 22
+                    Layout.fillWidth: true
+                }
+
+                Item {
+                    Layout.fillHeight: true
+                }
+
+                Button {
+                    id: motorToggleButton
+                    text: qsTr("Motor: OFF")
+                    checkable: true
+                    font.pixelSize: 16
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 48
+                }
+            }
+        }
+
+        // =========================
+        // Test Protocol (bottom-right)
+        // =========================
+        Rectangle {
+            id: test_protocol_content
+            color: Constants.bgCard
+            radius: 12
+
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.preferredHeight: 200
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 14
+                spacing: 10
+
+                Text {
+                    text: qsTr("Test Protocol")
+                    color: "#F3F4F6"
+                    font.pixelSize: 22
+                    Layout.fillWidth: true
+                }
+
+                Item {
+                    Layout.fillHeight: true
+                }
+            }
+        }
     }
 }
