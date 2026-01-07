@@ -1,6 +1,0 @@
---resource
-/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-build/src/imports/tools/eventsystem/.qt/rcc/qmake_QtQuick_Studio_EventSystem.qrc
---resource
-/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-build/src/imports/tools/eventsystem/.qt/rcc/QuickStudioEventSystem_raw_qml_0.qrc
-/QtQuick/Studio/EventSystem/EventSystem.qml
-/QtQuick/Studio/EventSystem/EventListener.qml

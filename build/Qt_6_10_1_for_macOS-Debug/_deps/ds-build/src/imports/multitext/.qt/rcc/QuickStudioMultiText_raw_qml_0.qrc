@@ -1,8 +1,0 @@
-<RCC>
-  <qresource prefix="/QtQuick/Studio/MultiText/">
-    <file alias="MultiTextElement.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-src/src/imports/multitext/MultiTextElement.qml</file>
-    <file alias="MultiTextItem.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-src/src/imports/multitext/MultiTextItem.qml</file>
-    <file alias="MultiTextException.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-src/src/imports/multitext/MultiTextException.qml</file>
-  </qresource>
-</RCC>
-

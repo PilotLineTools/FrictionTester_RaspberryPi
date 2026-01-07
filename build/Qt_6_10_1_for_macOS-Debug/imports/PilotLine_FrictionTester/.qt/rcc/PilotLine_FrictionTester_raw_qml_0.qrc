@@ -1,9 +1,0 @@
-<RCC>
-  <qresource prefix="/PilotLine_FrictionTester/">
-    <file alias="EventListSimulator.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/imports/PilotLine_FrictionTester/EventListSimulator.qml</file>
-    <file alias="EventListModel.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/imports/PilotLine_FrictionTester/EventListModel.qml</file>
-    <file alias="Constants.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/imports/PilotLine_FrictionTester/Constants.qml</file>
-    <file alias="DirectoryFontLoader.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/imports/PilotLine_FrictionTester/DirectoryFontLoader.qml</file>
-  </qresource>
-</RCC>
-

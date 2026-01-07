@@ -1,7 +1,0 @@
---resource
-/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-build/src/imports/multitext/.qt/rcc/qmake_QtQuick_Studio_MultiText.qrc
---resource
-/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-build/src/imports/multitext/.qt/rcc/QuickStudioMultiText_raw_qml_0.qrc
-/QtQuick/Studio/MultiText/MultiTextElement.qml
-/QtQuick/Studio/MultiText/MultiTextItem.qml
-/QtQuick/Studio/MultiText/MultiTextException.qml

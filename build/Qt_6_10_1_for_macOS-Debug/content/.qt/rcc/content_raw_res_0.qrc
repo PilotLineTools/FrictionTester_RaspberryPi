@@ -1,6 +1,0 @@
-<RCC>
-  <qresource prefix="/content/">
-    <file alias="fonts/fonts.txt">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/content/fonts/fonts.txt</file>
-  </qresource>
-</RCC>
-

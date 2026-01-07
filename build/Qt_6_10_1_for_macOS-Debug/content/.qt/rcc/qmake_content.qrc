@@ -1,6 +1,0 @@
-<RCC>
-  <qresource prefix="/content">
-    <file alias="qmldir">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/qml/content/qmldir</file>
-  </qresource>
-</RCC>
-

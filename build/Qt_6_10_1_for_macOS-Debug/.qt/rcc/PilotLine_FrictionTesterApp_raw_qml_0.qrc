@@ -1,6 +1,0 @@
-<RCC>
-  <qresource prefix="/Main/">
-    <file alias="main.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/main.qml</file>
-  </qresource>
-</RCC>
-

@@ -1,5 +1,0 @@
-module Main
-typeinfo PilotLine_FrictionTesterApp.qmltypes
-prefer :/Main/
-depends QtQuick
-
