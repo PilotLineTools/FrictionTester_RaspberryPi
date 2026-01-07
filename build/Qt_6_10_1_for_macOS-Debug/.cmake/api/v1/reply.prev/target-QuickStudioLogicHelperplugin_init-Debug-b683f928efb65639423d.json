@@ -1,0 +1,335 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "_deps/ds-build/src/imports/logichelper/CMakeFiles/QuickStudioLogicHelperplugin_init.dir/./QuickStudioLogicHelperplugin_init_autogen/mocs_compilation.cpp.o"
+		},
+		{
+			"path" : "_deps/ds-build/src/imports/logichelper/CMakeFiles/QuickStudioLogicHelperplugin_init.dir/./QuickStudioLogicHelperplugin_init.cpp.o"
+		}
+	],
+	"backtrace" : 5,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"_qt_internal_add_library",
+			"qt6_add_library",
+			"__qt_internal_add_static_plugin_init_object_library",
+			"qt6_add_qml_module",
+			"set_property",
+			"_qt_internal_copy_dependency_properties",
+			"__qt_internal_propagate_object_library",
+			"target_sources",
+			"qt6_extract_metatypes",
+			"qt6_finalize_target"
+		],
+		"files" : 
+		[
+			"/Users/polomari/Qt/6.10.1/macos/lib/cmake/Qt6Core/Qt6CoreMacros.cmake",
+			"/Users/polomari/Qt/6.10.1/macos/lib/cmake/Qt6/QtPublicPluginHelpers.cmake",
+			"/Users/polomari/Qt/6.10.1/macos/lib/cmake/Qt6Qml/Qt6QmlMacros.cmake",
+			"build/Qt_6_10_1_for_macOS-Debug/_deps/ds-src/src/imports/logichelper/CMakeLists.txt",
+			"/Users/polomari/Qt/6.10.1/macos/lib/cmake/Qt6Core/Qt6CoreMacros.cmake:846:EVAL"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 3
+			},
+			{
+				"command" : 4,
+				"file" : 3,
+				"line" : 2,
+				"parent" : 0
+			},
+			{
+				"command" : 3,
+				"file" : 2,
+				"line" : 991,
+				"parent" : 1
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 255,
+				"parent" : 2
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 2804,
+				"parent" : 3
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 2891,
+				"parent" : 4
+			},
+			{
+				"command" : 7,
+				"file" : 2,
+				"line" : 995,
+				"parent" : 1
+			},
+			{
+				"command" : 6,
+				"file" : 0,
+				"line" : 2052,
+				"parent" : 6
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 3001,
+				"parent" : 7
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 3001,
+				"parent" : 7
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 3001,
+				"parent" : 7
+			},
+			{
+				"file" : 3,
+				"line" : -1,
+				"parent" : 0
+			},
+			{
+				"command" : 10,
+				"file" : 4,
+				"line" : 1,
+				"parent" : 11
+			},
+			{
+				"command" : 9,
+				"file" : 0,
+				"line" : 907,
+				"parent" : 12
+			},
+			{
+				"command" : 8,
+				"file" : 0,
+				"line" : 1577,
+				"parent" : 13
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-DQT_QML_DEBUG -g -std=gnu++17 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.2.sdk -fcolor-diagnostics"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 8,
+					"define" : "QT_CORE_LIB"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "QT_DEPRECATED_WARNINGS"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "QT_NETWORK_LIB"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "QT_PLUGIN"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "QT_QMLINTEGRATION_LIB"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "QT_QML_LIB"
+				},
+				{
+					"backtrace" : 8,
+					"define" : "QT_STATICPLUGIN"
+				}
+			],
+			"frameworks" : 
+			[
+				{
+					"backtrace" : 9,
+					"path" : "/Users/polomari/Qt/6.10.1/macos/lib/QtQml.framework"
+				},
+				{
+					"backtrace" : 9,
+					"path" : "/Users/polomari/Qt/6.10.1/macos/lib/QtNetwork.framework"
+				},
+				{
+					"backtrace" : 9,
+					"isSystem" : true,
+					"path" : "/Users/polomari/Qt/6.10.1/macos/lib/QtCore.framework"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"path" : "/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-build/src/imports/logichelper"
+				},
+				{
+					"path" : "/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-src/src/imports/logichelper"
+				},
+				{
+					"backtrace" : 0,
+					"path" : "/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-build/src/imports/logichelper/QuickStudioLogicHelperplugin_init_autogen/include"
+				},
+				{
+					"backtrace" : 9,
+					"path" : "/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-build/src/imports/logichelper/QuickStudioLogicHelperplugin_autogen/include"
+				},
+				{
+					"backtrace" : 9,
+					"path" : "/Users/polomari/Qt/6.10.1/macos/lib/QtQml.framework/Headers"
+				},
+				{
+					"backtrace" : 9,
+					"path" : "/Users/polomari/Qt/6.10.1/macos/include/QtQmlIntegration"
+				},
+				{
+					"backtrace" : 9,
+					"path" : "/Users/polomari/Qt/6.10.1/macos/lib/QtNetwork.framework/Headers"
+				},
+				{
+					"backtrace" : 9,
+					"isSystem" : true,
+					"path" : "/Users/polomari/Qt/6.10.1/macos/lib/QtCore.framework/Headers"
+				},
+				{
+					"backtrace" : 9,
+					"isSystem" : true,
+					"path" : "/Users/polomari/Qt/6.10.1/macos/mkspecs/macx-clang"
+				},
+				{
+					"backtrace" : 9,
+					"isSystem" : true,
+					"path" : "/Users/polomari/Qt/6.10.1/macos/include"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					10
+				],
+				"standard" : "17"
+			},
+			"sourceIndexes" : 
+			[
+				0,
+				1
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"id" : "QuickStudioLogicHelperplugin_init_autogen_timestamp_deps::@a133c4daf6f4e56b78b8"
+		},
+		{
+			"backtrace" : 0,
+			"id" : "QuickStudioLogicHelperplugin_init_autogen::@a133c4daf6f4e56b78b8"
+		}
+	],
+	"id" : "QuickStudioLogicHelperplugin_init::@a133c4daf6f4e56b78b8",
+	"name" : "QuickStudioLogicHelperplugin_init",
+	"paths" : 
+	{
+		"build" : "_deps/ds-build/src/imports/logichelper",
+		"source" : "build/Qt_6_10_1_for_macOS-Debug/_deps/ds-src/src/imports/logichelper"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files\\Generated",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				3
+			]
+		},
+		{
+			"name" : "",
+			"sourceIndexes" : 
+			[
+				2
+			]
+		},
+		{
+			"name" : "CMake Rules",
+			"sourceIndexes" : 
+			[
+				4,
+				5,
+				6
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 0,
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "build/Qt_6_10_1_for_macOS-Debug/_deps/ds-build/src/imports/logichelper/QuickStudioLogicHelperplugin_init_autogen/mocs_compilation.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 5,
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "build/Qt_6_10_1_for_macOS-Debug/_deps/ds-build/src/imports/logichelper/QuickStudioLogicHelperplugin_init.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 14,
+			"isGenerated" : true,
+			"path" : "build/Qt_6_10_1_for_macOS-Debug/_deps/ds-build/src/imports/logichelper/meta_types/qt6quickstudiologichelperplugin_init_metatypes.json.gen",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "build/Qt_6_10_1_for_macOS-Debug/_deps/ds-build/src/imports/logichelper/QuickStudioLogicHelperplugin_init_autogen/timestamp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "build/Qt_6_10_1_for_macOS-Debug/_deps/ds-build/src/imports/logichelper/meta_types/qt6quickstudiologichelperplugin_init_metatypes.json.gen.rule",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "build/Qt_6_10_1_for_macOS-Debug/_deps/ds-build/src/imports/logichelper/QuickStudioLogicHelperplugin_init_autogen/timestamp.rule",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "build/Qt_6_10_1_for_macOS-Debug/_deps/ds-build/src/imports/logichelper/meta_types/QuickStudioLogicHelperplugin_init_json_file_list.txt.rule",
+			"sourceGroupIndex" : 2
+		}
+	],
+	"type" : "OBJECT_LIBRARY"
+}

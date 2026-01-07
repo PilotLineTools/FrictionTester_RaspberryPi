@@ -1,0 +1,23 @@
+{
+    "formatRevision": 1,
+    "modules": [
+        {
+            "moduleFiles": [
+                {
+                    "entries": [
+                        {
+                            "codegenResult": 0,
+                            "column": 28,
+                            "durationMicroseconds": 5736,
+                            "functionName": "onCompleted",
+                            "line": 12,
+                            "message": ""
+                        }
+                    ],
+                    "filePath": "/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/content/SettingsScreen.qml"
+                }
+            ],
+            "moduleId": "content(content)"
+        }
+    ]
+}

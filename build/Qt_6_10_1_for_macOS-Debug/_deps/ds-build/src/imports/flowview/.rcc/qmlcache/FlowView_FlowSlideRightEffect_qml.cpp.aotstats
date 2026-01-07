@@ -1,0 +1,39 @@
+{
+    "formatRevision": 1,
+    "modules": [
+        {
+            "moduleFiles": [
+                {
+                    "entries": [
+                        {
+                            "codegenResult": 2,
+                            "column": 16,
+                            "durationMicroseconds": 408,
+                            "functionName": "onStarted",
+                            "line": 37,
+                            "message": "Cannot load property __toContentItem from (component in /Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-src/src/imports/flowview/FlowSlideRightEffect.qml)::transitionView with type QQuickItem."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 23,
+                            "durationMicroseconds": 116,
+                            "functionName": "value",
+                            "line": 50,
+                            "message": "Cannot access value for name transitionView"
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 25,
+                            "durationMicroseconds": 384,
+                            "functionName": "easing",
+                            "line": 56,
+                            "message": ""
+                        }
+                    ],
+                    "filePath": "/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-src/src/imports/flowview/FlowSlideRightEffect.qml"
+                }
+            ],
+            "moduleId": "FlowView(FlowView)"
+        }
+    ]
+}

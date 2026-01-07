@@ -1,0 +1,79 @@
+{
+    "formatRevision": 1,
+    "modules": [
+        {
+            "moduleFiles": [
+                {
+                    "entries": [
+                        {
+                            "codegenResult": 0,
+                            "column": 20,
+                            "durationMicroseconds": 734,
+                            "functionName": "implicitWidth",
+                            "line": 40,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 21,
+                            "durationMicroseconds": 322,
+                            "functionName": "implicitHeight",
+                            "line": 41,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 24,
+                            "durationMicroseconds": 249,
+                            "functionName": "implicitWidth",
+                            "line": 46,
+                            "message": "Cannot retrieve a non-object type by ID: displace"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 25,
+                            "durationMicroseconds": 194,
+                            "functionName": "implicitHeight",
+                            "line": 47,
+                            "message": "Cannot retrieve a non-object type by ID: displace"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 17,
+                            "durationMicroseconds": 0,
+                            "functionName": "source",
+                            "line": 54,
+                            "message": "Could not find property \"source\"."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 29,
+                            "durationMicroseconds": 0,
+                            "functionName": "displacementSource",
+                            "line": 55,
+                            "message": "Could not find property \"displacementSource\"."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 23,
+                            "durationMicroseconds": 0,
+                            "functionName": "fill",
+                            "line": 53,
+                            "message": "Could not find property \"fill\"."
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 28,
+                            "durationMicroseconds": 1285,
+                            "functionName": "onCompleted",
+                            "line": 61,
+                            "message": ""
+                        }
+                    ],
+                    "filePath": "/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-src/src/imports/effects_qt6/DisplaceItem.qml"
+                }
+            ],
+            "moduleId": "QtQuick.Studio.Effects(QuickStudioEffects)"
+        }
+    ]
+}

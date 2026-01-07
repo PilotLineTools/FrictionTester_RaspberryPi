@@ -1,0 +1,11 @@
+module PilotLine_FrictionTester
+linktarget PilotLine_FrictionTesterplugin
+optional plugin PilotLine_FrictionTesterplugin
+classname PilotLine_FrictionTesterPlugin
+typeinfo PilotLine_FrictionTester.qmltypes
+prefer :/PilotLine_FrictionTester/
+EventListSimulator 1.0 EventListSimulator.qml
+EventListModel 1.0 EventListModel.qml
+singleton Constants 1.0 Constants.qml
+DirectoryFontLoader 1.0 DirectoryFontLoader.qml
+

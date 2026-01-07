@@ -1,0 +1,79 @@
+{
+    "formatRevision": 1,
+    "modules": [
+        {
+            "moduleFiles": [
+                {
+                    "entries": [
+                        {
+                            "codegenResult": 0,
+                            "column": 20,
+                            "durationMicroseconds": 653,
+                            "functionName": "implicitWidth",
+                            "line": 41,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 21,
+                            "durationMicroseconds": 312,
+                            "functionName": "implicitHeight",
+                            "line": 42,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 24,
+                            "durationMicroseconds": 221,
+                            "functionName": "implicitWidth",
+                            "line": 47,
+                            "message": "Cannot retrieve a non-object type by ID: thresholdMask"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 25,
+                            "durationMicroseconds": 188,
+                            "functionName": "implicitHeight",
+                            "line": 48,
+                            "message": "Cannot retrieve a non-object type by ID: thresholdMask"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 17,
+                            "durationMicroseconds": 0,
+                            "functionName": "source",
+                            "line": 55,
+                            "message": "Could not find property \"source\"."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 21,
+                            "durationMicroseconds": 0,
+                            "functionName": "maskSource",
+                            "line": 56,
+                            "message": "Could not find property \"maskSource\"."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 23,
+                            "durationMicroseconds": 0,
+                            "functionName": "fill",
+                            "line": 54,
+                            "message": "Could not find property \"fill\"."
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 28,
+                            "durationMicroseconds": 741,
+                            "functionName": "onCompleted",
+                            "line": 64,
+                            "message": ""
+                        }
+                    ],
+                    "filePath": "/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-src/src/imports/effects_qt6/ThresholdMaskItem.qml"
+                }
+            ],
+            "moduleId": "QtQuick.Studio.Effects(QuickStudioEffects)"
+        }
+    ]
+}

@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/QtQuick/Studio/Effects">
+    <file alias="qmldir">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/qml/QtQuick/Studio/Effects/qmldir</file>
+  </qresource>
+</RCC>
+

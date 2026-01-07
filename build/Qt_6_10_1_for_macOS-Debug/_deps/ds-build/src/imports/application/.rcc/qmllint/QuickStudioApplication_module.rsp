@@ -1,0 +1,10 @@
+-I
+/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/qml
+-I
+/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/qml
+-I
+/Users/polomari/Qt/6.10.1/macos/qml
+--resource
+/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-build/src/imports/application/.qt/rcc/qmake_QtQuick_Studio_Application.qrc
+--module
+QtQuick.Studio.Application

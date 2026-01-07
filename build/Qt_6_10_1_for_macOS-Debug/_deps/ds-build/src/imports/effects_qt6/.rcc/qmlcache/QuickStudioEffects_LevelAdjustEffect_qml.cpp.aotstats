@@ -1,0 +1,23 @@
+{
+    "formatRevision": 1,
+    "modules": [
+        {
+            "moduleFiles": [
+                {
+                    "entries": [
+                        {
+                            "codegenResult": 2,
+                            "column": 12,
+                            "durationMicroseconds": 0,
+                            "functionName": "gamma",
+                            "line": 40,
+                            "message": "Could not find property \"gamma\"."
+                        }
+                    ],
+                    "filePath": "/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-src/src/imports/effects_qt6/LevelAdjustEffect.qml"
+                }
+            ],
+            "moduleId": "QtQuick.Studio.Effects(QuickStudioEffects)"
+        }
+    ]
+}

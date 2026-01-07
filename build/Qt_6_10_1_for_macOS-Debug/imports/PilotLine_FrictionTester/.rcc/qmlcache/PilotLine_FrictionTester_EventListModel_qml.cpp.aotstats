@@ -1,0 +1,15 @@
+{
+    "formatRevision": 1,
+    "modules": [
+        {
+            "moduleFiles": [
+                {
+                    "entries": [
+                    ],
+                    "filePath": "/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/imports/PilotLine_FrictionTester/EventListModel.qml"
+                }
+            ],
+            "moduleId": "PilotLine_FrictionTester(PilotLine_FrictionTester)"
+        }
+    ]
+}

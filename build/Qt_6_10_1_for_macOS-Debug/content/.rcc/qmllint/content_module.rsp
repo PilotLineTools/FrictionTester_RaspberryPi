@@ -1,0 +1,12 @@
+-I
+/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/qml
+-I
+/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/qml
+-I
+/Users/polomari/Qt/6.10.1/macos/qml
+--resource
+/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/content/.qt/rcc/qmake_content.qrc
+--resource
+/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/content/.qt/rcc/content_raw_qml_0.qrc
+--module
+content

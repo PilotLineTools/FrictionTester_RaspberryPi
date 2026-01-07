@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix="/QtQuick/Studio/EventSimulator/">
+    <file alias="EventSimulator.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-src/src/imports/tools/eventsimulator/EventSimulator.qml</file>
+    <file alias="EventSimulatorDelegate.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-src/src/imports/tools/eventsimulator/EventSimulatorDelegate.qml</file>
+  </qresource>
+</RCC>
+

@@ -1,0 +1,15 @@
+<RCC>
+  <qresource prefix="/content/">
+    <file alias="TempScreen.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/content/TempScreen.qml</file>
+    <file alias="SettingsScreenForm.ui.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/content/SettingsScreenForm.ui.qml</file>
+    <file alias="App.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/content/App.qml</file>
+    <file alias="TempScreenForm.ui.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/content/TempScreenForm.ui.qml</file>
+    <file alias="ProtocolsScreen.ui.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/content/ProtocolsScreen.ui.qml</file>
+    <file alias="NavShell.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/content/NavShell.qml</file>
+    <file alias="HomeScreen.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/content/HomeScreen.qml</file>
+    <file alias="SettingsScreen.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/content/SettingsScreen.qml</file>
+    <file alias="HomeScreenForm.ui.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/content/HomeScreenForm.ui.qml</file>
+    <file alias="NavShellForm.ui.qml">/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/content/NavShellForm.ui.qml</file>
+  </qresource>
+</RCC>
+

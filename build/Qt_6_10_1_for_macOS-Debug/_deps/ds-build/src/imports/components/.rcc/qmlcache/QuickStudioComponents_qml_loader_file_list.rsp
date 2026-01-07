@@ -1,0 +1,17 @@
+--resource
+/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-build/src/imports/components/.qt/rcc/qmake_QtQuick_Studio_Components.qrc
+--resource
+/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-build/src/imports/components/.qt/rcc/QuickStudioComponents_raw_qml_0.qrc
+/QtQuick/Studio/Components/ArcItem.qml
+/QtQuick/Studio/Components/PieItem.qml
+/QtQuick/Studio/Components/TriangleItem.qml
+/QtQuick/Studio/Components/SvgPathItem.qml
+/QtQuick/Studio/Components/EllipseItem.qml
+/QtQuick/Studio/Components/FlipableItem.qml
+/QtQuick/Studio/Components/RectangleItem.qml
+/QtQuick/Studio/Components/RegularPolygonItem.qml
+/QtQuick/Studio/Components/BorderItem.qml
+/QtQuick/Studio/Components/IsoItem.qml
+/QtQuick/Studio/Components/GroupItem.qml
+/QtQuick/Studio/Components/ArcArrow.qml
+/QtQuick/Studio/Components/StraightArrow.qml

@@ -1,0 +1,23 @@
+{
+    "formatRevision": 1,
+    "modules": [
+        {
+            "moduleFiles": [
+                {
+                    "entries": [
+                        {
+                            "codegenResult": 0,
+                            "column": 28,
+                            "durationMicroseconds": 530,
+                            "functionName": "onCompleted",
+                            "line": 36,
+                            "message": ""
+                        }
+                    ],
+                    "filePath": "/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-src/src/imports/effects_qt6/BlendEffect.qml"
+                }
+            ],
+            "moduleId": "QtQuick.Studio.Effects(QuickStudioEffects)"
+        }
+    ]
+}

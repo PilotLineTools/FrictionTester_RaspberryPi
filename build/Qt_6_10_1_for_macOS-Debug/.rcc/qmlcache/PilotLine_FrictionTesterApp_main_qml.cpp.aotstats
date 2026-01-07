@@ -1,0 +1,15 @@
+{
+    "formatRevision": 1,
+    "modules": [
+        {
+            "moduleFiles": [
+                {
+                    "entries": [
+                    ],
+                    "filePath": "/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/main.qml"
+                }
+            ],
+            "moduleId": "Main(PilotLine_FrictionTesterApp)"
+        }
+    ]
+}

@@ -1,0 +1,75 @@
+{
+	"backtrace" : 0,
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : 
+		[
+			"imports/PilotLine_FrictionTester/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			}
+		]
+	},
+	"dependencies" : 
+	[
+		{
+			"id" : "PilotLine_FrictionTesterplugin_init_autogen_timestamp_deps::@20b917ff5fe2010cdcc8"
+		}
+	],
+	"folder" : 
+	{
+		"name" : "QtInternalTargets"
+	},
+	"id" : "PilotLine_FrictionTesterplugin_init_autogen::@20b917ff5fe2010cdcc8",
+	"isGeneratorProvided" : true,
+	"name" : "PilotLine_FrictionTesterplugin_init_autogen",
+	"paths" : 
+	{
+		"build" : "imports/PilotLine_FrictionTester",
+		"source" : "imports/PilotLine_FrictionTester"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		},
+		{
+			"name" : "CMake Rules",
+			"sourceIndexes" : 
+			[
+				1,
+				2
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "build/Qt_6_10_1_for_macOS-Debug/imports/PilotLine_FrictionTester/CMakeFiles/PilotLine_FrictionTesterplugin_init_autogen",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "build/Qt_6_10_1_for_macOS-Debug/imports/PilotLine_FrictionTester/CMakeFiles/PilotLine_FrictionTesterplugin_init_autogen.rule",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "build/Qt_6_10_1_for_macOS-Debug/imports/PilotLine_FrictionTester/PilotLine_FrictionTesterplugin_init_autogen/timestamp.rule",
+			"sourceGroupIndex" : 1
+		}
+	],
+	"type" : "UTILITY"
+}

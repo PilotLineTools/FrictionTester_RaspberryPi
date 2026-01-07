@@ -1,0 +1,71 @@
+{
+    "formatRevision": 1,
+    "modules": [
+        {
+            "moduleFiles": [
+                {
+                    "entries": [
+                        {
+                            "codegenResult": 2,
+                            "column": 5,
+                            "durationMicroseconds": 0,
+                            "functionName": "setState",
+                            "line": 52,
+                            "message": "Functions without type annotations won't be compiled"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 33,
+                            "durationMicroseconds": 415,
+                            "functionName": "onStateChangeTargetChanged",
+                            "line": 56,
+                            "message": "Cannot load property __designer_url__ from (component in /Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-src/src/imports/flowview/+DesignMode/FlowItem.qml)::stateChangeTarget with type QVariant."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 27,
+                            "durationMicroseconds": 97,
+                            "functionName": "onTargetStateChanged",
+                            "line": 66,
+                            "message": "Type QQuickLoader::item with type QObject does not have a property state for writing"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 5,
+                            "durationMicroseconds": 37322,
+                            "functionName": "init",
+                            "line": 79,
+                            "message": "Cannot generate efficient code for incomparable types QString and QQuickLoader::source with type QUrl"
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 15,
+                            "durationMicroseconds": 183,
+                            "functionName": "text",
+                            "line": 73,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 17,
+                            "durationMicroseconds": 174,
+                            "functionName": "active",
+                            "line": 93,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 19,
+                            "durationMicroseconds": 260,
+                            "functionName": "onLoaded",
+                            "line": 94,
+                            "message": "Cannot load property childrenRect from QQuickLoader::item with type QObject."
+                        }
+                    ],
+                    "filePath": "/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-src/src/imports/flowview/+DesignMode/FlowItem.qml"
+                }
+            ],
+            "moduleId": "FlowView(FlowView)"
+        }
+    ]
+}

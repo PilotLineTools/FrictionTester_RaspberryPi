@@ -1,0 +1,82 @@
+{
+	"backtrace" : 0,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_dependencies",
+			"_qt_internal_qml_copy_files_to_build_dir",
+			"qt6_add_qml_module"
+		],
+		"files" : 
+		[
+			"build/Qt_6_10_1_for_macOS-Debug/_deps/ds-src/src/imports/effects_qt6/CMakeLists.txt",
+			"/Users/polomari/Qt/6.10.1/macos/lib/cmake/Qt6Qml/Qt6QmlMacros.cmake"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 2,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 970,
+				"parent" : 1
+			},
+			{
+				"command" : 0,
+				"file" : 1,
+				"line" : 3120,
+				"parent" : 2
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 976,
+				"parent" : 1
+			},
+			{
+				"command" : 0,
+				"file" : 1,
+				"line" : 3120,
+				"parent" : 4
+			}
+		]
+	},
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 0,
+			"id" : "generate_qmlls_build_ini_file::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 3,
+			"id" : "QuickStudioEffects_copy_qml::@981cd0cfbc19161bec24"
+		},
+		{
+			"backtrace" : 5,
+			"id" : "QuickStudioEffects_copy_res::@981cd0cfbc19161bec24"
+		}
+	],
+	"folder" : 
+	{
+		"name" : "QtInternalTargets"
+	},
+	"id" : "QuickStudioEffects_autogen_timestamp_deps::@981cd0cfbc19161bec24",
+	"isGeneratorProvided" : true,
+	"name" : "QuickStudioEffects_autogen_timestamp_deps",
+	"paths" : 
+	{
+		"build" : "_deps/ds-build/src/imports/effects_qt6",
+		"source" : "build/Qt_6_10_1_for_macOS-Debug/_deps/ds-src/src/imports/effects_qt6"
+	},
+	"sources" : [],
+	"type" : "UTILITY"
+}

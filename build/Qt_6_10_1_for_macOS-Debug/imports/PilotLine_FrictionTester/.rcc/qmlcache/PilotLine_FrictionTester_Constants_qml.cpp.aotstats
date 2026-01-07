@@ -1,0 +1,39 @@
+{
+    "formatRevision": 1,
+    "modules": [
+        {
+            "moduleFiles": [
+                {
+                    "entries": [
+                        {
+                            "codegenResult": 2,
+                            "column": 34,
+                            "durationMicroseconds": 504,
+                            "functionName": "font",
+                            "line": 12,
+                            "message": "Cannot load property font from QtObject::application with type QQmlApplication."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 39,
+                            "durationMicroseconds": 237,
+                            "functionName": "largeFont",
+                            "line": 16,
+                            "message": "Cannot load property font from QtObject::application with type QQmlApplication."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 19,
+                            "durationMicroseconds": 577,
+                            "functionName": "fontPath",
+                            "line": 25,
+                            "message": "Cannot access value for name relativeFontDirectory"
+                        }
+                    ],
+                    "filePath": "/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/imports/PilotLine_FrictionTester/Constants.qml"
+                }
+            ],
+            "moduleId": "PilotLine_FrictionTester(PilotLine_FrictionTester)"
+        }
+    ]
+}

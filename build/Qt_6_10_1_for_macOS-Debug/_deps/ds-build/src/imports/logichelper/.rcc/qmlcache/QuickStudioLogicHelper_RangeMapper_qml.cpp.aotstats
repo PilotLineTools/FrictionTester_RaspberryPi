@@ -1,0 +1,23 @@
+{
+    "formatRevision": 1,
+    "modules": [
+        {
+            "moduleFiles": [
+                {
+                    "entries": [
+                        {
+                            "codegenResult": 0,
+                            "column": 27,
+                            "durationMicroseconds": 1188,
+                            "functionName": "output",
+                            "line": 90,
+                            "message": ""
+                        }
+                    ],
+                    "filePath": "/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/_deps/ds-src/src/imports/logichelper/RangeMapper.qml"
+                }
+            ],
+            "moduleId": "QtQuick.Studio.LogicHelper(QuickStudioLogicHelper)"
+        }
+    ]
+}

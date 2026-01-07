@@ -1,0 +1,119 @@
+{
+    "formatRevision": 1,
+    "modules": [
+        {
+            "moduleFiles": [
+                {
+                    "entries": [
+                        {
+                            "codegenResult": 0,
+                            "column": 9,
+                            "durationMicroseconds": 727,
+                            "functionName": "motorOn",
+                            "line": 18,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 9,
+                            "durationMicroseconds": 224,
+                            "functionName": "motorOff",
+                            "line": 23,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 56,
+                            "durationMicroseconds": 82,
+                            "functionName": "appMachine",
+                            "line": 30,
+                            "message": "Cannot access value for name machineState"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 61,
+                            "durationMicroseconds": 59,
+                            "functionName": "appMachine",
+                            "line": 31,
+                            "message": "Cannot access value for name machineState"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 64,
+                            "durationMicroseconds": 57,
+                            "functionName": "appMachine",
+                            "line": 32,
+                            "message": "Cannot access value for name machineState"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 63,
+                            "durationMicroseconds": 51,
+                            "functionName": "appMachine",
+                            "line": 33,
+                            "message": "Cannot access value for name machineState"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 57,
+                            "durationMicroseconds": 53,
+                            "functionName": "appMachine",
+                            "line": 34,
+                            "message": "Cannot access value for name machineState"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 28,
+                            "durationMicroseconds": 335,
+                            "functionName": "onCompleted",
+                            "line": 36,
+                            "message": "Type (component in /Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/content/NavShell.qml)::stack with type  does not have a property replace for calling"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 34,
+                            "durationMicroseconds": 0,
+                            "functionName": "onClicked",
+                            "line": 38,
+                            "message": "Could not find signal \"clicked\"."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 34,
+                            "durationMicroseconds": 0,
+                            "functionName": "onClicked",
+                            "line": 39,
+                            "message": "Could not find signal \"clicked\"."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 34,
+                            "durationMicroseconds": 0,
+                            "functionName": "onClicked",
+                            "line": 40,
+                            "message": "Could not find signal \"clicked\"."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 34,
+                            "durationMicroseconds": 0,
+                            "functionName": "onClicked",
+                            "line": 41,
+                            "message": "Could not find signal \"clicked\"."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 34,
+                            "durationMicroseconds": 0,
+                            "functionName": "onClicked",
+                            "line": 42,
+                            "message": "Could not find signal \"clicked\"."
+                        }
+                    ],
+                    "filePath": "/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/content/NavShell.qml"
+                }
+            ],
+            "moduleId": "content(content)"
+        }
+    ]
+}

@@ -1,0 +1,14 @@
+--resource
+/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/content/.qt/rcc/qmake_content.qrc
+--resource
+/Users/polomari/Desktop/PilotLineQT/PilotLine_FrictionTester/build/Qt_6_10_1_for_macOS-Debug/content/.qt/rcc/content_raw_qml_0.qrc
+/content/TempScreen.qml
+/content/SettingsScreenForm.ui.qml
+/content/App.qml
+/content/TempScreenForm.ui.qml
+/content/ProtocolsScreen.ui.qml
+/content/NavShell.qml
+/content/HomeScreen.qml
+/content/SettingsScreen.qml
+/content/HomeScreenForm.ui.qml
+/content/NavShellForm.ui.qml
