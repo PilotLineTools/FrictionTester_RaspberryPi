@@ -1,6 +1,5 @@
 pragma Singleton
 import QtQuick 6.5
-import QtQuick.Studio.Application
 
 QtObject {
     readonly property int width: 1920

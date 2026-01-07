@@ -1,0 +1,10 @@
+
+# Build artifacts
+build/
+cmake-build-*/
+
+# macOS
+.DS_Store
+
+# Editor autosaves
+*.autosave
