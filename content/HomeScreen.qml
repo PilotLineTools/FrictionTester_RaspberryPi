@@ -6,7 +6,7 @@ import PilotLine_FrictionTester
 HomeScreenForm {
     id: view
 
-    width: Constants.width - 260
+    width: Constants.width
     height: Constants.height
 
     // passed in from NavShell
