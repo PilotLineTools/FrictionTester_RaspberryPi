@@ -12,10 +12,7 @@ NavShellForm {
     // ✅ NEW: replace uartClient with SerialController
     property var serialController: null
 
-    Component.onCompleted: {
-        console.log("NavShell loaded, serialController:", serialController,
-                    "connected:", serialController ? serialController.connected : "null")
-    }
+    
 
     function ensureConnectedAndSend(line) {
         if (!serialController) {
@@ -65,7 +62,10 @@ NavShellForm {
     Component { id: calibrationComp; TempScreen { appMachine: machineState } }
     Component { id: aboutComp; TempScreen { appMachine: machineState } }
 
-    Component.onCompleted: stack.replace(homeComp)
+    Component.onCompleted: {
+        console.log("NavShell loaded, serialController:", serialController,
+                    "connected:", serialController ? serialController.connected : "null")
+    }
 
     homeButton.onClicked:        stack.replace(homeComp)
     protocolsButton.onClicked:   stack.replace(protocolsComp)
