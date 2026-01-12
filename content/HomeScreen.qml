@@ -11,14 +11,15 @@ HomeScreenForm {
 
     // passed in from NavShell
     property QtObject appMachine
+    property var uartClient: null
 
     Component.onCompleted: {
         console.log("✅ HomeScreen WRAPPER LOADED", appMachine)
         // Debug: Check if Uart is available
-        if (typeof Uart !== "undefined") {
-            console.log("✅ Uart context property is available")
+        if (uartClient) {
+            console.log("✅ Uart client is available via property")
         } else {
-            console.error("❌ Uart context property is NOT available")
+            console.error("❌ Uart client is NOT available")
         }
     }
 
@@ -74,23 +75,16 @@ HomeScreenForm {
 
     // PING button handler
     pingButton.onClicked: {
-        // Access Uart context property directly
-        // Context properties are available globally in QML
-        if (typeof Uart !== "undefined" && Uart) {
-            if (Uart.connected) {
-                Uart.sendLine("PING")
-                // Change box color to indicate PING was sent
-                pingStatusBox.color = Constants.accentSky
-                // Reset color after 500ms
-                pingResetTimer.restart()
-            } else {
-                // If not connected, show warning color
-                pingStatusBox.color = Constants.accentWarning
-                pingResetTimer.restart()
-            }
+        // Use uartClient passed as property
+        if (uartClient && uartClient.connected) {
+            uartClient.sendLine("PING")
+            // Change box color to indicate PING was sent
+            pingStatusBox.color = Constants.accentSky
+            // Reset color after 500ms
+            pingResetTimer.restart()
         } else {
-            console.error("Uart context property is not available")
-            // Show error color
+            // If not connected or not available, show warning color
+            console.warn("Uart client not available or not connected")
             pingStatusBox.color = Constants.accentWarning
             pingResetTimer.restart()
         }

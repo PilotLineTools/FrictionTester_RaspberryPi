@@ -9,7 +9,11 @@ Window {
     visible: true
     title: "PilotLine_FrictionTester"
 
+    // Get Uart from context property and pass it down
+    property var uartClient: (typeof Uart !== "undefined") ? Uart : null
+
     NavShell {
         anchors.fill: parent
+        uartClient: parent.uartClient
     }
 }

@@ -14,6 +14,9 @@ Rectangle {
     property alias settingsButton: settingsButton
     property alias calibrationButton: calibrationButton
     property alias aboutButton: aboutButton
+    
+    // Property to receive Uart client from parent
+    property var uartClient: null
 
     // NAV
     Rectangle {

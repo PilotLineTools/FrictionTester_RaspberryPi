@@ -31,7 +31,7 @@ NavShellForm {
 
     }
 
-    Component { id: homeComp; HomeScreen { appMachine: machineState } }
+    Component { id: homeComp; HomeScreen { appMachine: machineState; uartClient: shell.uartClient } }
     Component { id: protocolsComp; TempScreen { appMachine: machineState  } }
     Component { id: settingsComp; SettingsScreen { appMachine: machineState  } }
     Component { id: calibrationComp; TempScreen { appMachine: machineState  } }
