@@ -9,8 +9,31 @@ NavShellForm {
     width: Constants.width
     height: Constants.height
 
+    // ✅ NEW: replace uartClient with SerialController
+    property var serialController: null
+
     Component.onCompleted: {
-        console.log("NavShell loaded, uartClient:", uartClient)
+        console.log("NavShell loaded, serialController:", serialController,
+                    "connected:", serialController ? serialController.connected : "null")
+    }
+
+    function ensureConnectedAndSend(line) {
+        if (!serialController) {
+            console.error("❌ serialController is null, cannot send:", line)
+            return false
+        }
+
+        if (!serialController.connected) {
+            console.warn("Serial not connected; attempting connect...")
+            const ok = serialController.connectPort()
+            if (!ok) {
+                console.error("❌ Failed to connect serial; cannot send:", line)
+                return false
+            }
+        }
+
+        serialController.sendLine(line) // C++ should append \r\n
+        return true
     }
 
     QtObject {
@@ -25,20 +48,22 @@ NavShellForm {
         function motorOn() {
             motorEnabled = true
             console.log("➡️ Send to ESP32: MOTOR_ON")
+            shell.ensureConnectedAndSend("MOTOR_ON")
         }
 
         function motorOff() {
             motorEnabled = false
             console.log("➡️ Send to ESP32: MOTOR_OFF")
+            shell.ensureConnectedAndSend("MOTOR_OFF")
         }
-
     }
 
-    Component { id: homeComp; HomeScreen { appMachine: machineState; uartClient: shell.uartClient } }
-    Component { id: protocolsComp; TempScreen { appMachine: machineState  } }
-    Component { id: settingsComp; SettingsScreen { appMachine: machineState  } }
-    Component { id: calibrationComp; TempScreen { appMachine: machineState  } }
-    Component { id: aboutComp; TempScreen { appMachine: machineState  } }
+    // ✅ Pass SerialController down instead of uartClient
+    Component { id: homeComp; HomeScreen { appMachine: machineState; serialController: shell.serialController } }
+    Component { id: protocolsComp; TempScreen { appMachine: machineState } }
+    Component { id: settingsComp; SettingsScreen { appMachine: machineState } }
+    Component { id: calibrationComp; TempScreen { appMachine: machineState } }
+    Component { id: aboutComp; TempScreen { appMachine: machineState } }
 
     Component.onCompleted: stack.replace(homeComp)
 

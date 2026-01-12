@@ -11,15 +11,16 @@ HomeScreenForm {
 
     // passed in from NavShell
     property QtObject appMachine
-    property var uartClient: null
+    property var serialController
 
     Component.onCompleted: {
         console.log("✅ HomeScreen WRAPPER LOADED", appMachine)
-        // Debug: Check if Uart is available
-        if (uartClient) {
-            console.log("✅ Uart client is available via property")
+
+        if (serialController) {
+            console.log("✅ SerialController is available via property")
+            console.log("Serial connected:", serialController.connected)
         } else {
-            console.error("❌ Uart client is NOT available")
+            console.error("❌ SerialController is NOT available")
         }
     }
 
@@ -76,36 +77,49 @@ HomeScreenForm {
     // PING button handler
     pingButton.onClicked: {
         console.log("PING button clicked")
-        // Use uartClient passed as property
-        if (!uartClient) {
-            console.error("Uart client is null")
+
+        if (!serialController) {
+            console.error("serialController is null")
             pingStatusBox.color = Constants.accentWarning
             pingResetTimer.restart()
             return
         }
-        
-        console.log("Uart client exists, connected:", uartClient.connected)
-        
-        if (uartClient.connected) {
-            console.log("Sending PING to ESP32...")
-            uartClient.sendLine("PING")
-            // Change box color to indicate PING was sent
-            pingStatusBox.color = Constants.accentSky
-            // Reset color after 500ms
-            pingResetTimer.restart()
-        } else {
-            // If not connected, show warning color
-            console.warn("Uart client not connected. Attempting to connect...")
-            if (uartClient.connectPort()) {
-                console.log("Connected! Sending PING...")
-                uartClient.sendLine("PING")
-                pingStatusBox.color = Constants.accentSky
-                pingResetTimer.restart()
-            } else {
-                console.error("Failed to connect UART")
+
+        if (!serialController.connected) {
+            console.warn("Not connected. Attempting connect...")
+            const ok = serialController.connectPort()
+            if (!ok) {
                 pingStatusBox.color = Constants.accentWarning
                 pingResetTimer.restart()
+                return
             }
+        }
+
+        console.log("Sending PING...")
+        serialController.sendPing() // sends "PING\r\n" from C++
+        pingStatusBox.color = Constants.accentSky // "sent"
+        pingResetTimer.restart()
+    }
+
+    // ✅ Optional but recommended: react to responses/errors
+    Connections {
+        target: serialController
+
+        function onLineReceived(line) {
+            console.log("RX:", line)
+            if (line.trim() === "PONG") {
+                // if you have a success color token; otherwise keep accentSky
+                pingStatusBox.color = Constants.accentSuccess !== undefined
+                    ? Constants.accentSuccess
+                    : Constants.accentSky
+                pingResetTimer.restart()
+            }
+        }
+
+        function onError(message) {
+            console.error("Serial error:", message)
+            pingStatusBox.color = Constants.accentWarning
+            pingResetTimer.restart()
         }
     }
 
@@ -113,9 +127,6 @@ HomeScreenForm {
     Timer {
         id: pingResetTimer
         interval: 500
-        onTriggered: {
-            pingStatusBox.color = Constants.bgSurface
-        }
+        onTriggered: pingStatusBox.color = Constants.bgSurface
     }
-
 }

@@ -9,24 +9,33 @@ Window {
     visible: true
     title: "PilotLine_FrictionTester"
 
-    // Get Uart from context property and pass it down
-    property var uartClient: (typeof Uart !== "undefined") ? Uart : null
+    // Prefer the context property "serialController" (recommended),
+    // fall back to "SerialController" if that's what your C++ uses.
+    property var serial: (typeof serialController !== "undefined")
+                         ? serialController
+                         : ((typeof SerialController !== "undefined") ? SerialController : null)
 
     Component.onCompleted: {
         console.log("App.qml loaded")
-        if (typeof Uart !== "undefined") {
-            console.log("✅ Uart context property is available in App.qml")
-            console.log("Uart object:", Uart)
+
+        if (serial) {
+            console.log("✅ Serial controller is available in App.qml")
+            console.log("Serial object:", serial)
+            console.log("connected:", serial.connected)
+            // Optional: auto-connect at launch
+            // serial.connectPort()
         } else {
-            console.error("❌ Uart context property is NOT available in App.qml")
-            console.log("This usually means the C++ application is not running.")
-            console.log("Use the compiled binary instead of qmlscene.")
+            console.error("❌ Serial controller is NOT available in App.qml")
+            console.log("If you're using qmlscene, context properties from your C++ app won't exist.")
+            console.log("Run the compiled binary that registers the SerialController context property.")
         }
-        console.log("uartClient property:", uartClient)
+
+        console.log("serial property:", serial)
     }
 
     NavShell {
         anchors.fill: parent
-        uartClient: parent.uartClient
+        // Update NavShell to accept `serialController` (or `serial`) instead of `uartClient`
+        serialController: parent.serial
     }
 }
