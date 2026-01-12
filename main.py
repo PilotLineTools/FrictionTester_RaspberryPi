@@ -28,22 +28,23 @@ class SerialController(QObject):
         self._serial.setParity(QSerialPort.NoParity)
         self._serial.setStopBits(QSerialPort.OneStop)
         self._serial.setFlowControl(QSerialPort.NoFlowControl)
-
+        
     def _on_ready_read(self):
-        self._rx += bytes(self._serial.readAll())
-        # Split on CRLF exactly (matches what you're sending)
+        data = bytes(self._serial.readAll())
+        if data:
+            print("RAW RX:", data)   # 🔍 DEBUG — keep this for now
+        self._rx.extend(data)
+
         while True:
-            idx = self._rx.find(b"\r\n")
+            idx = self._rx.find(b"\n")
             if idx < 0:
                 break
 
             line = self._rx[:idx]
-            del self._rx[:idx + 2]
+            del self._rx[:idx + 1]
 
-            try:
-                text = line.decode("utf-8", errors="replace")
-            except Exception:
-                text = str(line)
+            text = line.decode("utf-8", errors="replace").rstrip("\r")
+            print("RX LINE:", text)   # 🔍 DEBUG
 
             self.lineReceived.emit(text)
 
