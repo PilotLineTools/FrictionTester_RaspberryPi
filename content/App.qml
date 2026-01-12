@@ -36,6 +36,6 @@ Window {
     NavShell {
         anchors.fill: parent
         // Update NavShell to accept `serialController` (or `serial`) instead of `uartClient`
-        serialController: parent.serial
+        serialController: serial
     }
 }

@@ -72,4 +72,7 @@ NavShellForm {
     settingsButton.onClicked:    stack.replace(settingsComp)
     calibrationButton.onClicked: stack.replace(calibrationComp)
     aboutButton.onClicked:       stack.replace(aboutComp)
+
+    onSerialControllerChanged: console.log("NavShell serialController CHANGED:", serialController)
+
 }
