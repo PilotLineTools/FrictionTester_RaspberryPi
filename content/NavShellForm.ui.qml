@@ -15,8 +15,9 @@ Rectangle {
     property alias calibrationButton: calibrationButton
     property alias aboutButton: aboutButton
     
-    // Property to receive Uart client from parent
-    property var uartClient: null
+    // Property to receive SerialController from parent (Python backend)
+    property var serialController: null
+
 
     // NAV
     Rectangle {
