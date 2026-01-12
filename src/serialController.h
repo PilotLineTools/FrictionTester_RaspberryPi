@@ -1,9 +1,9 @@
 #pragma once
-#include <QObject>
-#include <QSerialPort>
-#include <QTimer>
 
-class UartClient : public QObject
+#include <QObject>
+#include <QtSerialPort/QSerialPort>
+
+class SerialController : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool connected READ connected NOTIFY connectedChanged)
@@ -11,7 +11,7 @@ class UartClient : public QObject
     Q_PROPERTY(int baudRate READ baudRate WRITE setBaudRate NOTIFY baudRateChanged)
 
 public:
-    explicit UartClient(QObject *parent = nullptr);
+    explicit SerialController(QObject *parent = nullptr);
 
     bool connected() const { return m_serial.isOpen(); }
 
@@ -19,26 +19,32 @@ public:
     void setPortName(const QString &name);
 
     int baudRate() const { return m_baudRate; }
-    void setBaudRate(int b);
+    void setBaudRate(int baud);
 
-    Q_INVOKABLE bool connectPort();
+    Q_INVOKABLE bool connectPort(); // opens + configures port
     Q_INVOKABLE void disconnectPort();
-    Q_INVOKABLE void sendLine(const QString &line);
+    Q_INVOKABLE void sendPing();                    // sends "PING\r\n"
+    Q_INVOKABLE void sendLine(const QString &line); // sends "<line>\r\n"
 
 signals:
     void connectedChanged();
     void portNameChanged();
     void baudRateChanged();
+
     void lineReceived(const QString &line);
-    void errorText(const QString &msg);
+    void error(const QString &message);
 
 private slots:
     void onReadyRead();
-    void onError(QSerialPort::SerialPortError err);
+    void onSerialError(QSerialPort::SerialPortError e);
 
 private:
+    void emitError(const QString &msg);
+    void applySettings();
+
     QSerialPort m_serial;
-    QByteArray m_buf;
-    QString m_portName = "/dev/ttyAMA3"; // your Pi GPIO4/5 UART
+    QByteArray m_rxBuffer;
+
+    QString m_portName = "/dev/ttyAMA3";
     int m_baudRate = 115200;
 };

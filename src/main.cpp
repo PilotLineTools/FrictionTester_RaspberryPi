@@ -1,47 +1,24 @@
-// Copyright (C) 2021 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
-
 #include <QGuiApplication>
-#include <QObject>
-#include <QtQml/QQmlApplicationEngine>
-#include <QtQml/QQmlContext>
-#include "UartClient.h"
-#include "app_environment.h"
-#include "import_qml_components_plugins.h"
-#include "import_qml_plugins.h"
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
+
+#include "SerialController.h"
 
 int main(int argc, char *argv[])
 {
-    set_qt_environment();
-
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
-    const QUrl url(u"qrc:Main/main.qml"_qs);
-    QObject::connect(
-        &engine, &QQmlApplicationEngine::objectCreated, &app,
-        [url](QObject *obj, const QUrl &objUrl)
-        {
-            if (!obj && url == objUrl)
-                QCoreApplication::exit(-1);
-        },
-        Qt::QueuedConnection);
 
-    engine.addImportPath(QCoreApplication::applicationDirPath() + "/qml");
-    engine.addImportPath(":/");
+    auto serialController = new SerialController(&engine);
+    // optional: auto-connect on launch
+    // serialController->connectPort();
 
-    // Create UartClient and ensure it persists for the lifetime of the application
-    // Set context property BEFORE loading QML to ensure it's available
-    UartClient *uart = new UartClient(&app);
-    QQmlContext *rootContext = engine.rootContext();
-    rootContext->setContextProperty("Uart", uart);
+    engine.rootContext()->setContextProperty("serialController", serialController);
 
-    engine.load(url);
-
+    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())
-    {
         return -1;
-    }
 
     return app.exec();
 }
