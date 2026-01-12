@@ -28,7 +28,7 @@ class SerialController(QObject):
         self._serial.setParity(QSerialPort.NoParity)
         self._serial.setStopBits(QSerialPort.OneStop)
         self._serial.setFlowControl(QSerialPort.NoFlowControl)
-        
+
     def _on_ready_read(self):
         data = bytes(self._serial.readAll())
         if data:
@@ -88,6 +88,9 @@ class SerialController(QObject):
         if self._serial.isOpen():
             return True
         ok = self._serial.open(QSerialPort.ReadWrite)
+ 
+        print("OPEN OK?", ok, "ERR:", self._serial.errorString())
+
         if not ok:
             self.error.emit(self._serial.errorString())
         self.connectedChanged.emit()
