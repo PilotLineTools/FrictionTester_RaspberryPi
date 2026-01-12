@@ -66,4 +66,28 @@ HomeScreenForm {
         }
     }
 
+    // PING button handler
+    pingButton.onClicked: {
+        if (Uart.connected) {
+            Uart.sendLine("PING")
+            // Change box color to indicate PING was sent
+            pingStatusBox.color = Constants.accentSky
+            // Reset color after 500ms
+            pingResetTimer.restart()
+        } else {
+            // If not connected, show warning color
+            pingStatusBox.color = Constants.accentWarning
+            pingResetTimer.restart()
+        }
+    }
+
+    // Timer to reset the status box color
+    Timer {
+        id: pingResetTimer
+        interval: 500
+        onTriggered: {
+            pingStatusBox.color = Constants.bgSurface
+        }
+    }
+
 }

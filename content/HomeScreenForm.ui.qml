@@ -23,6 +23,8 @@ Rectangle {
     property alias resetButton: resetButton
     property alias speedSlider: speedSlider
     property alias motorToggleButton: motorToggleButton
+    property alias pingButton: pingButton
+    property alias pingStatusBox: pingStatusBox
 
     // Page padding
     readonly property int pad: 12
@@ -256,6 +258,30 @@ Rectangle {
                     color: "#F3F4F6"
                     font.pixelSize: 22
                     Layout.fillWidth: true
+                }
+
+                // ESP32 PING Section
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 10
+
+                    Rectangle {
+                        id: pingStatusBox
+                        Layout.preferredWidth: 40
+                        Layout.preferredHeight: 40
+                        radius: 8
+                        color: Constants.bgSurface
+                        border.color: Constants.borderDefault
+                        border.width: 2
+                    }
+
+                    Button {
+                        id: pingButton
+                        text: qsTr("PING ESP32")
+                        font.pixelSize: 16
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 44
+                    }
                 }
 
                 Item {
