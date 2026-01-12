@@ -9,6 +9,9 @@ NavShellForm {
     width: Constants.width
     height: Constants.height
 
+    Component.onCompleted: {
+        console.log("NavShell loaded, uartClient:", uartClient)
+    }
 
     QtObject {
         id: machineState
