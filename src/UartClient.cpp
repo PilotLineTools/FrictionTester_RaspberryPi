@@ -1,4 +1,5 @@
 #include "UartClient.h"
+#include <QDebug>
 
 UartClient::UartClient(QObject *parent) : QObject(parent)
 {
@@ -58,12 +59,18 @@ void UartClient::sendLine(const QString &line)
     if (!m_serial.isOpen())
     {
         emit errorText("UART not connected");
+        qWarning() << "UART sendLine: Port not open";
         return;
     }
     QByteArray out = line.toUtf8();
-    if (!out.endsWith('\n'))
-        out.append('\n');
-    m_serial.write(out);
+    // Remove any existing line endings
+    while (out.endsWith('\n') || out.endsWith('\r'))
+        out.chop(1);
+    // Append \r\n to match manual command format
+    out.append("\r\n");
+    qint64 bytesWritten = m_serial.write(out);
+    m_serial.flush(); // Ensure data is sent immediately
+    qDebug() << "UART sendLine: Sent" << bytesWritten << "bytes:" << out.toHex();
 }
 
 void UartClient::onReadyRead()

@@ -75,18 +75,37 @@ HomeScreenForm {
 
     // PING button handler
     pingButton.onClicked: {
+        console.log("PING button clicked")
         // Use uartClient passed as property
-        if (uartClient && uartClient.connected) {
+        if (!uartClient) {
+            console.error("Uart client is null")
+            pingStatusBox.color = Constants.accentWarning
+            pingResetTimer.restart()
+            return
+        }
+        
+        console.log("Uart client exists, connected:", uartClient.connected)
+        
+        if (uartClient.connected) {
+            console.log("Sending PING to ESP32...")
             uartClient.sendLine("PING")
             // Change box color to indicate PING was sent
             pingStatusBox.color = Constants.accentSky
             // Reset color after 500ms
             pingResetTimer.restart()
         } else {
-            // If not connected or not available, show warning color
-            console.warn("Uart client not available or not connected")
-            pingStatusBox.color = Constants.accentWarning
-            pingResetTimer.restart()
+            // If not connected, show warning color
+            console.warn("Uart client not connected. Attempting to connect...")
+            if (uartClient.connectPort()) {
+                console.log("Connected! Sending PING...")
+                uartClient.sendLine("PING")
+                pingStatusBox.color = Constants.accentSky
+                pingResetTimer.restart()
+            } else {
+                console.error("Failed to connect UART")
+                pingStatusBox.color = Constants.accentWarning
+                pingResetTimer.restart()
+            }
         }
     }
 
