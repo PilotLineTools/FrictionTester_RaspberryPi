@@ -29,8 +29,9 @@ int main(int argc, char *argv[])
     engine.addImportPath(QCoreApplication::applicationDirPath() + "/qml");
     engine.addImportPath(":/");
 
-    UartClient uart;
-    engine.rootContext()->setContextProperty("Uart", &uart);
+    // Create UartClient and ensure it persists for the lifetime of the application
+    UartClient *uart = new UartClient(&app);
+    engine.rootContext()->setContextProperty("Uart", uart);
 
     engine.load(url);
 
