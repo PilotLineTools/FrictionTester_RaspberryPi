@@ -16,7 +16,7 @@ class SerialController(QObject):
         self._serial = QSerialPort()
         self._port_name = "/dev/ttyAMA3"
         self._baud = 115200
-        self._rx = b""
+        self._rx = bytearray()
 
         self._apply_settings()
         self._serial.readyRead.connect(self._on_ready_read)
@@ -31,12 +31,21 @@ class SerialController(QObject):
 
     def _on_ready_read(self):
         self._rx += bytes(self._serial.readAll())
-        while b"\r\n" in self._rx:
-            line, self._rx = self._rx.split(b"\r\n", 1)
+        # Split on CRLF exactly (matches what you're sending)
+        while True:
+            idx = self._rx.find(b"\r\n")
+            if idx < 0:
+                break
+
+            line = self._rx[:idx]
+            del self._rx[:idx + 2]
+
             try:
-                self.lineReceived.emit(line.decode("utf-8"))
+                text = line.decode("utf-8", errors="replace")
             except Exception:
-                self.lineReceived.emit(str(line))
+                text = str(line)
+
+            self.lineReceived.emit(text)
 
     def get_connected(self):
         return self._serial.isOpen()
