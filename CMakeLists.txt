@@ -7,6 +7,7 @@ project(PilotLine_FrictionTesterApp LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(QT NAMES Qt6 COMPONENTS Gui Qml Quick)
 find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick)
