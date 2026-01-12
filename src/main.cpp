@@ -31,8 +31,10 @@ int main(int argc, char *argv[])
     engine.addImportPath(":/");
 
     // Create UartClient and ensure it persists for the lifetime of the application
+    // Set context property BEFORE loading QML to ensure it's available
     UartClient *uart = new UartClient(&app);
-    engine.rootContext()->setContextProperty("Uart", uart);
+    QQmlContext *rootContext = engine.rootContext();
+    rootContext->setContextProperty("Uart", uart);
 
     engine.load(url);
 

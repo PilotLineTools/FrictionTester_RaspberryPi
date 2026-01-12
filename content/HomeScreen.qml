@@ -14,6 +14,12 @@ HomeScreenForm {
 
     Component.onCompleted: {
         console.log("✅ HomeScreen WRAPPER LOADED", appMachine)
+        // Debug: Check if Uart is available
+        if (typeof Uart !== "undefined") {
+            console.log("✅ Uart context property is available")
+        } else {
+            console.error("❌ Uart context property is NOT available")
+        }
     }
 
     // show values
@@ -68,14 +74,23 @@ HomeScreenForm {
 
     // PING button handler
     pingButton.onClicked: {
-        if (Uart.connected) {
-            Uart.sendLine("PING")
-            // Change box color to indicate PING was sent
-            pingStatusBox.color = Constants.accentSky
-            // Reset color after 500ms
-            pingResetTimer.restart()
+        // Access Uart context property directly
+        // Context properties are available globally in QML
+        if (typeof Uart !== "undefined" && Uart) {
+            if (Uart.connected) {
+                Uart.sendLine("PING")
+                // Change box color to indicate PING was sent
+                pingStatusBox.color = Constants.accentSky
+                // Reset color after 500ms
+                pingResetTimer.restart()
+            } else {
+                // If not connected, show warning color
+                pingStatusBox.color = Constants.accentWarning
+                pingResetTimer.restart()
+            }
         } else {
-            // If not connected, show warning color
+            console.error("Uart context property is not available")
+            // Show error color
             pingStatusBox.color = Constants.accentWarning
             pingResetTimer.restart()
         }
