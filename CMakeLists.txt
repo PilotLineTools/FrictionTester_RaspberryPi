@@ -9,8 +9,9 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(QT NAMES Qt6 COMPONENTS Gui Qml Quick)
-find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick)
+find_package(QT NAMES Qt6 COMPONENTS Gui Qml Quick SerialPort)
+find_package(Qt6 REQUIRED COMPONENTS Core Qml Quick SerialPort)
+
 
 # To build this application you need Qt 6.2.0 or higher
 if (Qt6_VERSION VERSION_LESS 6.2.0)
