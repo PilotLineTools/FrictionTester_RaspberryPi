@@ -25,6 +25,10 @@ Rectangle {
     property alias motorToggleButton: motorToggleButton
     property alias pingButton: pingButton
     property alias pingStatusBox: pingStatusBox
+    
+    // Property to receive SerialController from parent
+    property var serialController: null
+
 
     // Page padding
     readonly property int pad: 12

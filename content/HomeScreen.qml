@@ -12,6 +12,10 @@ HomeScreenForm {
     // passed in from NavShell
     property QtObject appMachine
     property var serialController
+    
+    // ✅ push wrapper prop down into the Form instance
+    serialController: view.serialController
+
 
     Component.onCompleted: {
         console.log("✅ HomeScreen WRAPPER LOADED", appMachine)
@@ -103,7 +107,7 @@ HomeScreenForm {
 
     // ✅ Optional but recommended: react to responses/errors
     Connections {
-        target: serialController
+        target: view.serialController ? view.serialController : null
 
         function onLineReceived(line) {
             console.log("RX:", line)
