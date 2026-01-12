@@ -65,6 +65,7 @@ NavShellForm {
     Component.onCompleted: {
         console.log("NavShell loaded, serialController:", serialController,
                     "connected:", serialController ? serialController.connected : "null")
+        stack.replace(homeComp)
     }
 
     homeButton.onClicked:        stack.replace(homeComp)
