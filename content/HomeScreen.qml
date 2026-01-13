@@ -100,8 +100,9 @@ HomeScreenForm {
         }
 
         console.log("Sending PING...")
-        boolTest = true
-        while(boolTest) {
+        
+        let boolTest = true
+        while(boolTest){ {
             serialController.sendPing()
             serialController.delay(10)
         } 
