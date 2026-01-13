@@ -100,13 +100,7 @@ HomeScreenForm {
         }
 
         console.log("Sending PING...")
-        
-        let boolTest = true
-        while(boolTest){ {
-            serialController.sendPing()
-            serialController.delay(10)
-        } 
-        //serialController.sendPing() // sends "PING\r\n" from C++
+        serialController.sendPing() // sends "PING\r\n" from C++
         pingStatusBox.color = Constants.accentSky // "sent"
         pingResetTimer.restart()
     }
