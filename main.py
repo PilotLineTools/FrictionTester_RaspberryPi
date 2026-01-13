@@ -31,8 +31,11 @@ class SerialController(QObject):
 
     def _on_ready_read(self):
         data = bytes(self._serial.readAll())
-        if data:
-            print("RAW RX:", data)   # 🔍 DEBUG — keep this for now
+
+        # View raw data for debugging
+        #if data:
+        #    print("RAW RX:", data)   # 🔍 DEBUG — keep this for now
+        
         self._rx.extend(data)
 
         while True:
@@ -44,7 +47,7 @@ class SerialController(QObject):
             del self._rx[:idx + 1]
 
             text = line.decode("utf-8", errors="replace").rstrip("\r")
-            print("RX LINE:", text)   # 🔍 DEBUG
+            #print("RX LINE:", text)   # 🔍 DEBUG
 
             self.lineReceived.emit(text)
 
@@ -89,7 +92,7 @@ class SerialController(QObject):
             return True
         ok = self._serial.open(QSerialPort.ReadWrite)
  
-        print("OPEN OK?", ok, "ERR:", self._serial.errorString())
+        #print("OPEN OK?", ok, "ERR:", self._serial.errorString())
 
         if not ok:
             self.error.emit(self._serial.errorString())
