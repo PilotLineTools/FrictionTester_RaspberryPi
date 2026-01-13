@@ -24,6 +24,9 @@ Window {
             console.log("connected:", serial.connected)
             // Optional: auto-connect at launch
             serial.connectPort()
+            while(serial.connected) {
+               console.log("HEY\n")
+            }
         } else {
             console.error("❌ Serial controller is NOT available in App.qml")
             console.log("If you're using qmlscene, context properties from your C++ app won't exist.")
