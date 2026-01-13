@@ -25,7 +25,7 @@ Window {
             // Optional: auto-connect at launch
             serial.connectPort()
             while(serial.connected) {
-               console.log("HEY\n")
+               serialController.sendPing() // sends "PING\r\n" from C++
             }
         } else {
             console.error("❌ Serial controller is NOT available in App.qml")
