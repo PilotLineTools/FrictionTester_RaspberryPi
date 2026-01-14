@@ -45,6 +45,7 @@ Rectangle {
 
                 RowLayout {
                     Layout.fillWidth: true
+                    // Header
                     Text {
                         text: qsTr("Protocols")
                         color: Constants.textPrimary
@@ -52,6 +53,7 @@ Rectangle {
                         font.bold: true
                         Layout.fillWidth: true
                     }
+                    // Add Protocol Button
                     Button {
                         id: addBtn
                         Layout.preferredWidth: 36
@@ -63,7 +65,7 @@ Rectangle {
                             radius: 10
                             color: parent.pressed ? Constants.accentSky : Constants.accentPrimary
                         }
-                        onClicked: root.callParent("duplicateProtocol") // swap to newProtocol() later
+                        onClicked: root.callParent("addProtocol") 
                     }
                 }
 
