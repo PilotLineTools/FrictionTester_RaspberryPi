@@ -62,6 +62,19 @@ Item {
         selectProtocol(selectedIndex)
     }
 
+    function addProtocol() {
+        protocolsModel.append({
+            "name": "New Protocol",
+            "speed": 1.0,
+            "strokeLength": 80,
+            "clampForce": 200,
+            "waterTemp": 37,
+            "cycles": 10,
+            "lastModified": "Just now"
+        })
+        selectProtocol(protocolsModel.count - 1)
+    }
+
     function duplicateProtocol() {
         protocolsModel.append({
             "name": editedProtocol.name + " (Copy)",
