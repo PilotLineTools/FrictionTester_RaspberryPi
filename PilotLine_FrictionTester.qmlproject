@@ -83,17 +83,17 @@ Project {
        */
     }
 
-    qt6Project: false
+    qt6Project: true
 
     /* List of plugin directories passed to QML runtime */
-    //importPaths: [ "imports", "asset_imports" ]
+    importPaths: [ "imports", "asset_imports" ]
 
     /* Required for deployment */
     targetDirectory: "/opt/PilotLine_FrictionTester"
 
-    //qdsVersion: "4.1"
+    qdsVersion: "4.1"
 
-    //quickVersion: "6.5"
+    quickVersion: "6.5"
 
     /* If any modules the project imports require widgets (e.g. QtCharts), widgetApp must be true */
     widgetApp: false
