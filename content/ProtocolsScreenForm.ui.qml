@@ -133,9 +133,14 @@ Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
-            contentWidth: editor.width
-            contentHeight: editor.implicitHeight
+
+            // vertical only
+            flickableDirection: Flickable.VerticalFlick
             boundsBehavior: Flickable.StopAtBounds
+
+            // ✅ prevent horizontal scroll and keep content aligned to viewport
+            contentWidth: width
+            contentHeight: editor.implicitHeight
 
             ColumnLayout {
                 id: editor
