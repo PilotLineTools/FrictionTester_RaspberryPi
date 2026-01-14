@@ -1,6 +1,6 @@
 /*
   Qt Design Studio UI file (.ui.qml)
-  Keep this declarative (layout + styling). Put logic in ProtocolsScreen.qml.
+  Keep declarative. Put logic in ProtocolsScreen.qml.
 */
 import QtQuick
 import QtQuick.Controls
@@ -13,26 +13,25 @@ Rectangle {
     height: Constants.height
     color: Constants.bgPrimary
 
-    // Access parent ProtocolsScreen properties
-    property var protocolsModel: parent ? parent.protocolsModel : null
-    property var editedProtocol: parent ? parent.editedProtocol : null
+    property var protocolsModel: null
+    property var editedProtocol: null
 
-    // Expose UI elements for access from ProtocolsScreen.qml
-    property alias protocolsListView: protocolsListView
-    property alias protocolNameInput: protocolNameInput
-    property alias runButton: runButton
-    property alias saveButton: saveButton
-    property alias duplicateButton: duplicateButton
-    property alias deleteButton: deleteButton
-    property alias addButton: addButton
+    function callParent(fnName, a, b) {
+        if (!parent || typeof parent[fnName] !== "function") return
+        if (a === undefined) parent[fnName]()
+        else if (b === undefined) parent[fnName](a)
+        else parent[fnName](a, b)
+    }
 
     RowLayout {
         anchors.fill: parent
         spacing: 0
 
-        // Protocol List Sidebar
+        // =========================
+        // Left Sidebar (Protocols)
+        // =========================
         Rectangle {
-            id: protocolListSidebar
+            id: sidebar
             Layout.preferredWidth: 320
             Layout.fillHeight: true
             color: Constants.bgCard
@@ -41,89 +40,84 @@ Rectangle {
 
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: 24
-                spacing: 24
+                anchors.margins: 18
+                spacing: 14
 
-                // Header with title and add button
                 RowLayout {
                     Layout.fillWidth: true
                     Text {
                         text: qsTr("Protocols")
                         color: Constants.textPrimary
-                        font.pixelSize: 22
+                        font.pixelSize: 18
                         font.bold: true
                         Layout.fillWidth: true
                     }
                     Button {
-                        id: addButton
-                        Layout.preferredWidth: 40
-                        Layout.preferredHeight: 40
+                        id: addBtn
+                        Layout.preferredWidth: 36
+                        Layout.preferredHeight: 36
                         text: "+"
-                        font.pixelSize: 24
+                        font.pixelSize: 20
                         font.bold: true
                         background: Rectangle {
+                            radius: 10
                             color: parent.pressed ? Constants.accentSky : Constants.accentPrimary
-                            radius: 8
                         }
+                        onClicked: root.callParent("duplicateProtocol") // swap to newProtocol() later
                     }
                 }
 
-                // Protocol list
                 ScrollView {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     clip: true
 
                     ListView {
-                        id: protocolsListView
+                        id: list
+                        width: parent.width
+                        height: parent.height
                         model: root.protocolsModel
-                        spacing: 8
+                        spacing: 10
                         currentIndex: 0
 
                         delegate: Rectangle {
-                            width: protocolsListView.width
-                            height: 100
-                            color: ListView.isCurrentItem ? 
-                                   Qt.rgba(0.36, 0.84, 0.95, 0.4) : Constants.bgSurface
-                            border.color: ListView.isCurrentItem ? 
-                                         Constants.accentSky : Constants.borderDefault
+                            width: list.width
+                            height: 96
+                            radius: 12
+                            color: ListView.isCurrentItem ? Qt.rgba(0.36, 0.84, 0.95, 0.18) : Constants.bgSurface
+                            border.color: ListView.isCurrentItem ? Constants.accentSky : Constants.borderDefault
                             border.width: 1
-                            radius: 8
 
-                                MouseArea {
+                            MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
-                                    protocolsListView.currentIndex = index
-                                    if (root.parent) {
-                                        root.parent.selectProtocol(index)
-                                    }
+                                    list.currentIndex = index
+                                    root.callParent("selectProtocol", index)
                                 }
                             }
 
-                            Column {
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                anchors.top: parent.top
-                                anchors.margins: 16
-                                spacing: 4
+                            ColumnLayout {
+                                anchors.fill: parent
+                                anchors.margins: 14
+                                spacing: 6
 
                                 Text {
                                     text: model.name
                                     color: Constants.textPrimary
-                                    font.pixelSize: 16
+                                    font.pixelSize: 14
                                     font.bold: true
                                     elide: Text.ElideRight
-                                    width: parent.width
+                                    Layout.fillWidth: true
                                 }
                                 Text {
                                     text: qsTr("%1 cycles • %2°C").arg(model.cycles).arg(model.waterTemp)
                                     color: Constants.textSecondary
-                                    font.pixelSize: 12
+                                    font.pixelSize: 11
                                 }
                                 Text {
                                     text: model.lastModified
                                     color: Constants.textMuted
-                                    font.pixelSize: 11
+                                    font.pixelSize: 10
                                 }
                             }
                         }
@@ -132,208 +126,180 @@ Rectangle {
             }
         }
 
-        // Protocol Editor Area
-        ScrollView {
+        // =========================
+        // Right Editor Area
+        // =========================
+        Flickable {
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
+            contentWidth: editor.width
+            contentHeight: editor.implicitHeight
+            boundsBehavior: Flickable.StopAtBounds
 
             ColumnLayout {
-                width: Math.max(root.width - protocolListSidebar.width, 600)
-                spacing: 24
-                anchors.margins: 32
+                id: editor
+                width: Math.max(root.width - sidebar.width, 760)
+                spacing: 18
+                anchors.margins: 28
 
-                // Title section
+                // Title
                 ColumnLayout {
                     Layout.fillWidth: true
-                    spacing: 8
+                    spacing: 4
 
                     Text {
-                        id: protocolTitle
                         text: root.editedProtocol ? root.editedProtocol.name : qsTr("No Protocol Selected")
                         color: Constants.textPrimary
-                        font.pixelSize: 32
+                        font.pixelSize: 28
                         font.bold: true
                         Layout.fillWidth: true
+                        elide: Text.ElideRight
                     }
+
                     Text {
                         text: qsTr("Configure test parameters")
                         color: Constants.textSecondary
-                        font.pixelSize: 16
+                        font.pixelSize: 13
                         Layout.fillWidth: true
                     }
                 }
 
-                // Protocol Name Input
-                Rectangle {
+                // Protocol Name card
+                Card {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 80
-                    color: Constants.bgCard
-                    border.color: Constants.borderDefault
-                    border.width: 1
-                    radius: 12
+                    Layout.preferredHeight: 92
+                    title: qsTr("Protocol Name")
 
-                    ColumnLayout {
+                    content: Item {
                         anchors.fill: parent
-                        anchors.margins: 24
-                        spacing: 8
 
-                        Text {
-                            text: qsTr("Protocol Name")
-                            color: Constants.textSecondary
-                            font.pixelSize: 14
-                        }
                         TextField {
-                            id: protocolNameInput
-                            Layout.fillWidth: true
+                            id: nameField
+                            anchors.left: parent.left
+                            anchors.right: parent.right
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.margins: 16
+                            height: 44
                             text: root.editedProtocol ? root.editedProtocol.name : ""
                             color: Constants.textPrimary
-                            font.pixelSize: 18
                             background: Rectangle {
                                 color: Constants.bgSurface
+                                radius: 10
                                 border.color: Constants.borderDefault
                                 border.width: 1
-                                radius: 8
                             }
                             onTextChanged: {
-                                if (root.editedProtocol && root.parent) {
-                                    root.parent.updateField("name", text)
-                                }
+                                if (root.editedProtocol) root.callParent("updateField", "name", text)
                             }
                         }
                     }
                 }
 
-                // Test Parameters Grid
+                // 2x2 parameter grid
                 GridLayout {
                     Layout.fillWidth: true
                     columns: 2
-                    rowSpacing: 24
-                    columnSpacing: 24
+                    rowSpacing: 16
+                    columnSpacing: 16
 
-                    // Speed
-                    ParameterCard {
-                        id: speedCard
-                        Layout.fillWidth: true
+                    ParamCard {
                         title: qsTr("Test Speed")
-                        value: root.editedProtocol ? root.editedProtocol.speed.toFixed(1) : "0.0"
-                        unit: qsTr("cm/s")
-                        valueColor: Constants.accentSky
-                        minValue: 0.1
-                        maxValue: 2.5
+                        valueText: root.editedProtocol ? root.editedProtocol.speed.toFixed(1) : "0.0"
+                        unitText: qsTr("cm/s")
+                        accent: Constants.accentSky
+                        from: 0.1
+                        to: 2.5
                         step: 0.1
-                        sliderValue: root.editedProtocol ? root.editedProtocol.speed * 10 : 15
-                        onSliderValueEdited: {
-                            if (root.editedProtocol && root.parent) {
-                                root.parent.updateField("speed", value / 10)
-                            }
-                        }
+                        sliderValue: root.editedProtocol ? root.editedProtocol.speed : 0
+                        minLabel: qsTr("0.1 cm/s")
+                        maxLabel: qsTr("2.5 cm/s")
+                        onValueEdited: (v) => root.callParent("updateField", "speed", Math.round(v * 10) / 10)
                     }
 
-                    // Stroke Length
-                    ParameterCard {
-                        id: strokeCard
-                        Layout.fillWidth: true
+                    ParamCard {
                         title: qsTr("Stroke Length")
-                        value: root.editedProtocol ? root.editedProtocol.strokeLength : 0
-                        unit: qsTr("mm")
-                        valueColor: "#4ADE80" // green-400
-                        minValue: 10
-                        maxValue: 150
+                        valueText: root.editedProtocol ? String(root.editedProtocol.strokeLength) : "0"
+                        unitText: qsTr("mm")
+                        accent: "#4ADE80"
+                        from: 10
+                        to: 150
                         step: 1
-                        sliderValue: root.editedProtocol ? root.editedProtocol.strokeLength : 80
-                        onSliderValueEdited: {
-                            if (root.editedProtocol && root.parent) {
-                                root.parent.updateField("strokeLength", value)
-                            }
-                        }
+                        sliderValue: root.editedProtocol ? root.editedProtocol.strokeLength : 0
+                        minLabel: qsTr("10 mm")
+                        maxLabel: qsTr("150 mm")
+                        onValueEdited: (v) => root.callParent("updateField", "strokeLength", Math.round(v))
                     }
 
-                    // Clamp Force
-                    ParameterCard {
-                        id: clampCard
-                        Layout.fillWidth: true
+                    ParamCard {
                         title: qsTr("Clamp Force")
-                        value: root.editedProtocol ? root.editedProtocol.clampForce : 0
-                        unit: qsTr("g")
-                        valueColor: "#FBBF24" // amber-400
-                        minValue: 50
-                        maxValue: 500
+                        valueText: root.editedProtocol ? String(root.editedProtocol.clampForce) : "0"
+                        unitText: qsTr("g")
+                        accent: "#FBBF24"
+                        from: 50
+                        to: 500
                         step: 10
-                        sliderValue: root.editedProtocol ? root.editedProtocol.clampForce : 250
-                        onSliderValueEdited: {
-                            if (root.editedProtocol && root.parent) {
-                                root.parent.updateField("clampForce", value)
-                            }
-                        }
+                        sliderValue: root.editedProtocol ? root.editedProtocol.clampForce : 0
+                        minLabel: qsTr("50 g")
+                        maxLabel: qsTr("500 g")
+                        onValueEdited: (v) => root.callParent("updateField", "clampForce", Math.round(v/10)*10)
                     }
 
-                    // Water Temperature
-                    ParameterCard {
-                        id: tempCard
-                        Layout.fillWidth: true
+                    ParamCard {
                         title: qsTr("Water Temperature")
-                        value: root.editedProtocol ? root.editedProtocol.waterTemp : 0
-                        unit: qsTr("°C")
-                        valueColor: "#60A5FA" // blue-400
-                        minValue: 15
-                        maxValue: 50
+                        valueText: root.editedProtocol ? String(root.editedProtocol.waterTemp) : "0"
+                        unitText: qsTr("°C")
+                        accent: "#60A5FA"
+                        from: 15
+                        to: 50
                         step: 1
-                        sliderValue: root.editedProtocol ? root.editedProtocol.waterTemp : 37
-                        onSliderValueEdited: {
-                            if (root.editedProtocol && root.parent) {
-                                root.parent.updateField("waterTemp", value)
-                            }
-                        }
+                        sliderValue: root.editedProtocol ? root.editedProtocol.waterTemp : 0
+                        minLabel: qsTr("15 °C")
+                        maxLabel: qsTr("50 °C")
+                        onValueEdited: (v) => root.callParent("updateField", "waterTemp", Math.round(v))
                     }
                 }
 
-                // Number of Cycles
-                ParameterCard {
-                    id: cyclesCard
+                // Cycles (full width)
+                ParamCardWide {
                     Layout.fillWidth: true
                     title: qsTr("Number of Cycles")
-                    value: root.editedProtocol ? root.editedProtocol.cycles : 0
-                    unit: qsTr("cycles")
-                    valueColor: "#A78BFA" // purple-400
-                    minValue: 1
-                    maxValue: 2000
+                    valueText: root.editedProtocol ? String(root.editedProtocol.cycles) : "0"
+                    unitText: qsTr("cycles")
+                    accent: "#A78BFA"
+                    from: 1
+                    to: 2000
                     step: 10
-                    sliderValue: root.editedProtocol ? root.editedProtocol.cycles : 100
-                    onSliderValueEdited: {
-                        if (root.editedProtocol && root.parent) {
-                            root.parent.updateField("cycles", value)
-                        }
-                    }
+                    sliderValue: root.editedProtocol ? root.editedProtocol.cycles : 0
+                    leftLabel: qsTr("1")
+                    mid1Label: qsTr("500")
+                    mid2Label: qsTr("1000")
+                    mid3Label: qsTr("1500")
+                    rightLabel: qsTr("2000")
+                    onValueEdited: (v) => root.callParent("updateField", "cycles", Math.round(v/10)*10)
                 }
 
-                // Estimated Duration Card
+                // Estimate card
                 Rectangle {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 100
-                    color: Qt.rgba(0.36, 0.84, 0.95, 0.2) // cyan-900/20
-                    border.color: Qt.rgba(0.36, 0.84, 0.95, 0.5) // cyan-700/50
-                    border.width: 1
+                    Layout.preferredHeight: 88
                     radius: 12
+                    color: Qt.rgba(0.06, 0.45, 0.55, 0.22)
+                    border.color: Qt.rgba(0.36, 0.84, 0.95, 0.35)
+                    border.width: 1
 
                     RowLayout {
                         anchors.fill: parent
-                        anchors.margins: 24
-                        spacing: 24
+                        anchors.margins: 16
 
                         ColumnLayout {
                             Layout.fillWidth: true
                             spacing: 4
-
+                            Text { text: qsTr("Estimated Duration"); color: Constants.accentSky; font.pixelSize: 11; font.bold: true }
                             Text {
-                                text: qsTr("Estimated Duration")
+                                text: (root.parent ? (root.parent.calculateDurationMinutes() + " min") : "0 min")
                                 color: Constants.accentSky
-                                font.pixelSize: 14
-                            }
-                            Text {
-                                text: root.parent ? qsTr("%1 min").arg(root.parent.calculateDuration()) : "0 min"
-                                color: Constants.accentSky
-                                font.pixelSize: 24
+                                font.pixelSize: 22
                                 font.bold: true
                             }
                         }
@@ -341,150 +307,221 @@ Rectangle {
                         ColumnLayout {
                             Layout.alignment: Qt.AlignRight
                             spacing: 4
-
+                            Text { text: qsTr("Total Distance"); color: Constants.textSecondary; font.pixelSize: 11 }
                             Text {
-                                text: qsTr("Total Distance")
-                                color: Constants.textSecondary
-                                font.pixelSize: 14
-                            }
-                            Text {
-                                text: root.parent ? qsTr("%1 m").arg(root.parent.calculateDistance()) : "0 m"
+                                text: (root.parent ? (root.parent.calculateDistanceMeters().toFixed(1) + " m") : "0.0 m")
                                 color: Constants.textPrimary
-                                font.pixelSize: 20
+                                font.pixelSize: 18
                                 font.bold: true
                             }
                         }
                     }
                 }
 
-                // Action Buttons
+                // Action buttons row (like screenshot)
                 RowLayout {
                     Layout.fillWidth: true
-                    spacing: 16
+                    spacing: 12
 
                     Button {
-                        id: runButton
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 64
-                        text: qsTr("▶ RUN PROTOCOL")
-                        font.pixelSize: 18
+                        Layout.preferredHeight: 58
+                        text: qsTr("▶  RUN PROTOCOL")
+                        font.pixelSize: 14
                         font.bold: true
                         background: Rectangle {
-                            color: parent.pressed ? "#059669" : "#10B981" // green-600/700
-                            radius: 8
+                            radius: 12
+                            color: parent.pressed ? "#059669" : "#10B981"
                         }
-                        onClicked: {
-                            if (root.parent) {
-                                root.parent.runProtocol()
-                            }
-                        }
+                        onClicked: root.callParent("runProtocol")
                     }
 
                     Button {
-                        id: saveButton
                         Layout.preferredWidth: 120
-                        Layout.preferredHeight: 64
+                        Layout.preferredHeight: 58
                         text: qsTr("SAVE")
-                        font.pixelSize: 16
+                        font.pixelSize: 13
                         font.bold: true
                         background: Rectangle {
+                            radius: 12
                             color: parent.pressed ? Constants.accentPrimary : Constants.accentSky
-                            radius: 8
                         }
+                        onClicked: root.callParent("saveProtocol")
                     }
 
                     Button {
-                        id: duplicateButton
                         Layout.preferredWidth: 140
-                        Layout.preferredHeight: 64
+                        Layout.preferredHeight: 58
                         text: qsTr("DUPLICATE")
-                        font.pixelSize: 16
+                        font.pixelSize: 13
                         font.bold: true
                         background: Rectangle {
-                            color: parent.pressed ? "#4B5563" : "#6B7280" // gray-600/700
-                            radius: 8
+                            radius: 12
+                            color: parent.pressed ? "#374151" : "#4B5563"
                         }
+                        onClicked: root.callParent("duplicateProtocol")
                     }
 
                     Button {
-                        id: deleteButton
                         Layout.preferredWidth: 64
-                        Layout.preferredHeight: 64
+                        Layout.preferredHeight: 58
                         text: "🗑"
-                        font.pixelSize: 20
+                        font.pixelSize: 18
                         background: Rectangle {
-                            color: parent.pressed ? Qt.rgba(0.87, 0.13, 0.13, 0.5) : Qt.rgba(0.87, 0.13, 0.13, 0.3)
-                            border.color: "#DC2626" // red-700
+                            radius: 12
+                            color: parent.pressed ? Qt.rgba(0.87, 0.13, 0.13, 0.45) : Qt.rgba(0.87, 0.13, 0.13, 0.30)
+                            border.color: "#DC2626"
                             border.width: 1
-                            radius: 8
                         }
+                        onClicked: root.callParent("deleteProtocol")
                     }
                 }
 
-                Item {
-                    Layout.fillHeight: true
-                }
+                Item { Layout.preferredHeight: 12 }
             }
         }
     }
 
-    // Reusable Parameter Card Component
-    component ParameterCard: Rectangle {
+    // ============
+    // Reusable pieces (safe signal names)
+    // ============
+    component Card: Rectangle {
         property string title: ""
-        property string value: "0"
-        property string unit: ""
-        property color valueColor: Constants.textPrimary
-        property real minValue: 0
-        property real maxValue: 100
-        property real step: 1
-        property real sliderValue: 0
-        signal sliderValueEdited(real value)
+        property Item content
 
-
-        Layout.fillWidth: true
-        Layout.preferredHeight: 140
+        radius: 14
         color: Constants.bgCard
         border.color: Constants.borderDefault
         border.width: 1
-        radius: 12
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 24
-            spacing: 12
+            spacing: 0
 
-            Text {
-                text: title
-                color: Constants.textSecondary
-                font.pixelSize: 14
+            Rectangle {
                 Layout.fillWidth: true
+                Layout.preferredHeight: 44
+                color: "transparent"
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 14
+                    Text { text: title; color: Constants.textSecondary; font.pixelSize: 11 }
+                }
             }
+
+            Rectangle { Layout.fillWidth: true; Layout.preferredHeight: 1; color: Constants.borderDefault; opacity: 0.6 }
+
+            Item {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Loader { anchors.fill: parent; sourceComponent: content }
+            }
+        }
+    }
+
+    component ParamCard: Rectangle {
+        property string title: ""
+        property string valueText: "0"
+        property string unitText: ""
+        property color accent: Constants.accentSky
+        property real from: 0
+        property real to: 100
+        property real step: 1
+        property real sliderValue: 0
+        property string minLabel: ""
+        property string maxLabel: ""
+        signal valueEdited(real v) // safe (not *Changed)
+
+        Layout.fillWidth: true
+        Layout.preferredHeight: 150
+        radius: 14
+        color: Constants.bgCard
+        border.color: Constants.borderDefault
+        border.width: 1
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 16
+            spacing: 10
+
+            Text { text: title; color: Constants.textSecondary; font.pixelSize: 11 }
 
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 8
-
-                Text {
-                    text: value
-                    color: valueColor
-                    font.pixelSize: 36
-                    font.bold: true
-                }
-                Text {
-                    text: unit
-                    color: Constants.textSecondary
-                    font.pixelSize: 16
-                }
+                Text { text: valueText; color: accent; font.pixelSize: 28; font.bold: true }
+                Text { text: unitText; color: Constants.textSecondary; font.pixelSize: 12 }
             }
 
             Slider {
-                id: paramSlider
                 Layout.fillWidth: true
-                from: minValue
-                to: maxValue
-                stepSize: step
-                value: sliderValue
-                onValueChanged: sliderValueEdited(value)
+                from: parent.parent.from
+                to: parent.parent.to
+                stepSize: parent.parent.step
+                value: parent.parent.sliderValue
+                onValueChanged: valueEdited(value)
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Text { text: minLabel; color: Constants.textMuted; font.pixelSize: 10; Layout.fillWidth: true }
+                Text { text: maxLabel; color: Constants.textMuted; font.pixelSize: 10 }
+            }
+        }
+    }
+
+    component ParamCardWide: Rectangle {
+        property string title: ""
+        property string valueText: "0"
+        property string unitText: ""
+        property color accent: Constants.accentSky
+        property real from: 0
+        property real to: 100
+        property real step: 1
+        property real sliderValue: 0
+        property string leftLabel: ""
+        property string mid1Label: ""
+        property string mid2Label: ""
+        property string mid3Label: ""
+        property string rightLabel: ""
+        signal valueEdited(real v) // safe
+
+        radius: 14
+        color: Constants.bgCard
+        border.color: Constants.borderDefault
+        border.width: 1
+        Layout.preferredHeight: 160
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 16
+            spacing: 10
+
+            Text { text: title; color: Constants.textSecondary; font.pixelSize: 11 }
+
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+                Text { text: valueText; color: accent; font.pixelSize: 30; font.bold: true }
+                Text { text: unitText; color: Constants.textSecondary; font.pixelSize: 12 }
+            }
+
+            Slider {
+                Layout.fillWidth: true
+                from: parent.parent.from
+                to: parent.parent.to
+                stepSize: parent.parent.step
+                value: parent.parent.sliderValue
+                onValueChanged: valueEdited(value)
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Text { text: leftLabel; color: Constants.textMuted; font.pixelSize: 10; Layout.fillWidth: true }
+                Text { text: mid1Label; color: Constants.textMuted; font.pixelSize: 10; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
+                Text { text: mid2Label; color: Constants.textMuted; font.pixelSize: 10; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
+                Text { text: mid3Label; color: Constants.textMuted; font.pixelSize: 10; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
+                Text { text: rightLabel; color: Constants.textMuted; font.pixelSize: 10; horizontalAlignment: Text.AlignRight }
             }
         }
     }
