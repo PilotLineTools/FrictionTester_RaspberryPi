@@ -13,6 +13,8 @@ qt6_add_qml_module(content
         App.qml
         TempScreenForm.ui.qml
         ProtocolsScreen.ui.qml
+        ProtocolsScreen.qml
+        ProtocolsScreenForm.ui.qml
         NavShell.qml
         HomeScreen.qml
         SettingsScreen.qml

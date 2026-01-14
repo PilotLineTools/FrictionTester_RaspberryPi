@@ -57,7 +57,7 @@ NavShellForm {
 
     // ✅ Pass SerialController down instead of uartClient
     Component { id: homeComp; HomeScreen { appMachine: machineState; serialController: shell.serialController } }
-    Component { id: protocolsComp; TempScreen { appMachine: machineState } }
+    Component { id: protocolsComp; ProtocolsScreen { appMachine: machineState } }
     Component { id: settingsComp; SettingsScreen { appMachine: machineState } }
     Component { id: calibrationComp; TempScreen { appMachine: machineState } }
     Component { id: aboutComp; TempScreen { appMachine: machineState } }
