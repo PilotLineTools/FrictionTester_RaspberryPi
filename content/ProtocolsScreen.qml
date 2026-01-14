@@ -10,10 +10,10 @@ Item {
     // Replace with your real storage later (JSON/DB/etc.)
     ListModel {
         id: protocolsModel
-        ListElement { name: "Standard Catheter Test"; speed: 1.5; strokeLength: 80; clampForce: 250; waterTemp: 37; cycles: 100; lastModified: "2025-01-08 09:30" }
-        ListElement { name: "High Temperature Validation"; speed: 1.8; strokeLength: 100; clampForce: 300; waterTemp: 45; cycles: 200; lastModified: "2025-01-07 14:15" }
-        ListElement { name: "Low Force Profile"; speed: 1.0; strokeLength: 60; clampForce: 120; waterTemp: 25; cycles: 50; lastModified: "2025-01-06 11:22" }
-        ListElement { name: "Endurance Test"; speed: 1.2; strokeLength: 80; clampForce: 250; waterTemp: 37; cycles: 1000; lastModified: "2025-01-05 16:45" }
+        ListElement { name: "Standard Catheter Test"; speed: 1.5; strokeLength: 80; clampForce: 250; waterTemp: 37; cycles: 10; lastModified: "2025-01-08 09:30" }
+        ListElement { name: "High Temperature Validation"; speed: 1.8; strokeLength: 100; clampForce: 300; waterTemp: 45; cycles: 20; lastModified: "2025-01-07 14:15" }
+        ListElement { name: "Low Force Profile"; speed: 1.0; strokeLength: 60; clampForce: 120; waterTemp: 25; cycles: 5; lastModified: "2025-01-06 11:22" }
+        ListElement { name: "Endurance Test"; speed: 1.2; strokeLength: 80; clampForce: 250; waterTemp: 37; cycles: 11; lastModified: "2025-01-05 16:45" }
     }
 
     property int selectedIndex: 0

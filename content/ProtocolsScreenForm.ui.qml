@@ -269,8 +269,8 @@ Rectangle {
                     unitText: qsTr("cycles")
                     accent: "#A78BFA"
                     from: 1
-                    to: 2000
-                    step: 10
+                    to: 20
+                    step: 1
                     sliderValue: root.editedProtocol ? root.editedProtocol.cycles : 0
                     leftLabel: qsTr("1")
                     mid1Label: qsTr("500")
