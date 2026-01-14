@@ -449,7 +449,8 @@ Rectangle {
         property real maxValue: 100
         property real step: 1
         property real sliderValue: 0
-        signal sliderValueChanged(real value)
+        signal sliderValueEdited(real value)
+
 
         Layout.fillWidth: true
         Layout.preferredHeight: 140
@@ -494,7 +495,7 @@ Rectangle {
                 to: maxValue
                 stepSize: step
                 value: sliderValue
-                onValueChanged: sliderValueChanged(value)
+                onValueChanged: sliderValueEdited(value)
             }
         }
     }
