@@ -20,11 +20,6 @@ Rectangle {
     // Expose UI elements for access from ProtocolsScreen.qml
     property alias protocolsListView: protocolsListView
     property alias protocolNameInput: protocolNameInput
-    property alias speedSlider: speedSlider
-    property alias strokeLengthSlider: strokeLengthSlider
-    property alias clampForceSlider: clampForceSlider
-    property alias waterTempSlider: waterTempSlider
-    property alias cyclesSlider: cyclesSlider
     property alias runButton: runButton
     property alias saveButton: saveButton
     property alias duplicateButton: duplicateButton
@@ -224,12 +219,11 @@ Rectangle {
                         value: root.editedProtocol ? root.editedProtocol.speed.toFixed(1) : "0.0"
                         unit: qsTr("cm/s")
                         valueColor: Constants.accentSky
-                        slider: speedSlider
                         minValue: 0.1
                         maxValue: 2.5
                         step: 0.1
                         sliderValue: root.editedProtocol ? root.editedProtocol.speed * 10 : 15
-                        onSliderValueChanged: {
+                        onSliderValueEdited: {
                             if (root.editedProtocol && root.parent) {
                                 root.parent.updateField("speed", value / 10)
                             }
@@ -244,12 +238,11 @@ Rectangle {
                         value: root.editedProtocol ? root.editedProtocol.strokeLength : 0
                         unit: qsTr("mm")
                         valueColor: "#4ADE80" // green-400
-                        slider: strokeLengthSlider
                         minValue: 10
                         maxValue: 150
                         step: 1
                         sliderValue: root.editedProtocol ? root.editedProtocol.strokeLength : 80
-                        onSliderValueChanged: {
+                        onSliderValueEdited: {
                             if (root.editedProtocol && root.parent) {
                                 root.parent.updateField("strokeLength", value)
                             }
@@ -264,12 +257,11 @@ Rectangle {
                         value: root.editedProtocol ? root.editedProtocol.clampForce : 0
                         unit: qsTr("g")
                         valueColor: "#FBBF24" // amber-400
-                        slider: clampForceSlider
                         minValue: 50
                         maxValue: 500
                         step: 10
                         sliderValue: root.editedProtocol ? root.editedProtocol.clampForce : 250
-                        onSliderValueChanged: {
+                        onSliderValueEdited: {
                             if (root.editedProtocol && root.parent) {
                                 root.parent.updateField("clampForce", value)
                             }
@@ -284,12 +276,11 @@ Rectangle {
                         value: root.editedProtocol ? root.editedProtocol.waterTemp : 0
                         unit: qsTr("°C")
                         valueColor: "#60A5FA" // blue-400
-                        slider: waterTempSlider
                         minValue: 15
                         maxValue: 50
                         step: 1
                         sliderValue: root.editedProtocol ? root.editedProtocol.waterTemp : 37
-                        onSliderValueChanged: {
+                        onSliderValueEdited: {
                             if (root.editedProtocol && root.parent) {
                                 root.parent.updateField("waterTemp", value)
                             }
@@ -305,12 +296,11 @@ Rectangle {
                     value: root.editedProtocol ? root.editedProtocol.cycles : 0
                     unit: qsTr("cycles")
                     valueColor: "#A78BFA" // purple-400
-                    slider: cyclesSlider
                     minValue: 1
                     maxValue: 2000
                     step: 10
                     sliderValue: root.editedProtocol ? root.editedProtocol.cycles : 100
-                    onSliderValueChanged: {
+                    onSliderValueEdited: {
                         if (root.editedProtocol && root.parent) {
                             root.parent.updateField("cycles", value)
                         }
@@ -440,7 +430,6 @@ Rectangle {
 
     // Reusable Parameter Card Component
     component ParameterCard: Rectangle {
-        property alias slider: paramSlider
         property string title: ""
         property string value: "0"
         property string unit: ""
@@ -498,27 +487,5 @@ Rectangle {
                 onValueChanged: sliderValueEdited(value)
             }
         }
-    }
-
-    // Slider components (referenced by ParameterCard)
-    Slider {
-        id: speedSlider
-        visible: false
-    }
-    Slider {
-        id: strokeLengthSlider
-        visible: false
-    }
-    Slider {
-        id: clampForceSlider
-        visible: false
-    }
-    Slider {
-        id: waterTempSlider
-        visible: false
-    }
-    Slider {
-        id: cyclesSlider
-        visible: false
     }
 }
