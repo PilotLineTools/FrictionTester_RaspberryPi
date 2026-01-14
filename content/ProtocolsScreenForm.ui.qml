@@ -32,7 +32,7 @@ Rectangle {
         // =========================
         Rectangle {
             id: sidebar
-            Layout.preferredWidth: 320
+            Layout.preferredWidth: 270
             Layout.fillHeight: true
             color: Constants.bgCard
             border.color: Constants.borderDefault
@@ -265,20 +265,24 @@ Rectangle {
                 ParamCardWide {
                     Layout.fillWidth: true
                     title: qsTr("Number of Cycles")
-                    valueText: root.editedProtocol ? String(root.editedProtocol.cycles) : "0"
+                    valueText: root.editedProtocol ? String(root.editedProtocol.cycles) : "1"
                     unitText: qsTr("cycles")
                     accent: "#A78BFA"
+
                     from: 1
                     to: 20
                     step: 1
-                    sliderValue: root.editedProtocol ? root.editedProtocol.cycles : 0
+                    sliderValue: root.editedProtocol ? root.editedProtocol.cycles : 1
+
                     leftLabel: qsTr("1")
-                    mid1Label: qsTr("500")
-                    mid2Label: qsTr("1000")
-                    mid3Label: qsTr("1500")
-                    rightLabel: qsTr("2000")
-                    onValueEdited: (v) => root.callParent("updateField", "cycles", Math.round(v/10)*10)
+                    mid1Label: qsTr("5")
+                    mid2Label: qsTr("10")
+                    mid3Label: qsTr("15")
+                    rightLabel: qsTr("20")
+
+                    onValueEdited: (v) => root.callParent("updateField", "cycles", Math.round(v))
                 }
+
 
                 // Estimate card
                 Rectangle {
