@@ -80,7 +80,8 @@ Rectangle {
                         height: parent.height
                         model: root.protocolsModel
                         spacing: 10
-                        currentIndex: 0
+                        currentIndex: (root.parent && root.parent.selectedIndex !== undefined) ? root.parent.selectedIndex : 0
+
 
                         delegate: Rectangle {
                             width: list.width
@@ -179,7 +180,7 @@ Rectangle {
                     Layout.preferredHeight: 92
                     title: qsTr("Protocol Name")
 
-                    content: Item {
+                    content: Component {
                         anchors.fill: parent
 
                         TextField {
@@ -399,7 +400,7 @@ Rectangle {
     // ============
     component Card: Rectangle {
         property string title: ""
-        property Item content
+        property Component content
 
         radius: 14
         color: Constants.bgCard
