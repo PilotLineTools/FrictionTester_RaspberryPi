@@ -66,13 +66,16 @@ NavShellForm {
             xhr.open(method, apiBase + path)
             xhr.setRequestHeader("Content-Type", "application/json")
 
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === XMLHttpRequest.DONE) {
-                    var ok = (xhr.status >= 200 && xhr.status < 300)
-                    var data = null
-                    try { data = xhr.responseText ? JSON.parse(xhr.responseText) : null } catch(e) {}
-                    if (cb) cb(ok, xhr.status, data)
-                }
+            xhr.onload = function() {
+                var ok = xhr.status >= 200 && xhr.status < 300
+                var data = null
+                try { data = xhr.responseText ? JSON.parse(xhr.responseText) : null } catch(e) {}
+                if (cb) cb(ok, xhr.status, data)
+            }
+
+            xhr.onerror = function() {
+                console.log("❌ XHR network error:", method, apiBase + path)
+                if (cb) cb(false, 0, null)
             }
 
             xhr.send(body ? JSON.stringify(body) : null)
