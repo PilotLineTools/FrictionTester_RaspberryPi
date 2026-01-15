@@ -7,32 +7,100 @@ Item {
     width: Constants.width
     height: Constants.height
 
-    // Replace with your real storage later (JSON/DB/etc.)
-    ListModel {
-        id: protocolsModel
-        ListElement { name: "Standard Catheter Test"; speed: 1.5; strokeLength: 80; clampForce: 250; waterTemp: 37; cycles: 10; lastModified: "2025-01-08 09:30" }
-        ListElement { name: "High Temperature Validation"; speed: 1.8; strokeLength: 100; clampForce: 300; waterTemp: 45; cycles: 20; lastModified: "2025-01-07 14:15" }
-        ListElement { name: "Low Force Profile"; speed: 1.0; strokeLength: 60; clampForce: 120; waterTemp: 25; cycles: 5; lastModified: "2025-01-06 11:22" }
-        ListElement { name: "Endurance Test"; speed: 1.2; strokeLength: 80; clampForce: 250; waterTemp: 37; cycles: 11; lastModified: "2025-01-05 16:45" }
+    property QtObject appMachine
+    property var serialController
+    property var backend
+
+    // Track which protocol is selected
+    property int selectedIndex: 0
+    property int selectedProtocolId: -1
+
+    Component.onCompleted: {
+        console.log("✅ ProtocolsScreen WRAPPER LOADED", appMachine)
+        loadProtocols()
     }
 
-    property int selectedIndex: 0
+    // Real model (now includes id)
+    ListModel { id: protocolsModel }
 
-    // Edited snapshot (keeps UI responsive without mutating list until Save)
+    // Snapshot used by UI for editing
     property var editedProtocol: ({
-        name: protocolsModel.count ? protocolsModel.get(selectedIndex).name : "",
-        speed: protocolsModel.count ? protocolsModel.get(selectedIndex).speed : 0,
-        strokeLength: protocolsModel.count ? protocolsModel.get(selectedIndex).strokeLength : 0,
-        clampForce: protocolsModel.count ? protocolsModel.get(selectedIndex).clampForce : 0,
-        waterTemp: protocolsModel.count ? protocolsModel.get(selectedIndex).waterTemp : 0,
-        cycles: protocolsModel.count ? protocolsModel.get(selectedIndex).cycles : 0,
-        lastModified: protocolsModel.count ? protocolsModel.get(selectedIndex).lastModified : ""
+        id: -1,
+        name: "",
+        speed: 1.0,
+        strokeLength: 80,
+        clampForce: 200,
+        waterTemp: 37,
+        cycles: 10,
+        lastModified: ""
     })
 
+    function _fmtLastModified(iso) {
+        // backend sends ISO "2026-01-15T...Z"
+        // keep simple for now
+        return iso ? iso.replace("T", " ").replace("Z", "") : ""
+    }
+
+    function loadProtocols() {
+        if (!backend) {
+            console.log("❌ backend not provided to ProtocolsScreen")
+            return
+        }
+
+        backend.request("GET", "/protocols", null, function(ok, status, data) {
+            if (!ok) {
+                console.log("GET /protocols failed", status)
+                return
+            }
+
+            protocolsModel.clear()
+
+            for (var i = 0; i < data.length; i++) {
+                var p = data[i]
+                protocolsModel.append({
+                    id: p.id,
+                    name: p.name,
+                    speed: p.speed,
+                    strokeLength: p.stroke_length_mm,
+                    clampForce: p.clamp_force_g,
+                    waterTemp: p.water_temp_c,
+                    cycles: p.cycles,
+                    lastModified: _fmtLastModified(p.updated_at)
+                })
+            }
+
+            if (protocolsModel.count > 0) {
+                // keep selection if possible
+                var idx = Math.min(selectedIndex, protocolsModel.count - 1)
+                selectProtocol(idx)
+            } else {
+                // no protocols yet → set edited defaults
+                selectedIndex = 0
+                selectedProtocolId = -1
+                editedProtocol = ({
+                    id: -1,
+                    name: "New Protocol",
+                    speed: 1.0,
+                    strokeLength: 80,
+                    clampForce: 200,
+                    waterTemp: 37,
+                    cycles: 10,
+                    lastModified: ""
+                })
+            }
+        })
+    }
+
     function selectProtocol(index) {
+        if (index < 0 || index >= protocolsModel.count) return
+
         selectedIndex = index
         var m = protocolsModel.get(index)
+
+        selectedProtocolId = m.id
+
         editedProtocol = ({
+            id: m.id,
             name: m.name,
             speed: m.speed,
             strokeLength: m.strokeLength,
@@ -50,63 +118,116 @@ Item {
     }
 
     function saveProtocol() {
-        if (!protocolsModel.count) return
-        protocolsModel.setProperty(selectedIndex, "name", editedProtocol.name)
-        protocolsModel.setProperty(selectedIndex, "speed", editedProtocol.speed)
-        protocolsModel.setProperty(selectedIndex, "strokeLength", editedProtocol.strokeLength)
-        protocolsModel.setProperty(selectedIndex, "clampForce", editedProtocol.clampForce)
-        protocolsModel.setProperty(selectedIndex, "waterTemp", editedProtocol.waterTemp)
-        protocolsModel.setProperty(selectedIndex, "cycles", editedProtocol.cycles)
-        protocolsModel.setProperty(selectedIndex, "lastModified", "Just now")
-        // also update snapshot
-        selectProtocol(selectedIndex)
+        if (!backend) return
+        if (selectedProtocolId < 0) {
+            console.log("saveProtocol: no selectedProtocolId")
+            return
+        }
+
+        var payload = {
+            name: editedProtocol.name,
+            speed: editedProtocol.speed,
+            stroke_length_mm: editedProtocol.strokeLength,
+            clamp_force_g: editedProtocol.clampForce,
+            water_temp_c: editedProtocol.waterTemp,
+            cycles: editedProtocol.cycles
+        }
+
+        backend.request("PUT", "/protocols/" + selectedProtocolId, payload, function(ok, status, data) {
+            if (!ok) {
+                console.log("PUT /protocols failed", status)
+                return
+            }
+            // Refresh from DB so lastModified matches DB updated_at
+            loadProtocols()
+        })
     }
 
     function addProtocol() {
-        protocolsModel.append({
-            "name": "New Protocol",
-            "speed": 1.0,
-            "strokeLength": 80,
-            "clampForce": 200,
-            "waterTemp": 37,
-            "cycles": 10,
-            "lastModified": "Just now"
+        if (!backend) return
+
+        var payload = {
+            name: "New Protocol",
+            speed: 1.0,
+            stroke_length_mm: 80,
+            clamp_force_g: 200,
+            water_temp_c: 37,
+            cycles: 10
+        }
+
+        backend.request("POST", "/protocols", payload, function(ok, status, data) {
+            if (!ok) {
+                console.log("POST /protocols failed", status)
+                return
+            }
+            // reload and select newly created protocol
+            loadProtocols()
         })
-        selectProtocol(protocolsModel.count - 1)
     }
 
     function duplicateProtocol() {
-        protocolsModel.append({
-            "name": editedProtocol.name + " (Copy)",
-            "speed": editedProtocol.speed,
-            "strokeLength": editedProtocol.strokeLength,
-            "clampForce": editedProtocol.clampForce,
-            "waterTemp": editedProtocol.waterTemp,
-            "cycles": editedProtocol.cycles,
-            "lastModified": "Just now"
+        if (!backend) return
+
+        var payload = {
+            name: editedProtocol.name + " (Copy)",
+            speed: editedProtocol.speed,
+            stroke_length_mm: editedProtocol.strokeLength,
+            clamp_force_g: editedProtocol.clampForce,
+            water_temp_c: editedProtocol.waterTemp,
+            cycles: editedProtocol.cycles
+        }
+
+        backend.request("POST", "/protocols", payload, function(ok, status, data) {
+            if (!ok) {
+                console.log("POST /protocols (duplicate) failed", status)
+                return
+            }
+            loadProtocols()
         })
-        selectProtocol(protocolsModel.count - 1)
     }
 
     function deleteProtocol() {
-        if (protocolsModel.count <= 1) return
-        protocolsModel.remove(selectedIndex)
-        selectProtocol(Math.max(0, selectedIndex - 1))
+        if (!backend) return
+        if (selectedProtocolId < 0) return
+
+        backend.request("DELETE", "/protocols/" + selectedProtocolId, null, function(ok, status, data) {
+            if (!ok) {
+                console.log("DELETE /protocols failed", status)
+                return
+            }
+            // after delete, reload and select nearest
+            var newIndex = Math.max(0, selectedIndex - 1)
+            selectedIndex = newIndex
+            loadProtocols()
+        })
     }
 
     function runProtocol() {
+        if (!backend) return
+        if (selectedProtocolId < 0) return
+
         console.log("RUN PROTOCOL:", JSON.stringify(editedProtocol))
-        // Hook to ESP32 later
+
+        backend.request("POST", "/runs", { protocol_id: selectedProtocolId, notes: "" }, function(ok, status, data) {
+            if (!ok) {
+                console.log("POST /runs failed", status)
+                return
+            }
+            console.log("✅ Run created, id:", data.run_id)
+
+            // Next step: tell ESP32 to start job + stream
+            serialController.start_job("protocol_" + selectedProtocolId)
+
+
+            // serialController.start_stream(10)
+        })
     }
 
     function calculateDistanceMeters() : real {
-        // total distance ~ cycles * 2 * strokeLength(mm) -> meters
         return (editedProtocol.cycles * 2.0 * editedProtocol.strokeLength) / 1000.0
     }
 
     function calculateDurationMinutes() : int {
-        // Rough estimate: distance / speed
-        // speed is cm/s => m/s = speed/100
         var v = editedProtocol.speed / 100.0
         if (v <= 0) return 0
         var s = calculateDistanceMeters() / v

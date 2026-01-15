@@ -29,7 +29,7 @@ NavShellForm {
             }
         }
 
-        serialController.sendLine(line) // C++ should append \r\n
+        serialController.send_cmd(line) 
         return true
     }
 
@@ -55,9 +55,33 @@ NavShellForm {
         }
     }
 
+    QtObject {
+        id: pythonBackend
+
+        // Same Pi backend
+        property string apiBase: "http://127.0.0.1:8080"
+
+        function request(method, path, body, cb) {
+            var xhr = new XMLHttpRequest()
+            xhr.open(method, apiBase + path)
+            xhr.setRequestHeader("Content-Type", "application/json")
+
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    var ok = (xhr.status >= 200 && xhr.status < 300)
+                    var data = null
+                    try { data = xhr.responseText ? JSON.parse(xhr.responseText) : null } catch(e) {}
+                    if (cb) cb(ok, xhr.status, data)
+                }
+            }
+
+            xhr.send(body ? JSON.stringify(body) : null)
+        }
+    }
+
     // ✅ Pass SerialController down instead of uartClient
     Component { id: homeComp; HomeScreen { appMachine: machineState; serialController: shell.serialController } }
-    Component { id: protocolsComp; ProtocolsScreen {  } }
+    Component { id: protocolsComp; ProtocolsScreen { ppMachine: machineState; serialController: shell.serialController; backend: pythonBackend } }
     Component { id: settingsComp; SettingsScreen { appMachine: machineState } }
     Component { id: calibrationComp; TempScreen { appMachine: machineState } }
     Component { id: aboutComp; TempScreen { appMachine: machineState } }
