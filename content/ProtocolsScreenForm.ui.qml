@@ -181,28 +181,31 @@ Rectangle {
                     title: qsTr("Protocol Name")
 
                     content: Component {
-                        anchors.fill: parent
+                        Item {
+                            anchors.fill: parent
 
-                        TextField {
-                            id: nameField
-                            anchors.left: parent.left
-                            anchors.right: parent.right
-                            anchors.verticalCenter: parent.verticalCenter
-                            anchors.margins: 16
-                            height: 44
-                            text: root.editedProtocol ? root.editedProtocol.name : ""
-                            color: Constants.textPrimary
-                            background: Rectangle {
-                                color: Constants.bgSurface
-                                radius: 10
-                                border.color: Constants.borderDefault
-                                border.width: 1
-                            }
-                            onTextChanged: {
-                                if (root.editedProtocol) root.callParent("updateField", "name", text)
+                            TextField {
+                                id: nameField
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.margins: 16
+                                height: 44
+                                text: root.editedProtocol ? root.editedProtocol.name : ""
+                                color: Constants.textPrimary
+                                background: Rectangle {
+                                    color: Constants.bgSurface
+                                    radius: 10
+                                    border.color: Constants.borderDefault
+                                    border.width: 1
+                                }
+                                onTextChanged: {
+                                    if (root.editedProtocol) root.callParent("updateField", "name", text)
+                                }
                             }
                         }
                     }
+
                 }
 
                 // 2x2 parameter grid
