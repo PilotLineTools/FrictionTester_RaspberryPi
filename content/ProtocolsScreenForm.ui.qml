@@ -159,6 +159,49 @@ Rectangle {
                     Layout.fillWidth: true
                     spacing: 4
 
+                    content: Component {
+                        Item {
+                            anchors.fill: parent
+
+                            TextField {
+                                id: nameField2
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.margins: 16
+                                height: 44
+                                color: Constants.textPrimary
+                                font.pixelSize: 28
+                                font.bold: true
+                                Layout.fillWidth: true
+                                background: Rectangle {
+                                    color: Constants.bgSurface
+                                    radius: 10
+                                    border.color: Constants.borderDefault
+                                    border.width: 1
+                                }
+                                Component.onCompleted: {
+                                    root.syncing = true
+                                    text = root.editedProtocol ? root.editedProtocol.name : ""
+                                    root.syncing = false
+                                }
+                                Connections {
+                                    target: root
+                                    function onEditedProtocolChanged() {
+                                        root.syncing = true
+                                        nameField2.text = root.editedProtocol ? root.editedProtocol.name : ""
+                                        root.syncing = false
+                                    }
+                                }
+                                onTextEdited: {  
+                                    if (root.syncing) return
+                                    root.callParent("updateField", "name", text)
+                                }
+                                
+                            }
+                        }
+                    }
+
                     Text {
                         text: root.editedProtocol ? root.editedProtocol.name : qsTr("No Protocol Selected")
                         color: Constants.textPrimary
