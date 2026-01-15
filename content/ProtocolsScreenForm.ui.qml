@@ -155,117 +155,52 @@ Rectangle {
                 anchors.margins: 28
 
                 // Title
-                ColumnLayout {
+                Item {
                     Layout.fillWidth: true
-                    spacing: 4
+                    height: 52
 
-                    content: Component {
-                        Item {
-                            anchors.fill: parent
+                    TextField {
+                        id: titleField
+                        anchors.fill: parent
 
-                            TextField {
-                                id: nameField2
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.margins: 16
-                                height: 44
-                                color: Constants.textPrimary
-                                font.pixelSize: 28
-                                font.bold: true
-                                Layout.fillWidth: true
-                                background: Rectangle {
-                                    color: Constants.bgSurface
-                                    radius: 10
-                                    border.color: Constants.borderDefault
-                                    border.width: 1
-                                }
-                                Component.onCompleted: {
-                                    root.syncing = true
-                                    text = root.editedProtocol ? root.editedProtocol.name : ""
-                                    root.syncing = false
-                                }
-                                Connections {
-                                    target: root
-                                    function onEditedProtocolChanged() {
-                                        root.syncing = true
-                                        nameField2.text = root.editedProtocol ? root.editedProtocol.name : ""
-                                        root.syncing = false
-                                    }
-                                }
-                                onTextEdited: {  
-                                    if (root.syncing) return
-                                    root.callParent("updateField", "name", text)
-                                }
-                                
-                            }
-                        }
-                    }
+                        placeholderText: qsTr("Protocol Name")
+                        text: ""
 
-                    Text {
-                        text: root.editedProtocol ? root.editedProtocol.name : qsTr("No Protocol Selected")
-                        color: Constants.textPrimary
                         font.pixelSize: 28
                         font.bold: true
-                        Layout.fillWidth: true
-                        elide: Text.ElideRight
-                    }
+                        color: Constants.textPrimary
 
-                    Text {
-                        text: qsTr("Configure test parameters")
-                        color: Constants.textSecondary
-                        font.pixelSize: 13
-                        Layout.fillWidth: true
-                    }
-                }
+                        background: Rectangle {
+                            color: "transparent"
+                        }
 
-                // Protocol Name card
-                Card {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 92
-                    title: qsTr("Protocol Name")
+                        // Prevent binding loops
+                        property bool syncing: false
 
-                    content: Component {
-                        Item {
-                            anchors.fill: parent
+                        Component.onCompleted: {
+                            syncing = true
+                            text = root.editedProtocol ? root.editedProtocol.name : ""
+                            syncing = false
+                        }
 
-                            TextField {
-                                id: nameField
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.margins: 16
-                                height: 44
-                                color: Constants.textPrimary
-                                background: Rectangle {
-                                    color: Constants.bgSurface
-                                    radius: 10
-                                    border.color: Constants.borderDefault
-                                    border.width: 1
-                                }
-                                Component.onCompleted: {
-                                    root.syncing = true
-                                    text = root.editedProtocol ? root.editedProtocol.name : ""
-                                    root.syncing = false
-                                }
-                                Connections {
-                                    target: root
-                                    function onEditedProtocolChanged() {
-                                        root.syncing = true
-                                        nameField.text = root.editedProtocol ? root.editedProtocol.name : ""
-                                        root.syncing = false
-                                    }
-                                }
-                                onTextEdited: {  
-                                    if (root.syncing) return
-                                    root.callParent("updateField", "name", text)
-                                }
-                                
+                        Connections {
+                            target: root
+                            function onEditedProtocolChanged() {
+                                syncing = true
+                                titleField.text = root.editedProtocol ? root.editedProtocol.name : ""
+                                syncing = false
                             }
                         }
-                    }
 
+                        onTextEdited: {
+                            if (syncing) return
+                            root.callParent("updateField", "name", text)
+                        }
+                    }
                 }
+
+
+
 
                 // 2x2 parameter grid
                 GridLayout {

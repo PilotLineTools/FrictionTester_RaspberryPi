@@ -33,6 +33,15 @@ NavShellForm {
         return true
     }
 
+    function hideKeyboard() {
+        Qt.inputMethod.hide()
+    }
+
+    function showKeyboard() {
+        Qt.inputMethod.show()
+    }
+
+
     QtObject {
         id: machineState
         property bool isHomed: true
