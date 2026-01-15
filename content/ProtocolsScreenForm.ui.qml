@@ -15,6 +15,8 @@ Rectangle {
 
     property var protocolsModel: null
     property var editedProtocol: null
+    property bool syncing: false
+
 
     function callParent(fnName, a, b) {
         if (!parent || typeof parent[fnName] !== "function") return
@@ -240,7 +242,8 @@ Rectangle {
                         sliderValue: root.editedProtocol ? root.editedProtocol.speed : 0
                         minLabel: qsTr("0.1 cm/s")
                         maxLabel: qsTr("2.5 cm/s")
-                        onValueEdited: (v) => root.callParent("updateField", "cycles", Math.round(v))
+                        onValueEdited: (v) => root.callParent("updateField", "speed", Math.round(v * 10) / 10)
+
 
                     }
 
@@ -255,7 +258,7 @@ Rectangle {
                         sliderValue: root.editedProtocol ? root.editedProtocol.strokeLength : 0
                         minLabel: qsTr("10 mm")
                         maxLabel: qsTr("150 mm")
-                        onValueEdited: (v) => root.callParent("updateField", "cycles", Math.round(v))
+                        onValueEdited: (v) => root.callParent("updateField", "strokeLength", Math.round(v))
                     }
 
                     ParamCard {
@@ -283,7 +286,7 @@ Rectangle {
                         sliderValue: root.editedProtocol ? root.editedProtocol.waterTemp : 0
                         minLabel: qsTr("15 °C")
                         maxLabel: qsTr("50 °C")
-                        onValueEdited: (v) => root.callParent("updateField", "cycles", Math.round(v))
+                        onValueEdited: (v) => root.callParent("updateField", "waterTemp", Math.round(v))
                     }
                 }
 
@@ -492,7 +495,10 @@ Rectangle {
                 stepSize: parent.parent.step
                 value: parent.parent.sliderValue
 
-                onMoved: valueEdited(value)
+                onMoved: {
+                    if (pressed) valueEdited(value)
+                }
+
             }
 
 
@@ -548,7 +554,10 @@ Rectangle {
                 stepSize: parent.parent.step
                 value: parent.parent.sliderValue
 
-                onMoved: valueEdited(value)
+                onMoved: {
+                    if (pressed) valueEdited(value)
+                }
+
 
             }
 

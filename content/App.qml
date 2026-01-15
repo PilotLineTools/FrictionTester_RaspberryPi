@@ -41,6 +41,22 @@ Window {
         serialController: serial
     }
 
+    // 🟨 Tap-away catcher (ONLY active when keyboard visible)
+    MouseArea {
+        id: dismissArea
+        anchors.fill: parent
+        z: 9998
+        enabled: Qt.inputMethod.visible
+        visible: Qt.inputMethod.visible
+        hoverEnabled: false
+
+        onClicked: {
+            Qt.inputMethod.hide()
+            appRoot.forceActiveFocus()   // clears TextField focus
+        }
+    }
+
+    // ⌨️ Virtual keyboard
     InputPanel {
         id: inputPanel
         anchors.left: parent.left
