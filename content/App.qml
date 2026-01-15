@@ -1,6 +1,7 @@
 // App.qml
 import QtQuick
 import QtQuick.Controls
+import QtQuick.VirtualKeyboard
 import PilotLine_FrictionTester
 
 Window {
@@ -38,5 +39,14 @@ Window {
         anchors.fill: parent
         // Update NavShell to accept `serialController` (or `serial`) instead of `uartClient`
         serialController: serial
+    }
+
+    InputPanel {
+        id: inputPanel
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        visible: Qt.inputMethod.visible
+        z: 9999
     }
 }

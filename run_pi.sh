@@ -2,16 +2,30 @@
 set -e
 cd "$(dirname "$0")"
 
+
+# =============================
+# Qt / EGLFS / Kiosk Settings
+# =============================
 export QT_QPA_PLATFORM=eglfs
 export QT_QPA_EGLFS_HIDECURSOR=1
+
+# Enable Qt Virtual Keyboard
+export QT_IM_MODULE=qtvirtualkeyboard
+export QT_VIRTUALKEYBOARD_STYLE=default
+
+# QML module lookup paths
 export QML_IMPORT_PATH="$PWD/imports:$PWD/content:$PWD/qmlmodules:$PWD"
 
-# ---- Backend ----
+# =============================
+# Python Virtual Environment
+# =============================
 if [ -f "$PWD/.venv/bin/activate" ]; then
   source "$PWD/.venv/bin/activate"
 fi
 
-# ensure logs dir exists
+# =============================
+# Backend (FastAPI)
+# =============================
 mkdir -p "$PWD/logs"
 BACKEND_LOG="$PWD/logs/backend.log"
 

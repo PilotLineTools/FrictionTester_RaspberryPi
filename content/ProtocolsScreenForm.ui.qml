@@ -191,7 +191,6 @@ Rectangle {
                                 anchors.verticalCenter: parent.verticalCenter
                                 anchors.margins: 16
                                 height: 44
-                                text: root.editedProtocol ? root.editedProtocol.name : ""
                                 color: Constants.textPrimary
                                 background: Rectangle {
                                     color: Constants.bgSurface
@@ -199,9 +198,24 @@ Rectangle {
                                     border.color: Constants.borderDefault
                                     border.width: 1
                                 }
-                                onTextChanged: {
-                                    if (root.editedProtocol) root.callParent("updateField", "name", text)
+                                Component.onCompleted: {
+                                    root.syncing = true
+                                    text = root.editedProtocol ? root.editedProtocol.name : ""
+                                    root.syncing = false
                                 }
+                                Connections {
+                                    target: root
+                                    function onEditedProtocolChanged() {
+                                        root.syncing = true
+                                        nameField.text = root.editedProtocol ? root.editedProtocol.name : ""
+                                        root.syncing = false
+                                    }
+                                }
+                                onTextEdited: {  
+                                    if (root.syncing) return
+                                    root.callParent("updateField", "name", text)
+                                }
+                                
                             }
                         }
                     }
@@ -226,7 +240,8 @@ Rectangle {
                         sliderValue: root.editedProtocol ? root.editedProtocol.speed : 0
                         minLabel: qsTr("0.1 cm/s")
                         maxLabel: qsTr("2.5 cm/s")
-                        onValueEdited: (v) => root.callParent("updateField", "speed", Math.round(v * 10) / 10)
+                        onValueEdited: (v) => root.callParent("updateField", "cycles", Math.round(v))
+
                     }
 
                     ParamCard {
@@ -240,7 +255,7 @@ Rectangle {
                         sliderValue: root.editedProtocol ? root.editedProtocol.strokeLength : 0
                         minLabel: qsTr("10 mm")
                         maxLabel: qsTr("150 mm")
-                        onValueEdited: (v) => root.callParent("updateField", "strokeLength", Math.round(v))
+                        onValueEdited: (v) => root.callParent("updateField", "cycles", Math.round(v))
                     }
 
                     ParamCard {
@@ -268,7 +283,7 @@ Rectangle {
                         sliderValue: root.editedProtocol ? root.editedProtocol.waterTemp : 0
                         minLabel: qsTr("15 °C")
                         maxLabel: qsTr("50 °C")
-                        onValueEdited: (v) => root.callParent("updateField", "waterTemp", Math.round(v))
+                        onValueEdited: (v) => root.callParent("updateField", "cycles", Math.round(v))
                     }
                 }
 
@@ -291,7 +306,7 @@ Rectangle {
                     mid3Label: qsTr("15")
                     rightLabel: qsTr("20")
 
-                    onValueEdited: (v) => root.callParent("updateField", "cycles", Math.round(v))
+                    onValueEdited: (v) => root.callParent("updateField", "cycles", Math.round(v))          
                 }
 
 
@@ -470,13 +485,16 @@ Rectangle {
             }
 
             Slider {
+                id: s
                 Layout.fillWidth: true
                 from: parent.parent.from
                 to: parent.parent.to
                 stepSize: parent.parent.step
                 value: parent.parent.sliderValue
-                onValueChanged: valueEdited(value)
+
+                onMoved: valueEdited(value)
             }
+
 
             RowLayout {
                 Layout.fillWidth: true
@@ -523,12 +541,15 @@ Rectangle {
             }
 
             Slider {
+                id: s
                 Layout.fillWidth: true
                 from: parent.parent.from
                 to: parent.parent.to
                 stepSize: parent.parent.step
                 value: parent.parent.sliderValue
-                onValueChanged: valueEdited(value)
+
+                onMoved: valueEdited(value)
+
             }
 
             RowLayout {

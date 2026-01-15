@@ -17,9 +17,6 @@ Item {
 
     Component.onCompleted: {
         console.log("✅ ProtocolsScreen WRAPPER LOADED", appMachine)
-        backend.request("GET", "/health", null, function(ok, status, data) {
-            console.log("HEALTH:", ok, status, JSON.stringify(data))
-        })
 
         loadProtocols()
     }
