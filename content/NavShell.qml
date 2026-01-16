@@ -19,7 +19,7 @@ NavShellForm {
     property string pendingNavTarget: ""   // "home" | "protocols" | "settings" | "calibration" | "about"
 
     // Sidebar enabled only when safe (idle/config)
-    navEnabled: (uiState === "idle" || uiState === "config") && !exitConfigDialog.visible
+    navEnabled: (uiState === "idle" || uiState === "config" || uiState === "browse") && !exitConfigDialog.visible
 
     function ensureConnectedAndSend(line) {
         if (!serialController) {
@@ -136,17 +136,17 @@ NavShellForm {
     function routeToState() {
         if (uiState === "idle") {
             stack.replace(beginComp)
-            // Keep Home button selected
-            homeButton.checked = true
+            setChecked("home")
+            prevCheckedTarget = "home"
         } else if (uiState === "initializing") {
             stack.replace(loadingComp)
+            // keep whatever was previously checked
         } else if (uiState === "config") {
             stack.replace(configComp)
             setChecked("home")
             prevCheckedTarget = "home"
-
         }
-        // running/paused will be added later
+        // running/paused later
     }
 
     Component.onCompleted: {
@@ -194,26 +194,18 @@ NavShellForm {
             return
         }
 
-        // If we are in config, require confirmation before leaving config
+        // In config: confirmation before leaving to ANY nav target (including home)
         if (uiState === "config") {
-            // If they tapped Home, you can decide:
-            // - Either confirm (exit config) OR
-            // - Just treat as "exit to home" with confirm
-            // We'll keep your confirm behavior.
-
             pendingNavTarget = target
-
-            // Remember what was selected BEFORE they tapped
-            prevCheckedTarget = "home"   // because in config you keep Home checked
-            // If you ever choose to highlight something else in config, store that instead.
-
+            prevCheckedTarget = "home"     // config highlights home
             exitConfigDialog.open()
             return
         }
 
-        // Idle state: navigate immediately
+        // In idle/browse: navigate immediately
         performNav(target)
     }
+
 
     function performNav(target) {
         const t = target || "home"
@@ -222,10 +214,10 @@ NavShellForm {
         if (t === "home") {
             uiState = "idle"
             routeToState()
-            setChecked("home")
             return
         }
 
+        // Not machine-state screens
         uiState = "browse"
 
         if (t === "protocols") stack.replace(protocolsComp)
@@ -234,7 +226,9 @@ NavShellForm {
         else if (t === "about") stack.replace(aboutComp)
 
         setChecked(t)
+        prevCheckedTarget = t
     }
+
 
 
     Dialog {
@@ -311,6 +305,8 @@ NavShellForm {
                     onClicked: {
                         pendingNavTarget = ""
                         exitConfigDialog.close()
+
+                        // Return visual selection back to what it should be in config
                         setChecked("home")
                     }
 
@@ -338,13 +334,8 @@ NavShellForm {
                     onClicked: {
                         exitConfigDialog.close()
 
-                        uiState = "browse"
-
-                        // ✅ Navigate to what they chose
-                        goTo(pendingNavTarget)
-
-                        // ✅ Update selection visually
-                        setChecked(pendingNavTarget === "" ? "home" : pendingNavTarget)
+                        // ✅ Go where they wanted WITHOUT re-triggering confirmation
+                        performNav(pendingNavTarget)
                     }
 
                 }
