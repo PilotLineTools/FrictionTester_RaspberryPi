@@ -132,6 +132,7 @@ NavShellForm {
     Component { id: aboutComp; TempScreen { appMachine: machineState } }
 
     // Central screen router for state-driven screens
+    // This is mainly for routing to screens based on uiState (not nav buttons)
     function routeToState() {
         if (uiState === "idle") {
             stack.replace(beginComp)
@@ -141,8 +142,9 @@ NavShellForm {
             stack.replace(loadingComp)
         } else if (uiState === "config") {
             stack.replace(configComp)
-            // You can choose what nav button is "selected" during config; Home is fine
-            homeButton.checked = true
+            setChecked("home")
+            prevCheckedTarget = "home"
+
         }
         // running/paused will be added later
     }
@@ -154,26 +156,65 @@ NavShellForm {
         routeToState()
     }
 
-    onUiStateChanged: routeToState()
+    onUiStateChanged: {
+        // Only auto-route for core machine states
+        if (uiState === "idle" ||
+            uiState === "initializing" ||
+            uiState === "config") {
+            routeToState()
+        }
+    }
+
 
     // ===== Nav logic (enforces confirm + locks) =====
 
+    property string prevCheckedTarget: "home"
+    property bool suppressNavCheck: false
+
+    function setChecked(target) {
+        // Prevent recursion/flicker if needed
+        suppressNavCheck = true
+
+        homeButton.checked      = (target === "home")
+        protocolsButton.checked = (target === "protocols")
+        settingsButton.checked  = (target === "settings")
+        historyButton.checked   = (target === "history")
+        aboutButton.checked     = (target === "about")
+
+        suppressNavCheck = false
+    }
+
+
     function goTo(target) {
-        // Block navigation in unsafe states even if a click slips through
+        if (suppressNavCheck) return
+
+        // Block navigation in unsafe states
         if (!(uiState === "idle" || uiState === "config")) {
             console.log("Nav blocked in state:", uiState)
             return
         }
 
-        // Config requires confirm when leaving to OTHER screens
-        if (uiState === "config" ) {
+        // If we are in config, require confirmation before leaving config
+        if (uiState === "config") {
+            // If they tapped Home, you can decide:
+            // - Either confirm (exit config) OR
+            // - Just treat as "exit to home" with confirm
+            // We'll keep your confirm behavior.
+
             pendingNavTarget = target
+
+            // Remember what was selected BEFORE they tapped
+            prevCheckedTarget = "home"   // because in config you keep Home checked
+            // If you ever choose to highlight something else in config, store that instead.
+
             exitConfigDialog.open()
             return
         }
 
+        // Idle state: navigate immediately
         performNav(target)
     }
+
 
     function performNav(target) {
         pendingNavTarget = ""
@@ -185,6 +226,28 @@ NavShellForm {
         else if (target === "history") stack.replace(historyComp)
         else if (target === "about") stack.replace(aboutComp)
     }
+
+    function performNav(target) {
+        const t = target || "home"
+        pendingNavTarget = ""
+
+        if (t === "home") {
+            uiState = "idle"
+            routeToState()
+            setChecked("home")
+            return
+        }
+
+        uiState = "browse"
+        
+        if (t === "protocols") stack.replace(protocolsComp)
+        else if (t === "settings") stack.replace(settingsComp)
+        else if (t === "history") stack.replace(historyComp)
+        else if (t === "about") stack.replace(aboutComp)
+
+        setChecked(t)
+    }
+
 
     Dialog {
         id: exitConfigDialog
@@ -260,7 +323,9 @@ NavShellForm {
                     onClicked: {
                         pendingNavTarget = ""
                         exitConfigDialog.close()
+                        setChecked("home")
                     }
+
                 }
 
                 Button {
@@ -284,8 +349,14 @@ NavShellForm {
 
                     onClicked: {
                         exitConfigDialog.close()
+
+                        // ✅ Navigate to what they chose
                         performNav(pendingNavTarget)
+
+                        // ✅ Update selection visually
+                        setChecked(pendingNavTarget === "" ? "home" : pendingNavTarget)
                     }
+
                 }
             }
         }
