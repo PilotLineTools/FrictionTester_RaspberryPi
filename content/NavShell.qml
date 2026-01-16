@@ -225,11 +225,13 @@ NavShellForm {
 
             if (shell.uiState === "initializing") {
                 if (msg === "INIT_COMPLETE") {
+                    console.log("Initialization complete!")
                     shell.initStatusText = "Init complete"
                     shell.uiState = "config"
                     return
                 }
                 if (msg.startsWith("INIT_ERROR")) {
+                    console.error("Initialization ERROR from ESP32:", msg)
                     shell.initStatusText = msg
                     shell.uiState = "idle"
                     return
