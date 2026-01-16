@@ -256,6 +256,18 @@ NavShellForm {
             border.width: 1
         }
 
+        // Tap outside the dialog = Cancel
+        Overlay.modal: Rectangle {
+            color: "transparent"   // keep your dim handled by `dim: true`
+            TapHandler {
+                onTapped: {
+                    pendingNavTarget = ""
+                    exitConfigDialog.close()
+                    setChecked("home")
+                }
+            }
+        }
+
         contentItem: Column {
             spacing: 20
             padding: 24
