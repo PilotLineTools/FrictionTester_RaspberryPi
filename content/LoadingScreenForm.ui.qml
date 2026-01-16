@@ -33,7 +33,6 @@ Rectangle {
         Text {
             text: "Please wait…"
             color: Constants.textSecondary
-            alignment: Text.AlignHCenter
             font.pixelSize: 14
             horizontalAlignment: Text.AlignHCenter
         }
