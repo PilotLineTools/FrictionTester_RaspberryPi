@@ -132,6 +132,7 @@ NavShellForm {
         }
     }
 
+
     Component { id: protocolsComp; ProtocolsScreen { appMachine: machineState; serialController: shell.serialController; backend: pythonBackend } }
     Component { id: settingsComp; SettingsScreen { appMachine: machineState } }
     Component { id: historyComp; TempScreen { appMachine: machineState } }
@@ -186,7 +187,7 @@ NavShellForm {
 
         if (target === "home") {
             uiState = "idle"
-            return
+            stack.replace(beginComp)
         }
 
         if (target === "protocols") stack.replace(protocolsComp)
