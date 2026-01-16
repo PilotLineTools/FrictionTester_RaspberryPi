@@ -341,7 +341,6 @@ class SerialController(QObject):
         Halts any active data streaming and returns to command mode.
         """
         self.send_cmd("CMD STOP_STREAM")
-
     
     @Slot(bool)
     def set_clamp(self, closed: bool):
@@ -352,7 +351,6 @@ class SerialController(QObject):
             closed (bool): True to close the clamp, False to open it.
         """
         self.send_cmd(f"CMD SET_CLAMP state={1 if closed else 0}")
-
     
     @Slot(bool)
     def set_carriage(self, in_water: bool):
@@ -363,8 +361,7 @@ class SerialController(QObject):
             in_water (bool): True to immerse carriage in water, False to remove it.
         """
         self.send_cmd(f"CMD SET_CARRIAGE state={1 if in_water else 0}")
-
-    # Function that preps for the test run by sending all commands at once (set_carriage (FalSE),  home(Z)
+ 
     @Slot()
     def prep_test_run(self):
         """
@@ -373,8 +370,39 @@ class SerialController(QObject):
         This method sends commands to ensure the carriage is out of water
         and homes the Z axis before starting a test run.
         """
-        self.set_carriage(in_water=False)
-        self.home(axis="Z")
+        self.send_cmd("CMD TEST_PREP")
+    
+    # function that sends commands to start a test run with given parameters
+    @Slot(float, int, int, int)
+    def start_test(self, speed_cm_s: float, stroke_length_mm: int, clamp_force_g: int, cycles: int):
+        """
+        Start a test run with specified parameters.
+        
+        Args:
+            speed_cm_s (float): Speed in cm/s for the test run.
+            stroke_length_mm (int): Stroke length in mm.
+            clamp_force_g (int): Clamp force in grams.
+            cycles (int): Number of cycles to perform.
+        """
+        self.send_cmd(f"CMD START_TEST speed={speed_cm_s:.2f} stroke_length={stroke_length_mm} clamp_force={clamp_force_g} cycles={cycles}")
+
+    @Slot()
+    def pause_test(self):
+        """
+        Pause the currently running test.
+        
+        Sends a command to pause the active test run.
+        """
+        self.send_cmd("CMD PAUSE_TEST")
+
+    @Slot()
+    def stop_test(self):
+        """
+        Stop the currently running test.
+        
+        Sends a command to stop the active test run.
+        """
+        self.send_cmd("CMD STOP_TEST")
 
 def main():
     # Kiosk settings (optional)

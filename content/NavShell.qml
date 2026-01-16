@@ -45,8 +45,7 @@ NavShellForm {
         if (uiState === "initializing") return
 
         uiState = "initializing"
-        initStatusText = "Prepping for test…"
-
+        initStatusText = "Prepping for test"
         serialController.prep_test_run()
 
     }
@@ -221,7 +220,7 @@ NavShellForm {
 
         function onLineReceived(line) {
             const msg = ("" + line).trim()
-            console.log("⬅️ ESP32:", msg)
+            console.log("PI ⬅️ ESP32:", msg)
 
             if (shell.uiState === "initializing") {
                 if (msg === "INIT_COMPLETE") {
