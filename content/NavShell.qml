@@ -221,6 +221,7 @@ NavShellForm {
         function onLineReceived(line) {
             const msg = ("" + line).trim()
             console.log("PI ⬅️ ESP32:", msg)
+            console.log("Current UI state:", shell.uiState)
 
             if (shell.uiState === "initializing") {
                 if (msg === "INIT_COMPLETE") {
@@ -233,6 +234,7 @@ NavShellForm {
                     shell.uiState = "idle"
                     return
                 }
+                
             }
 
             // TODO later: DATA streaming, faults, run complete, etc.
