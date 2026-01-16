@@ -1,6 +1,3 @@
-/*
-This is a UI file (.ui.qml) intended to be edited in Qt Design Studio.
-*/
 import QtQuick 6.5
 import QtQuick.Controls 6.5
 import PilotLine_FrictionTester
@@ -11,7 +8,7 @@ Rectangle {
     height: Constants.height
     color: Constants.bgPrimary
 
-    // Expose label text to wrapper
+    // Expose status text to wrapper (ONLY this; do not define another statusText property)
     property alias statusText: statusTextItem.text
 
     Column {
@@ -27,19 +24,17 @@ Rectangle {
 
         Text {
             id: statusTextItem
-            text: "Initializing…"
+            text: "Initializing…"   // default, wrapper overwrites via alias
             color: Constants.textPrimary
             font.pixelSize: 20
             horizontalAlignment: Text.AlignHCenter
-            anchors.horizontalCenter: parent.horizontalCenter
         }
 
         Text {
-            text: "Please wait"
+            text: "Please wait…"
             color: Constants.textSecondary
             font.pixelSize: 14
             horizontalAlignment: Text.AlignHCenter
-            anchors.horizontalCenter: parent.horizontalCenter
         }
     }
 }
