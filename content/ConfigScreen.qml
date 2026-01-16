@@ -12,6 +12,7 @@ ConfigScreenForm {
     // passed in from NavShell
     property QtObject appMachine
     property var serialController
+    property var backend
     
     // ✅ push wrapper prop down into the Form instance
     serialController: view.serialController
