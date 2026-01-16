@@ -189,7 +189,7 @@ NavShellForm {
         if (suppressNavCheck) return
 
         // Block navigation in unsafe states
-        if (!(uiState === "idle" || uiState === "config")) {
+        if (!(uiState === "idle" || uiState === "config" || uiState === "browse")) {
             console.log("Nav blocked in state:", uiState)
             return
         }
@@ -338,8 +338,10 @@ NavShellForm {
                     onClicked: {
                         exitConfigDialog.close()
 
+                        uiState = "browse"
+
                         // ✅ Navigate to what they chose
-                        performNav(pendingNavTarget)
+                        goTo(pendingNavTarget)
 
                         // ✅ Update selection visually
                         setChecked(pendingNavTarget === "" ? "home" : pendingNavTarget)
