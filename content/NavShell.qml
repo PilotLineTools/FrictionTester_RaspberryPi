@@ -215,18 +215,6 @@ NavShellForm {
         performNav(target)
     }
 
-
-    function performNav(target) {
-        pendingNavTarget = ""
-        uiState = "idle"
-
-        if (target === "home") stack.replace(beginComp)
-        else if (target === "protocols") stack.replace(protocolsComp)
-        else if (target === "settings") stack.replace(settingsComp)
-        else if (target === "history") stack.replace(historyComp)
-        else if (target === "about") stack.replace(aboutComp)
-    }
-
     function performNav(target) {
         const t = target || "home"
         pendingNavTarget = ""
@@ -239,7 +227,7 @@ NavShellForm {
         }
 
         uiState = "browse"
-        
+
         if (t === "protocols") stack.replace(protocolsComp)
         else if (t === "settings") stack.replace(settingsComp)
         else if (t === "history") stack.replace(historyComp)
