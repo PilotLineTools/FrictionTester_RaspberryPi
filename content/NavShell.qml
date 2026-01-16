@@ -19,7 +19,7 @@ NavShellForm {
     property string pendingNavTarget: ""   // "home" | "protocols" | "settings" | "calibration" | "about"
 
     // Sidebar enabled only when safe (idle/config)
-    navEnabled: (uiState === "idle" || uiState === "config")
+    navEnabled: (uiState === "idle" || uiState === "config") && !exitConfigDialog.visible
 
     function ensureConnectedAndSend(line) {
         if (!serialController) {
