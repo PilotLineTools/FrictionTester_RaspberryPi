@@ -191,20 +191,109 @@ NavShellForm {
 
     Dialog {
         id: exitConfigDialog
-        modal: true
-        title: "Exit configuration?"
-        standardButtons: Dialog.Yes | Dialog.No
 
-        contentItem: Text {
-            text: "Leaving configuration will exit setup. Continue?"
-            wrapMode: Text.WordWrap
-            color: Constants.textPrimary
-            padding: 16
+        modal: true
+        dim: true
+        focus: true
+
+        // ✅ Explicit centering
+        x: Math.round((parent.width  - width)  / 2)
+        y: Math.round((parent.height - height) / 2)
+
+        // Prevent default platform sizing weirdness
+        width: 420
+        implicitHeight: contentItem.implicitHeight + 40
+
+        // Remove native title bar look
+        title: ""
+
+        background: Rectangle {
+            radius: 16
+            color: Constants.bgCard
+            border.color: Constants.borderDefault
+            border.width: 1
         }
 
-        onAccepted: performNav(pendingNavTarget)
-        onRejected: pendingNavTarget = ""
+        contentItem: Column {
+            spacing: 20
+            padding: 24
+
+            Text {
+                text: "Exit configuration?"
+                font.pixelSize: 22
+                font.bold: true
+                color: Constants.textPrimary
+                horizontalAlignment: Text.AlignHCenter
+                width: parent.width
+            }
+
+            Text {
+                text: "Leaving configuration will discard your current setup."
+                font.pixelSize: 15
+                color: Constants.textSecondary
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Text.AlignHCenter
+                width: parent.width
+            }
+
+            Row {
+                spacing: 12
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                Button {
+                    text: "Cancel"
+                    width: 140
+                    height: 44
+
+                    background: Rectangle {
+                        radius: 10
+                        color: Constants.bgSurface
+                        border.color: Constants.borderDefault
+                        border.width: 1
+                    }
+
+                    contentItem: Text {
+                        text: "Cancel"
+                        color: Constants.textPrimary
+                        font.pixelSize: 15
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    onClicked: {
+                        pendingNavTarget = ""
+                        exitConfigDialog.close()
+                    }
+                }
+
+                Button {
+                    text: "Exit"
+                    width: 140
+                    height: 44
+
+                    background: Rectangle {
+                        radius: 10
+                        color: Constants.accentPrimary
+                    }
+
+                    contentItem: Text {
+                        text: "Exit"
+                        color: "white"
+                        font.pixelSize: 15
+                        font.bold: true
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    onClicked: {
+                        exitConfigDialog.close()
+                        performNav(pendingNavTarget)
+                    }
+                }
+            }
+        }
     }
+
 
     // Sidebar button handlers (all go through goTo)
     homeButton.onClicked:        goTo("home")
@@ -224,7 +313,7 @@ NavShellForm {
 
             if (shell.uiState === "initializing") {
                 if (msg === "PREP_COMPLETE") {
-                    shell.initStatusText = "Init complete"
+                    shell.initStatusText = "Prep complete"
                     shell.uiState = "config"
                     return
                 }
