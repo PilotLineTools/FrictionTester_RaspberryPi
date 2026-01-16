@@ -17,6 +17,9 @@ NavShellForm {
 
     // Leaving-config confirmation support
     property string pendingNavTarget: ""   // "home" | "protocols" | "settings" | "calibration" | "about"
+    property var selectedProtocol: null
+    property string protocolsMode: "prepAndRun"
+
 
     // Sidebar enabled only when safe (idle/config)
     navEnabled: (uiState === "idle" || uiState === "config" || uiState === "browse") && !exitConfigDialog.visible
@@ -59,7 +62,7 @@ NavShellForm {
         property string status: "Ready"
         property int position: 0
         property int jogSpeed: 1
-
+        property var selectedProtocol: null
         property bool motorEnabled: false
 
         function motorOn() {
@@ -122,11 +125,44 @@ NavShellForm {
             appMachine: machineState
             serialController: shell.serialController
             backend: pythonBackend
+
+            onChooseProtocolRequested: {
+                // open protocols in select-only mode
+                protocolsMode = "selectOnly"
+                uiState = "browse"
+                stack.replace(protocolsComp)
+                setChecked("protocols")
+            }
         }
     }
 
 
-    Component { id: protocolsComp; ProtocolsScreen { appMachine: machineState; serialController: shell.serialController; backend: pythonBackend } }
+
+    Component {
+        id: protocolsComp
+        ProtocolsScreen {
+            appMachine: machineState
+            serialController: shell.serialController
+            backend: pythonBackend
+            mode: shell.protocolsMode
+
+            onProtocolChosen: function(proto) {
+                machineState.selectedProtocol = proto
+
+                if (mode === "selectOnly") {
+                    // just return to config, no prep
+                    uiState = "config"
+                    return
+                }
+
+                // browse mode: select + prep + go to config via PREP_COMPLETE
+                uiState = "initializing"
+                initStatusText = "Prepping for test"
+                serialController.prep_test_run()
+            }
+        }
+    }
+
     Component { id: settingsComp; SettingsScreen { appMachine: machineState } }
     Component { id: historyComp; TempScreen { appMachine: machineState } }
     Component { id: aboutComp; TempScreen { appMachine: machineState } }

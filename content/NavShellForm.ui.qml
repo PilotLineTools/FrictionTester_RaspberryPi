@@ -82,23 +82,6 @@ Rectangle {
             }
 
             Button {
-                id: settingsButton
-                text: qsTr("Settings")
-                checkable: true
-                ButtonGroup.group: navGroup
-                width: 80
-                height: 80
-                enabled: root.navEnabled
-
-                background: Rectangle {
-                    radius: 14
-                    color: settingsButton.checked ? Constants.accentPrimary : Constants.bgSurface
-                    border.width: settingsButton.checked ? 2 : 1
-                    border.color: settingsButton.checked ? Constants.accentSky : Constants.borderDefault
-                }
-            }
-
-            Button {
                 id: historyButton
                 text: qsTr("History")
                 checkable: true
@@ -112,6 +95,23 @@ Rectangle {
                     color: historyButton.checked ? Constants.accentPrimary : Constants.bgSurface
                     border.width: historyButton.checked ? 2 : 1
                     border.color: historyButton.checked ? Constants.accentSky : Constants.borderDefault
+                }
+            }
+
+            Button {
+                id: settingsButton
+                text: qsTr("Settings")
+                checkable: true
+                ButtonGroup.group: navGroup
+                width: 80
+                height: 80
+                enabled: root.navEnabled
+
+                background: Rectangle {
+                    radius: 14
+                    color: settingsButton.checked ? Constants.accentPrimary : Constants.bgSurface
+                    border.width: settingsButton.checked ? 2 : 1
+                    border.color: settingsButton.checked ? Constants.accentSky : Constants.borderDefault
                 }
             }
 

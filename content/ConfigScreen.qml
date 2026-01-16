@@ -13,21 +13,29 @@ ConfigScreenForm {
     property QtObject appMachine
     property var serialController
     property var backend
-    
+
+    // ✅ NEW: tell NavShell to open Protocols in selectOnly mode
+    signal chooseProtocolRequested()
+
     // ✅ push wrapper prop down into the Form instance
     serialController: view.serialController
 
-
     Component.onCompleted: {
-        console.log("✅ HomeScreen WRAPPER LOADED", appMachine)
-
+        console.log("✅ ConfigScreen WRAPPER LOADED", appMachine)
         if (serialController) {
-            console.log("✅ SerialController is available via property")
+            console.log("✅ SerialController available")
             console.log("Serial connected:", serialController.connected)
         } else {
             console.error("❌ SerialController is NOT available")
         }
     }
+
+    // ✅ Show selected protocol name (requires UI aliases in ConfigScreenForm.ui.qml below)
+    protocolNameText.text: appMachine && appMachine.selectedProtocol
+        ? appMachine.selectedProtocol.name
+        : "No protocol selected"
+
+    chooseProtocolButton.onClicked: chooseProtocolRequested()
 
     // show values
     positionText.text: appMachine
@@ -101,19 +109,17 @@ ConfigScreenForm {
         }
 
         console.log("Sending PING...")
-        serialController.sendPing() // sends "PING\r\n" from C++
-        pingStatusBox.color = Constants.accentSky // "sent"
+        serialController.sendPing()
+        pingStatusBox.color = Constants.accentSky
         pingResetTimer.restart()
     }
 
-    // ✅ Optional but recommended: react to responses/errors
     Connections {
         target: view.serialController ? view.serialController : null
 
         function onLineReceived(line) {
             console.log("RX:", line)
             if (line.trim() === "PONG") {
-                // if you have a success color token; otherwise keep accentSky
                 pingStatusBox.color = Constants.accentSuccess !== undefined
                     ? Constants.accentSuccess
                     : Constants.accentSky
@@ -128,7 +134,6 @@ ConfigScreenForm {
         }
     }
 
-    // Timer to reset the status box color
     Timer {
         id: pingResetTimer
         interval: 500

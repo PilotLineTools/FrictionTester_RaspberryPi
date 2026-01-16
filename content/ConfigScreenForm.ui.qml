@@ -25,6 +25,9 @@ Rectangle {
     property alias motorToggleButton: motorToggleButton
     property alias pingButton: pingButton
     property alias pingStatusBox: pingStatusBox
+    property alias protocolNameText: protocolNameText
+    property alias chooseProtocolButton: chooseProtocolButton
+
     
     // Property to receive SerialController from parent
     property var serialController: null
@@ -263,6 +266,41 @@ Rectangle {
                     font.pixelSize: 22
                     Layout.fillWidth: true
                 }
+
+                // Selected Protocol
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 10
+
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 4
+
+                        Text {
+                            text: qsTr("Selected Protocol")
+                            color: "#9CA3AF"
+                            font.pixelSize: 12
+                        }
+
+                        Text {
+                            id: protocolNameText
+                            text: qsTr("No protocol selected")
+                            color: "#F3F4F6"
+                            font.pixelSize: 16
+                            elide: Text.ElideRight
+                            Layout.fillWidth: true
+                        }
+                    }
+
+                    Button {
+                        id: chooseProtocolButton
+                        text: qsTr("Choose")
+                        font.pixelSize: 14
+                        Layout.preferredWidth: 110
+                        Layout.preferredHeight: 40
+                    }
+                }
+
 
                 // ESP32 PING Section
                 RowLayout {
