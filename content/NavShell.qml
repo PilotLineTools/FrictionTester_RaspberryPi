@@ -9,10 +9,17 @@ NavShellForm {
     width: Constants.width
     height: Constants.height
 
-    // ✅ NEW: replace uartClient with SerialController
     property var serialController: null
 
-    
+    // "idle" | "initializing" | "config" | "running" | "paused"
+    property string uiState: "idle"
+    property string initStatusText: "Initializing system…"
+
+    // Leaving-config confirmation support
+    property string pendingNavTarget: ""   // "home" | "protocols" | "settings" | "calibration" | "about"
+
+    // Sidebar enabled only when safe (idle/config)
+    navEnabled: (uiState === "idle" || uiState === "config")
 
     function ensureConnectedAndSend(line) {
         if (!serialController) {
@@ -29,18 +36,29 @@ NavShellForm {
             }
         }
 
-        serialController.send_cmd(line) 
+        serialController.send_cmd(line)
         return true
     }
 
-    function hideKeyboard() {
-        Qt.inputMethod.hide()
+    // Home "Begin" -> show loading -> wait for INIT_COMPLETE -> config
+    function beginInit() {
+        if (uiState === "initializing") return
+
+        uiState = "initializing"
+        initStatusText = "Homing Z + resetting…"
+
+        const ok =
+            ensureConnectedAndSend("HOME_ALL") &&
+            ensureConnectedAndSend("RESET_STATE")
+
+        if (!ok) {
+            uiState = "idle"
+            initStatusText = "Initialization failed (serial not connected)"
+        }
     }
 
-    function showKeyboard() {
-        Qt.inputMethod.show()
-    }
-
+    function hideKeyboard() { Qt.inputMethod.hide() }
+    function showKeyboard() { Qt.inputMethod.show() }
 
     QtObject {
         id: machineState
@@ -66,8 +84,6 @@ NavShellForm {
 
     QtObject {
         id: pythonBackend
-
-        // Same Pi backend
         property string apiBase: "http://127.0.0.1:8080"
 
         function request(method, path, body, cb) {
@@ -91,25 +107,143 @@ NavShellForm {
         }
     }
 
-    // ✅ Pass SerialController down instead of uartClient
-    Component { id: homeComp; HomeScreen { appMachine: machineState; serialController: shell.serialController } }
+    // ===== Screens =====
+
+    Component {
+        id: beginComp
+        HomeScreen {
+            onBeginPressed: shell.beginInit()
+        }
+    }
+
+    Component {
+        id: loadingComp
+        LoadingScreen {
+            statusText: shell.initStatusText
+        }
+    }
+
+    Component {
+        id: configComp
+        ConfigScreen {
+            appMachine: machineState
+            serialController: shell.serialController
+            backend: pythonBackend
+        }
+    }
+
     Component { id: protocolsComp; ProtocolsScreen { appMachine: machineState; serialController: shell.serialController; backend: pythonBackend } }
     Component { id: settingsComp; SettingsScreen { appMachine: machineState } }
-    Component { id: calibrationComp; TempScreen { appMachine: machineState } }
+    Component { id: historyComp; TempScreen { appMachine: machineState } }
     Component { id: aboutComp; TempScreen { appMachine: machineState } }
+
+    // Central screen router for state-driven screens
+    function routeToState() {
+        if (uiState === "idle") {
+            stack.replace(beginComp)
+            // Keep Home button selected
+            homeButton.checked = true
+        } else if (uiState === "initializing") {
+            stack.replace(loadingComp)
+        } else if (uiState === "config") {
+            stack.replace(configComp)
+            // You can choose what nav button is "selected" during config; Home is fine
+            homeButton.checked = true
+        }
+        // running/paused will be added later
+    }
 
     Component.onCompleted: {
         console.log("NavShell loaded, serialController:", serialController,
                     "connected:", serialController ? serialController.connected : "null")
-        stack.replace(homeComp)
+        uiState = "idle"
+        routeToState()
     }
 
-    homeButton.onClicked:        stack.replace(homeComp)
-    protocolsButton.onClicked:   stack.replace(protocolsComp)
-    settingsButton.onClicked:    stack.replace(settingsComp)
-    calibrationButton.onClicked: stack.replace(calibrationComp)
-    aboutButton.onClicked:       stack.replace(aboutComp)
+    onUiStateChanged: routeToState()
+
+    // ===== Nav logic (enforces confirm + locks) =====
+
+    function goTo(target) {
+        // Block navigation in unsafe states even if a click slips through
+        if (!(uiState === "idle" || uiState === "config")) {
+            console.log("Nav blocked in state:", uiState)
+            return
+        }
+
+        // Config requires confirm when leaving to OTHER screens
+        if (uiState === "config" && target !== "home") {
+            pendingNavTarget = target
+            exitConfigDialog.open()
+            return
+        }
+
+        performNav(target)
+    }
+
+    function performNav(target) {
+        pendingNavTarget = ""
+
+        if (target === "home") {
+            uiState = "idle"
+            return
+        }
+
+        if (target === "protocols") stack.replace(protocolsComp)
+        else if (target === "settings") stack.replace(settingsComp)
+        else if (target === "history") stack.replace(historyComp)
+        else if (target === "about") stack.replace(aboutComp)
+    }
+
+    Dialog {
+        id: exitConfigDialog
+        modal: true
+        title: "Exit configuration?"
+        standardButtons: Dialog.Yes | Dialog.No
+
+        contentItem: Text {
+            text: "Leaving configuration will exit setup. Continue?"
+            wrapMode: Text.WordWrap
+            color: Constants.textPrimary
+            padding: 16
+        }
+
+        onAccepted: performNav(pendingNavTarget)
+        onRejected: pendingNavTarget = ""
+    }
+
+    // Sidebar button handlers (all go through goTo)
+    homeButton.onClicked:        goTo("home")
+    protocolsButton.onClicked:   goTo("protocols")
+    settingsButton.onClicked:    goTo("settings")
+    historyButton.onClicked: goTo("history")
+    aboutButton.onClicked:       goTo("about")
+
+    // ===== ESP32 init completion =====
+
+    Connections {
+        target: shell.serialController ? shell.serialController : null
+
+        function onLineReceived(line) {
+            const msg = ("" + line).trim()
+            console.log("⬅️ ESP32:", msg)
+
+            if (shell.uiState === "initializing") {
+                if (msg === "INIT_COMPLETE") {
+                    shell.initStatusText = "Init complete"
+                    shell.uiState = "config"
+                    return
+                }
+                if (msg.startsWith("INIT_ERROR")) {
+                    shell.initStatusText = msg
+                    shell.uiState = "idle"
+                    return
+                }
+            }
+
+            // TODO later: DATA streaming, faults, run complete, etc.
+        }
+    }
 
     onSerialControllerChanged: console.log("NavShell serialController CHANGED:", serialController)
-
 }

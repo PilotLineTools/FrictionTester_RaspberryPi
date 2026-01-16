@@ -12,12 +12,15 @@ Rectangle {
     property alias homeButton: homeButton
     property alias protocolsButton: protocolsButton
     property alias settingsButton: settingsButton
-    property alias calibrationButton: calibrationButton
+    property alias historyButton: historyButton
     property alias aboutButton: aboutButton
-    
+
     // Property to receive SerialController from parent (Python backend)
     property var serialController: null
 
+    // ✅ NEW: Nav interactivity control (set from NavShell.qml)
+    property bool navEnabled: true
+    property real navOpacity: navEnabled ? 1.0 : 0.35
 
     // NAV
     Rectangle {
@@ -27,6 +30,10 @@ Rectangle {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         color: Constants.bgCard
+
+        // ✅ Make entire sidebar obey enabled/opacity
+        enabled: root.navEnabled
+        opacity: root.navOpacity
 
         ButtonGroup {
             id: navGroup
@@ -47,17 +54,16 @@ Rectangle {
                 ButtonGroup.group: navGroup
                 width: 80
                 height: 80
+                enabled: root.navEnabled
 
                 background: Rectangle {
                     radius: 14
-
-                    color: homeButton.checked ? Constants.accentPrimary // selected
-                                              : Constants.bgSurface // default
-
+                    color: homeButton.checked ? Constants.accentPrimary : Constants.bgSurface
                     border.width: homeButton.checked ? 2 : 1
                     border.color: homeButton.checked ? Constants.accentSky : Constants.borderDefault
                 }
             }
+
             Button {
                 id: protocolsButton
                 text: qsTr("Protocols")
@@ -65,17 +71,16 @@ Rectangle {
                 ButtonGroup.group: navGroup
                 width: 80
                 height: 80
+                enabled: root.navEnabled
 
                 background: Rectangle {
                     radius: 14
-
-                    color: protocolsButton.checked ? Constants.accentPrimary // selected
-                                                   : Constants.bgSurface // default
-
+                    color: protocolsButton.checked ? Constants.accentPrimary : Constants.bgSurface
                     border.width: protocolsButton.checked ? 2 : 1
                     border.color: protocolsButton.checked ? Constants.accentSky : Constants.borderDefault
                 }
             }
+
             Button {
                 id: settingsButton
                 text: qsTr("Settings")
@@ -83,35 +88,33 @@ Rectangle {
                 ButtonGroup.group: navGroup
                 width: 80
                 height: 80
+                enabled: root.navEnabled
 
                 background: Rectangle {
                     radius: 14
-
-                    color: settingsButton.checked ? Constants.accentPrimary // selected
-                                                  : Constants.bgSurface // default
-
+                    color: settingsButton.checked ? Constants.accentPrimary : Constants.bgSurface
                     border.width: settingsButton.checked ? 2 : 1
                     border.color: settingsButton.checked ? Constants.accentSky : Constants.borderDefault
                 }
             }
+
             Button {
-                id: calibrationButton
-                text: qsTr("Calibration")
+                id: historyButton
+                text: qsTr("History")
                 checkable: true
                 ButtonGroup.group: navGroup
                 width: 80
                 height: 80
+                enabled: root.navEnabled
 
                 background: Rectangle {
                     radius: 14
-
-                    color: calibrationButton.checked ? Constants.accentPrimary // selected
-                                                     : Constants.bgSurface // default
-
-                    border.width: calibrationButton.checked ? 2 : 1
-                    border.color: calibrationButton.checked ? Constants.accentSky : Constants.borderDefault
+                    color: historyButton.checked ? Constants.accentPrimary : Constants.bgSurface
+                    border.width: historyButton.checked ? 2 : 1
+                    border.color: historyButton.checked ? Constants.accentSky : Constants.borderDefault
                 }
             }
+
             Button {
                 id: aboutButton
                 text: qsTr("About")
@@ -119,13 +122,11 @@ Rectangle {
                 ButtonGroup.group: navGroup
                 width: 80
                 height: 80
+                enabled: root.navEnabled
 
                 background: Rectangle {
                     radius: 14
-
-                    color: aboutButton.checked ? Constants.accentPrimary // selected
-                                               : Constants.bgSurface // default
-
+                    color: aboutButton.checked ? Constants.accentPrimary : Constants.bgSurface
                     border.width: aboutButton.checked ? 2 : 1
                     border.color: aboutButton.checked ? Constants.accentSky : Constants.borderDefault
                 }

@@ -17,6 +17,7 @@ Rectangle {
     property var editedProtocol: null
     property bool syncing: false
 
+    property alias runProtocolButton: runProtocolButton
 
     function callParent(fnName, a, b) {
         if (!parent || typeof parent[fnName] !== "function") return
@@ -336,6 +337,7 @@ Rectangle {
                     spacing: 12
 
                     Button {
+                        id: runProtocolButton
                         Layout.fillWidth: true
                         Layout.preferredHeight: 58
                         text: qsTr("▶  RUN PROTOCOL")
@@ -345,7 +347,7 @@ Rectangle {
                             radius: 12
                             color: parent.pressed ? "#059669" : "#10B981"
                         }
-                        onClicked: root.callParent("runProtocol")
+                        //onClicked: root.callParent("runProtocol")
                     }
 
                     Button {

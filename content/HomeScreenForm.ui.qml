@@ -1,11 +1,10 @@
-
 /*
   Qt Design Studio UI file (.ui.qml)
   Keep this declarative (layout + styling). Put logic in HomeScreen.qml.
 */
-import QtQuick
-import QtQuick.Controls
-import QtQuick.Layouts
+import QtQuick 6.5
+import QtQuick.Controls 6.5
+import QtQuick.Layouts 6.5
 import PilotLine_FrictionTester
 
 Rectangle {
@@ -15,283 +14,32 @@ Rectangle {
     color: Constants.bgPrimary
     radius: 0
 
-    // ✅ EXPOSE UI ELEMENTS
-    property alias positionText: positionText
-    property alias speedText: speedText
-    property alias jogUpButton: jogUpButton
-    property alias jogDownButton: jogDownButton
-    property alias resetButton: resetButton
-    property alias speedSlider: speedSlider
-    property alias motorToggleButton: motorToggleButton
-    property alias pingButton: pingButton
-    property alias pingStatusBox: pingStatusBox
-    
-    // Property to receive SerialController from parent
-    property var serialController: null
+    // Expose the button to the wrapper
+    property alias beginButton: beginButton
 
+    Button {
+        id: beginButton
+        text: qsTr("Begin")
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
+        width: 240
+        height: 72
 
-    // Page padding
-    readonly property int pad: 12
-    readonly property int gap: 12
+        font.pixelSize: 24
 
-    GridLayout {
-        id: grid
-        anchors.fill: parent
-        anchors.margins: root.pad
-        rowSpacing: root.gap
-        columnSpacing: root.gap
-        columns: 2
-
-        // Make left column wider than right
-        //columnStretchFactor: [3, 2]
-
-        // =========================
-        // Jog Control (top-left)
-        // =========================
-        Rectangle {
-            id: jog_control_content
-            color: Constants.bgCard
-            radius: 12
-
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            // Give this row more height than bottom row
-            Layout.preferredHeight: 230
-
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: 14
-                spacing: 10
-
-                RowLayout {
-                    Layout.fillWidth: true
-
-                    Text {
-                        id: jog_control_title
-                        text: qsTr("Jog Control")
-                        color: "#F3F4F6"
-                        font.pixelSize: 22
-                        Layout.fillWidth: true
-                        elide: Text.ElideRight
-                    }
-
-                    Text {
-                        id: speedText
-                        text: qsTr("Speed: --")
-                        color: "#F3F4F6"
-                        font.pixelSize: 18
-                        horizontalAlignment: Text.AlignRight
-                        Layout.preferredWidth: 160
-                    }
-                }
-
-                Slider {
-                    id: speedSlider
-                    from: 1
-                    to: 50
-                    value: 1
-                    Layout.fillWidth: true
-                }
-
-                RowLayout {
-                    id: posittion_control_row
-                    Layout.fillWidth: true
-                    spacing: 10
-
-                    Button {
-                        id: jogUpButton
-                        text: qsTr("↑ UP")
-                        font.pixelSize: 16
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 44
-                    }
-
-                    Button {
-                        id: jogDownButton
-                        text: qsTr("↓ DOWN")
-                        font.pixelSize: 16
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 44
-                    }
-                }
-
-                Button {
-                    id: resetButton
-                    text: qsTr("Reset Position")
-                    font.pixelSize: 16
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 44
-                    rotation: 0
-                }
-            }
+        // Optional: make it feel more “primary”
+        background: Rectangle {
+            radius: 14
+            color: Constants.accent
         }
 
-        // =========================
-        // Live Readings (top-right)
-        // =========================
-        Rectangle {
-            id: live_readings_content
-            color: Constants.bgCard
-            radius: 12
-
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.preferredHeight: 230
-
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: 14
-                spacing: 10
-
-                Text {
-                    id: live_readings_title
-                    text: qsTr("Live Readings")
-                    color: "#F3F4F6"
-                    font.pixelSize: 22
-                    Layout.fillWidth: true
-                    elide: Text.ElideRight
-                }
-
-                ColumnLayout {
-                    id: readout
-                    Layout.fillWidth: true
-                    spacing: 6
-
-                    Text {
-                        id: positionText
-                        text: qsTr("Position: --")
-                        color: "#F3F4F6"
-                        font.pixelSize: 16
-                        Layout.fillWidth: true
-                        elide: Text.ElideRight
-                    }
-
-                    Text {
-                        id: live_pullforce
-                        text: qsTr("Pull Force: --")
-                        color: "#F3F4F6"
-                        font.pixelSize: 16
-                        Layout.fillWidth: true
-                        elide: Text.ElideRight
-                    }
-
-                    Text {
-                        id: live_clampforce
-                        text: qsTr("Clamp Force: --")
-                        color: "#F3F4F6"
-                        font.pixelSize: 16
-                        Layout.fillWidth: true
-                        elide: Text.ElideRight
-                    }
-
-                    Text {
-                        id: live_watertemp
-                        text: qsTr("Water Temp: --")
-                        color: "#F3F4F6"
-                        font.pixelSize: 16
-                        Layout.fillWidth: true
-                        elide: Text.ElideRight
-                    }
-                }
-
-                Item {
-                    Layout.fillHeight: true
-                } // spacer
-            }
-        }
-
-        // =========================
-        // Water Bath (bottom-left)
-        // =========================
-        Rectangle {
-            id: water_bath_content
-            color: Constants.bgCard
-            radius: 12
-
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.preferredHeight: 200
-
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: 14
-                spacing: 10
-
-                Text {
-                    text: qsTr("Water Bath")
-                    color: "#F3F4F6"
-                    font.pixelSize: 22
-                    Layout.fillWidth: true
-                }
-
-                Item {
-                    Layout.fillHeight: true
-                }
-
-                Button {
-                    id: motorToggleButton
-                    text: qsTr("Motor: OFF")
-                    checkable: true
-                    font.pixelSize: 16
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 48
-                }
-            }
-        }
-
-        // =========================
-        // Test Protocol (bottom-right)
-        // =========================
-        Rectangle {
-            id: test_protocol_content
-            color: Constants.bgCard
-            radius: 12
-
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.preferredHeight: 200
-
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: 14
-                spacing: 10
-
-                Text {
-                    text: qsTr("Test Protocol")
-                    color: "#F3F4F6"
-                    font.pixelSize: 22
-                    Layout.fillWidth: true
-                }
-
-                // ESP32 PING Section
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 10
-
-                    Rectangle {
-                        id: pingStatusBox
-                        Layout.preferredWidth: 40
-                        Layout.preferredHeight: 40
-                        radius: 8
-                        color: Constants.bgSurface
-                        border.color: Constants.borderDefault
-                        border.width: 2
-                    }
-
-                    Button {
-                        id: pingButton
-                        text: qsTr("PING ESP32")
-                        font.pixelSize: 16
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 44
-                    }
-                }
-
-                Item {
-                    Layout.fillHeight: true
-                }
-            }
+        contentItem: Text {
+            text: beginButton.text
+            color: "white"
+            font.pixelSize: 24
+            font.bold: true
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
         }
     }
 }
