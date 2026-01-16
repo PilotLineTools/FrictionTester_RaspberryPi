@@ -9,10 +9,6 @@ HomeScreenForm {
     width: Constants.width
     height: Constants.height
 
-    // passed in from NavShell (keep if you want, but Home no longer needs them)
-    property QtObject appMachine
-    property var serialController
-
     // Let NavShell handle init + loading + serial responses
     signal beginPressed()
 

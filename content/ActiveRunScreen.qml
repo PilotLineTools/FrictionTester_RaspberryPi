@@ -3,7 +3,7 @@ import QtQuick.Controls
 import QtQml
 import PilotLine_FrictionTester
 
-TempScreenForm {
+ActiveRunScreenForm {
     id: view
 
     width: Constants.width

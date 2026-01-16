@@ -1,8 +1,3 @@
-
-/*
-  Qt Design Studio UI file (.ui.qml)
-  Keep this declarative (layout + styling). Put logic in HomeScreen.qml.
-*/
 import QtQuick
 import QtQuick.Controls
 import PilotLine_FrictionTester
@@ -14,7 +9,7 @@ Rectangle {
     color: Constants.bgPrimary
 
     Text {
-        id: temp
+        id: activeRun
         x: 656
         y: 487
 
@@ -22,7 +17,7 @@ Rectangle {
         height: 106
         color: "#f3f4f6"
 
-        text: qsTr("Temp Screen")
+        text: qsTr("Active Screen")
         font.pixelSize: 60
     }
 }
