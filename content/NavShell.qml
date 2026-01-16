@@ -166,7 +166,7 @@ NavShellForm {
         }
 
         // Config requires confirm when leaving to OTHER screens
-        if (uiState === "config" && target !== "home") {
+        if (uiState === "config" ) {
             pendingNavTarget = target
             exitConfigDialog.open()
             return
@@ -223,7 +223,7 @@ NavShellForm {
             console.log("PI ⬅️ ESP32:", msg)
 
             if (shell.uiState === "initializing") {
-                if (msg === "INIT_COMPLETE") {
+                if (msg === "PREP_COMPLETE") {
                     shell.initStatusText = "Init complete"
                     shell.uiState = "config"
                     return

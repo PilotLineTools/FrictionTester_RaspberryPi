@@ -30,7 +30,7 @@ Rectangle {
         // Optional: make it feel more “primary”
         background: Rectangle {
             radius: 14
-            color: Constants.accent
+            color: Constants.accentPrimary
         }
 
         contentItem: Text {
