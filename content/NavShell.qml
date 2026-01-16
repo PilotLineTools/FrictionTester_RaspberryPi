@@ -229,7 +229,10 @@ NavShellForm {
         prevCheckedTarget = t
     }
 
-
+    function cancelExitConfirm() {
+        pendingNavTarget = ""
+        exitConfigDialog.close()
+    }
 
     Dialog {
         id: exitConfigDialog
@@ -249,6 +252,17 @@ NavShellForm {
         // Remove native title bar look
         title: ""
 
+        // When dialog opens/closes, restore nav highlight reliably
+        onOpened: {
+            // In config you intentionally keep Home selected
+            prevCheckedTarget = "home"
+        }
+
+        onClosed: {
+            // ✅ After dismissal (tap outside / Cancel), restore highlight
+            setChecked(prevCheckedTarget)
+        }
+
         background: Rectangle {
             radius: 16
             color: Constants.bgCard
@@ -258,14 +272,8 @@ NavShellForm {
 
         // Tap outside the dialog = Cancel
         Overlay.modal: Rectangle {
-            color: "transparent"   // keep your dim handled by `dim: true`
-            TapHandler {
-                onTapped: {
-                    pendingNavTarget = ""
-                    exitConfigDialog.close()
-                    setChecked("home")
-                }
-            }
+            color: "transparent" // dim handled by `dim: true`
+            TapHandler { onTapped: cancelExitConfirm() }
         }
 
         contentItem: Column {
@@ -314,14 +322,7 @@ NavShellForm {
                         verticalAlignment: Text.AlignVCenter
                     }
 
-                    onClicked: {
-                        pendingNavTarget = ""
-                        exitConfigDialog.close()
-
-                        // Return visual selection back to what it should be in config
-                        setChecked("home")
-                    }
-
+                    onClicked: cancelExitConfirm()
                 }
 
                 Button {
@@ -344,16 +345,16 @@ NavShellForm {
                     }
 
                     onClicked: {
+                        const t = pendingNavTarget
+                        pendingNavTarget = ""
                         exitConfigDialog.close()
-
-                        // ✅ Go where they wanted WITHOUT re-triggering confirmation
-                        performNav(pendingNavTarget)
+                        performNav(t)
                     }
-
                 }
             }
         }
     }
+
 
 
     // Sidebar button handlers (all go through goTo)
