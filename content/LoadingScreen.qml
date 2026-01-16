@@ -9,13 +9,13 @@ LoadingScreenForm {
     width: Constants.width
     height: Constants.height
 
-    // passed in from NavShell
-    property string statusText: "Initializing…"
+    // ✅ Rename to avoid clashing with LoadingScreenForm.statusText
+    property string statusMessage: "Initializing…"
 
-    // push down into the Form
-    statusText: view.statusText
+    // ✅ Drive the form’s alias property
+    statusText: statusMessage
 
     Component.onCompleted: {
-        console.log("✅ LoadingScreen LOADED:", statusText)
+        console.log("✅ LoadingScreen LOADED:", statusMessage)
     }
 }

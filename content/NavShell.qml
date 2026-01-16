@@ -119,7 +119,7 @@ NavShellForm {
     Component {
         id: loadingComp
         LoadingScreen {
-            statusText: shell.initStatusText
+            statusMessage: shell.initStatusText
         }
     }
 
