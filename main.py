@@ -342,6 +342,39 @@ class SerialController(QObject):
         """
         self.send_cmd("CMD STOP_STREAM")
 
+    
+    @Slot(bool)
+    def set_clamp(self, closed: bool):
+        """
+        Set the clamp state to open or closed.
+        
+        Args:
+            closed (bool): True to close the clamp, False to open it.
+        """
+        self.send_cmd(f"CMD SET_CLAMP state={1 if closed else 0}")
+
+    
+    @Slot(bool)
+    def set_carriage(self, in_water: bool):
+        """
+        Set the carriage water immersion state.
+        
+        Args:
+            in_water (bool): True to immerse carriage in water, False to remove it.
+        """
+        self.send_cmd(f"CMD SET_CARRIAGE state={1 if in_water else 0}")
+
+    # Function that preps for the test run by sending all commands at once (set_carriage (FalSE),  home(Z)
+    @Slot()
+    def prep_test_run(self):
+        """
+        Prepare the device for a test run by sending necessary setup commands.
+        
+        This method sends commands to ensure the carriage is out of water
+        and homes the Z axis before starting a test run.
+        """
+        self.set_carriage(in_water=False)
+        self.home(axis="Z")
 
 def main():
     # Kiosk settings (optional)

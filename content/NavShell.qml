@@ -45,16 +45,10 @@ NavShellForm {
         if (uiState === "initializing") return
 
         uiState = "initializing"
-        initStatusText = "Homing Z + resetting…"
+        initStatusText = "Prepping for test…"
 
-        const ok =
-            ensureConnectedAndSend("HOME_ALL") &&
-            ensureConnectedAndSend("RESET_STATE")
+        serialController.prep_test_run()
 
-        if (!ok) {
-            uiState = "idle"
-            initStatusText = "Initialization failed (serial not connected)"
-        }
     }
 
     function hideKeyboard() { Qt.inputMethod.hide() }
