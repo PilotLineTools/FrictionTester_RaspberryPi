@@ -25,50 +25,47 @@ Rectangle {
     property bool editingExisting: false
     property int selectedIndex: -1
     property int editingIndex: -1
-
-    // Holds the protocol being edited (object)
     property var editingProtocol: ({})
     property bool busy: false
     property string loadError: ""
 
+    // crude factory rule (adjust/remove)
+    property bool useFactoryTag: true
+
     ListModel { id: protocolsModel }
 
     // ---------------------------
-    // Helpers
+    // Backend mapping (FastAPI fields)
     // ---------------------------
-    function _safe(v, fallback) { return (v === undefined || v === null) ? fallback : v }
-
-    function _toEditorShape(p) {
-        return {
-            id: _safe(p.id, null),
-            name: _safe(p.name, "New Protocol"),
-            speed: Number(_safe(p.speed, 1.0)),              // cm/s
-            strokeLength: Number(_safe(p.strokeLength, 50)), // mm
-            clampForce: Number(_safe(p.clampForce, 100)),    // g (or your unit)
-            waterTemp: Number(_safe(p.waterTemp, 37)),       // °C
-            cycles: Number(_safe(p.cycles, 1)),
-            lastModified: _safe(p.lastModified, ""),
-            factory: !!_safe(p.factory, false)
-        }
-    }
-
-    function _fromEditorShape(p) {
-        // what we send back to backend
+    function toUiShape(p) {
+        // p is ProtocolOut from API
         return {
             id: p.id,
             name: p.name,
-            speed: Number(p.speed),
-            strokeLength: Number(p.strokeLength),
-            clampForce: Number(p.clampForce),
-            waterTemp: Number(p.waterTemp),
+            speed: Number(p.speed),                       // cm/s
+            strokeLength: Number(p.stroke_length_mm),     // mm
+            clampForce: Number(p.clamp_force_g),          // g
+            waterTemp: Number(p.water_temp_c),            // C
             cycles: Number(p.cycles),
-            factory: !!p.factory
+            createdAt: p.created_at || "",
+            updatedAt: p.updated_at || "",
+            // optional tag
+            factory: useFactoryTag ? (p.id <= 3) : false
         }
     }
 
-    // ---------------------------
-    // Backend load
-    // ---------------------------
+    function toApiCreate(p) {
+        // matches ProtocolIn
+        return {
+            name: p.name,
+            speed: Number(p.speed),
+            stroke_length_mm: Number(p.strokeLength),
+            clamp_force_g: Number(p.clampForce),
+            water_temp_c: Number(p.waterTemp),
+            cycles: Number(p.cycles)
+        }
+    }
+
     function loadProtocols() {
         if (!backend) {
             console.warn("ProtocolsScreen: backend is null")
@@ -78,7 +75,6 @@ Rectangle {
         busy = true
         loadError = ""
 
-        // ✅ CHANGE THIS PATH if yours differs
         backend.request("GET", "/protocols", null, function(ok, status, data) {
             busy = false
             protocolsModel.clear()
@@ -89,14 +85,10 @@ Rectangle {
                 return
             }
 
-            // If backend returns {protocols:[...]} support that too
-            var arr = Array.isArray(data) ? data : (data.protocols || [])
-            for (var i = 0; i < arr.length; i++) {
-                var p = _toEditorShape(arr[i])
-                protocolsModel.append(p)
+            for (var i = 0; i < data.length; i++) {
+                protocolsModel.append(toUiShape(data[i]))
             }
 
-            // default selection
             selectedIndex = (protocolsModel.count > 0) ? 0 : -1
         })
     }
@@ -104,7 +96,7 @@ Rectangle {
     Component.onCompleted: loadProtocols()
 
     // ---------------------------
-    // Add / Edit / Save / Delete
+    // Editor (Add/Edit)
     // ---------------------------
     function openNewProtocol() {
         editingExisting = false
@@ -116,9 +108,7 @@ Rectangle {
             strokeLength: 50,
             clampForce: 100,
             waterTemp: 37,
-            cycles: 1,
-            lastModified: "",
-            factory: false
+            cycles: 1
         }
         editorOpen = true
     }
@@ -129,12 +119,20 @@ Rectangle {
 
         editingExisting = true
         editingIndex = idx
-        editingProtocol = _toEditorShape(p)
+        editingProtocol = {
+            id: p.id,
+            name: p.name,
+            speed: p.speed,
+            strokeLength: p.strokeLength,
+            clampForce: p.clampForce,
+            waterTemp: p.waterTemp,
+            cycles: p.cycles,
+            factory: !!p.factory
+        }
         editorOpen = true
     }
 
     function updateField(key, value) {
-        // called by UI controls
         var p = editingProtocol
         if (!p) return
         p[key] = value
@@ -144,34 +142,37 @@ Rectangle {
     function saveProtocol() {
         if (!backend) return
         if (!editingProtocol || !editingProtocol.name || editingProtocol.name.trim().length === 0) return
-        if (editingProtocol.factory === true) return // can't edit factory
+        if (editingProtocol.factory === true) return
 
         busy = true
-        var payload = _fromEditorShape(editingProtocol)
 
-        if (editingExisting && editingProtocol.id) {
-            // ✅ CHANGE THIS PATH if yours differs
-            backend.request("PUT", "/protocols/" + editingProtocol.id, payload, function(ok, status, data) {
+        if (editingExisting && editingProtocol.id !== null) {
+            // FastAPI update expects dict[str,Any] of fields to update
+            // Send only the API field names
+            var patch = {
+                name: editingProtocol.name,
+                speed: Number(editingProtocol.speed),
+                stroke_length_mm: Number(editingProtocol.strokeLength),
+                clamp_force_g: Number(editingProtocol.clampForce),
+                water_temp_c: Number(editingProtocol.waterTemp),
+                cycles: Number(editingProtocol.cycles)
+            }
+
+            backend.request("PUT", "/protocols/" + editingProtocol.id, patch, function(ok, status, data) {
                 busy = false
                 if (!ok) {
-                    console.error("PUT failed:", status, data)
+                    console.error("PUT /protocols failed:", status, data)
                     return
                 }
-
-                // update local model
-                protocolsModel.set(editingIndex, _toEditorShape(payload))
-                selectedIndex = editingIndex
                 editorOpen = false
-
-                // reload if you want server-calculated fields like lastModified
                 loadProtocols()
             })
         } else {
-            // ✅ CHANGE THIS PATH if yours differs
+            var payload = toApiCreate(editingProtocol)
             backend.request("POST", "/protocols", payload, function(ok, status, data) {
                 busy = false
                 if (!ok) {
-                    console.error("POST failed:", status, data)
+                    console.error("POST /protocols failed:", status, data)
                     return
                 }
                 editorOpen = false
@@ -186,14 +187,12 @@ Rectangle {
 
         var p = protocolsModel.get(idx)
         if (p.factory === true) return
-        if (!p.id) return
 
         busy = true
-        // ✅ CHANGE THIS PATH if yours differs
         backend.request("DELETE", "/protocols/" + p.id, null, function(ok, status, data) {
             busy = false
             if (!ok) {
-                console.error("DELETE failed:", status, data)
+                console.error("DELETE /protocols failed:", status, data)
                 return
             }
             editorOpen = false
@@ -206,17 +205,20 @@ Rectangle {
         if (idx < 0 || idx >= protocolsModel.count) return
 
         var p = protocolsModel.get(idx)
-        // easiest: create with "Copy" locally, then POST
-        var payload = _fromEditorShape(_toEditorShape(p))
-        payload.id = null
-        payload.factory = false
-        payload.name = payload.name + " Copy"
+        var payload = {
+            name: p.name + " Copy",
+            speed: Number(p.speed),
+            stroke_length_mm: Number(p.strokeLength),
+            clamp_force_g: Number(p.clampForce),
+            water_temp_c: Number(p.waterTemp),
+            cycles: Number(p.cycles)
+        }
 
         busy = true
         backend.request("POST", "/protocols", payload, function(ok, status, data) {
             busy = false
             if (!ok) {
-                console.error("DUPLICATE POST failed:", status, data)
+                console.error("POST duplicate failed:", status, data)
                 return
             }
             loadProtocols()
@@ -242,9 +244,7 @@ Rectangle {
             Button {
                 text: editorOpen ? "Cancel" : "Back"
                 Layout.preferredWidth: 120
-                onClicked: {
-                    if (editorOpen) editorOpen = false
-                }
+                onClicked: { if (editorOpen) editorOpen = false }
                 background: Rectangle { radius: 10; color: "transparent" }
                 contentItem: Text { text: parent.text; color: Constants.textPrimary; font.pixelSize: 16 }
             }
@@ -298,7 +298,7 @@ Rectangle {
     }
 
     // ---------------------------
-    // Body: list or editor
+    // Body
     // ---------------------------
     Rectangle {
         id: body
@@ -308,15 +308,32 @@ Rectangle {
         anchors.bottom: bottomBar.top
         color: Constants.bgPrimary
 
-        // LIST VIEW
+        // LIST
         Item {
             anchors.fill: parent
             visible: !editorOpen
 
+            BusyIndicator {
+                anchors.centerIn: parent
+                running: busy
+                visible: busy
+            }
+
+            // Error state
             Column {
                 anchors.centerIn: parent
                 spacing: 10
-                visible: !busy && protocolsModel.count === 0 && loadError === ""
+                visible: !busy && loadError !== ""
+
+                Text { text: loadError; color: Constants.accentWarning; font.pixelSize: 16 }
+                Button { text: "Retry"; onClicked: loadProtocols() }
+            }
+
+            // Empty state (center of content area)
+            Column {
+                anchors.centerIn: parent
+                spacing: 8
+                visible: !busy && loadError === "" && protocolsModel.count === 0
 
                 Text {
                     text: "No protocols yet"
@@ -333,24 +350,6 @@ Rectangle {
                 }
             }
 
-            Column {
-                anchors.centerIn: parent
-                spacing: 10
-                visible: loadError !== ""
-
-                Text { text: loadError; color: Constants.accentWarning; font.pixelSize: 16 }
-                Button {
-                    text: "Retry"
-                    onClicked: loadProtocols()
-                }
-            }
-
-            BusyIndicator {
-                anchors.centerIn: parent
-                running: busy
-                visible: busy
-            }
-
             ListView {
                 id: list
                 anchors.fill: parent
@@ -358,7 +357,7 @@ Rectangle {
                 spacing: 14
                 clip: true
                 model: protocolsModel
-                visible: !busy && protocolsModel.count > 0
+                visible: !busy && loadError === "" && protocolsModel.count > 0
 
                 delegate: Rectangle {
                     width: list.width
@@ -434,7 +433,7 @@ Rectangle {
 
                             Button {
                                 text: "Edit"
-                                enabled: factory !== true
+                                enabled: factory !== true && !busy
                                 onClicked: root.openEditProtocol(index)
                                 background: Rectangle { radius: 10; color: Constants.bgSurface }
                                 contentItem: Text {
@@ -457,7 +456,7 @@ Rectangle {
             }
         }
 
-        // EDITOR VIEW (your old right-side style)
+        // EDITOR (old right-side look)
         Flickable {
             anchors.fill: parent
             visible: editorOpen
@@ -474,13 +473,11 @@ Rectangle {
                 anchors.margins: 28
                 spacing: 18
 
-                // Title field (like old right panel)
                 Item {
                     Layout.fillWidth: true
                     height: 52
 
                     TextField {
-                        id: titleField
                         anchors.fill: parent
                         placeholderText: qsTr("Protocol Name")
                         text: editingProtocol ? editingProtocol.name : ""
@@ -488,13 +485,11 @@ Rectangle {
                         font.bold: true
                         color: Constants.textPrimary
                         background: Rectangle { color: "transparent" }
-
-                        onTextEdited: updateField("name", text)
                         enabled: editingProtocol && editingProtocol.factory !== true
+                        onTextEdited: updateField("name", text)
                     }
                 }
 
-                // 2x2 grid (same as old right side)
                 GridLayout {
                     Layout.fillWidth: true
                     columns: 2
@@ -512,8 +507,8 @@ Rectangle {
                         sliderValue: editingProtocol ? editingProtocol.speed : 0
                         minLabel: qsTr("0.1 cm/s")
                         maxLabel: qsTr("2.5 cm/s")
-                        onValueEdited: (v) => updateField("speed", Math.round(v * 10) / 10)
                         enabled: editingProtocol && editingProtocol.factory !== true
+                        onValueEdited: (v) => updateField("speed", Math.round(v * 10) / 10)
                     }
 
                     ParamCard {
@@ -527,8 +522,8 @@ Rectangle {
                         sliderValue: editingProtocol ? editingProtocol.strokeLength : 0
                         minLabel: qsTr("10 mm")
                         maxLabel: qsTr("150 mm")
-                        onValueEdited: (v) => updateField("strokeLength", Math.round(v))
                         enabled: editingProtocol && editingProtocol.factory !== true
+                        onValueEdited: (v) => updateField("strokeLength", Math.round(v))
                     }
 
                     ParamCard {
@@ -542,8 +537,8 @@ Rectangle {
                         sliderValue: editingProtocol ? editingProtocol.clampForce : 0
                         minLabel: qsTr("50 g")
                         maxLabel: qsTr("500 g")
-                        onValueEdited: (v) => updateField("clampForce", Math.round(v/10)*10)
                         enabled: editingProtocol && editingProtocol.factory !== true
+                        onValueEdited: (v) => updateField("clampForce", Math.round(v/10)*10)
                     }
 
                     ParamCard {
@@ -557,8 +552,8 @@ Rectangle {
                         sliderValue: editingProtocol ? editingProtocol.waterTemp : 0
                         minLabel: qsTr("15 °C")
                         maxLabel: qsTr("50 °C")
-                        onValueEdited: (v) => updateField("waterTemp", Math.round(v))
                         enabled: editingProtocol && editingProtocol.factory !== true
+                        onValueEdited: (v) => updateField("waterTemp", Math.round(v))
                     }
                 }
 
@@ -577,11 +572,10 @@ Rectangle {
                     mid2Label: qsTr("10")
                     mid3Label: qsTr("15")
                     rightLabel: qsTr("20")
-                    onValueEdited: (v) => updateField("cycles", Math.round(v))
                     enabled: editingProtocol && editingProtocol.factory !== true
+                    onValueEdited: (v) => updateField("cycles", Math.round(v))
                 }
 
-                // Actions in editor
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 12
@@ -593,8 +587,16 @@ Rectangle {
                         enabled: !busy && editingProtocol
                         background: Rectangle { radius: 12; color: parent.pressed ? "#059669" : "#10B981" }
                         onClicked: {
-                            // treat like bottom CTA: choose this protocol and let NavShell decide
-                            protocolChosen(_fromEditorShape(editingProtocol))
+                            // choose this protocol and let NavShell decide (Begin-style)
+                            protocolChosen({
+                                id: editingProtocol.id,
+                                name: editingProtocol.name,
+                                speed: editingProtocol.speed,
+                                stroke_length_mm: editingProtocol.strokeLength,
+                                clamp_force_g: editingProtocol.clampForce,
+                                water_temp_c: editingProtocol.waterTemp,
+                                cycles: editingProtocol.cycles
+                            })
                             editorOpen = false
                         }
                     }
@@ -612,11 +614,10 @@ Rectangle {
                         Layout.preferredWidth: 140
                         Layout.preferredHeight: 58
                         text: qsTr("DUPLICATE")
-                        enabled: !busy && editingProtocol
+                        enabled: !busy && (editingIndex >= 0 || selectedIndex >= 0)
                         background: Rectangle { radius: 12; color: parent.pressed ? "#374151" : "#4B5563" }
                         onClicked: {
-                            // duplicate current editor protocol by POST
-                            var idx = editingIndex >= 0 ? editingIndex : selectedIndex
+                            var idx = (editingIndex >= 0) ? editingIndex : selectedIndex
                             duplicateProtocol(idx)
                         }
                     }
@@ -642,7 +643,7 @@ Rectangle {
     }
 
     // ---------------------------
-    // Bottom CTA (List screen)
+    // Bottom CTA (list)
     // ---------------------------
     Rectangle {
         id: bottomBar
@@ -664,8 +665,17 @@ Rectangle {
                 anchors.fill: parent
                 enabled: (root.selectedIndex >= 0 && !editorOpen && !busy)
                 onClicked: {
-                    var proto = protocolsModel.get(root.selectedIndex)
-                    root.protocolChosen(_fromEditorShape(proto))
+                    var p = protocolsModel.get(root.selectedIndex)
+                    // emit protocol in API field names so NavShell can store directly
+                    protocolChosen({
+                        id: p.id,
+                        name: p.name,
+                        speed: p.speed,
+                        stroke_length_mm: p.strokeLength,
+                        clamp_force_g: p.clampForce,
+                        water_temp_c: p.waterTemp,
+                        cycles: p.cycles
+                    })
                 }
             }
 
@@ -690,7 +700,7 @@ Rectangle {
     }
 
     // ---------------------------
-    // Reusable components (your originals, kept)
+    // Reusable components (unchanged)
     // ---------------------------
     component ParamCard: Rectangle {
         property string title: ""
@@ -799,6 +809,7 @@ Rectangle {
                 Text { text: leftLabel; color: Constants.textMuted; font.pixelSize: 10; Layout.fillWidth: true }
                 Text { text: mid1Label; color: Constants.textMuted; font.pixelSize: 10; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
                 Text { text: mid2Label; color: Constants.textMuted; font.pixelSize: 10; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
+                Text { text: mid3Label; color: Constants.textMuted; font.pixelSize: 10; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
                 Text { text: mid3Label; color: Constants.textMuted; font.pixelSize: 10; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
                 Text { text: rightLabel; color: Constants.textMuted; font.pixelSize: 10; horizontalAlignment: Text.AlignRight }
             }
