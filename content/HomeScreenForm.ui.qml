@@ -9,8 +9,7 @@ import PilotLine_FrictionTester
 
 Rectangle {
     id: root
-    width: Constants.width - 117
-    height: Constants.height
+    anchors.fill: parent
     color: Constants.bgPrimary
     radius: 0
 

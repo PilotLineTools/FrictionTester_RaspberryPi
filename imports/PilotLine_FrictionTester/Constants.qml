@@ -1,48 +1,84 @@
 pragma Singleton
-import QtQuick
+import QtQuick 6.5
 
 QtObject {
 
     // ================================
-    // Screen Deminsions
+    // Screen Dimensions (10.1" DSI)
     // ================================
 
-    /* Comment out the unpreferred screen deminsions */
-
-    // 7-Inch screen
-    //readonly property int width: 800
-    //readonly property int height: 480
-
-    // 10-Inch screen
-    readonly property int width: 1920
+    readonly property int width: 1280
     readonly property int height: 800
 
-    property string relativeFontDirectory: "fonts"
 
-    /* Edit this comment to add your custom font */
+    // ================================
+    // Typography (touch-optimized)
+    // ================================
+
+    // Base font sizes (do NOT depend on Qt.application.font)
+    readonly property int fontXS: 11
+    readonly property int fontSM: 13
+    readonly property int fontMD: 15
+    readonly property int fontLG: 18
+    readonly property int fontXL: 22
+    readonly property int fontXXL: 28
+
     readonly property font font: Qt.font({
-                                             family: Qt.application.font.family,
-                                             pixelSize: Qt.application.font.pixelSize
-                                         })
-    readonly property font largeFont: Qt.font({
-                                                  family: Qt.application.font.family,
-                                                  pixelSize: Qt.application.font.pixelSize * 1.6
-                                              })
+        family: Qt.application.font.family,
+        pixelSize: fontMD
+    })
 
-    readonly property color backgroundColor: "#c2c2c2"
+    readonly property font largeFont: Qt.font({
+        family: Qt.application.font.family,
+        pixelSize: fontXL,
+        weight: Font.DemiBold
+    })
+
+
+    // ================================
+    // Touch Sizes
+    // ================================
+
+    readonly property int touchMin: 48
+    readonly property int touchButton: 56
+    readonly property int touchLarge: 64
+
+
+    // ================================
+    // Spacing & Radius
+    // ================================
+
+    readonly property int spacingXS: 6
+    readonly property int spacingSM: 10
+    readonly property int spacingMD: 14
+    readonly property int spacingLG: 20
+    readonly property int spacingXL: 28
+
+    readonly property int radiusSM: 8
+    readonly property int radiusMD: 12
+    readonly property int radiusLG: 16
+
+
+    // ================================
+    // Layout
+    // ================================
+
+    readonly property int sidebarWidth: 300
+    readonly property int topBarHeight: 64
+    readonly property int bottomBarHeight: 78
 
 
     // ================================
     // Core Background Colors
     // ================================
 
-    // Main app background (entire window / shell)
+    // Main app background
     readonly property color bgPrimary: "#0F172A"
 
-    // Card / panel background (containers, sections)
+    // Card / panel background
     readonly property color bgCard: "#1F2937"
 
-    // Inner surfaces inside cards (inputs, grouped areas)
+    // Inner surfaces inside cards
     readonly property color bgSurface: "#273449"
 
 
@@ -50,27 +86,19 @@ QtObject {
     // Accent Colors
     // ================================
 
-    // Primary brand accent (main buttons, active nav item)
     readonly property color accentPrimary: "#5B84F1"
-
-    // Informational / sky accent (sliders, live readings, info icons)
     readonly property color accentSky: "#38BDF8"
-
-    // Warning / heat / active action (heater ON, alerts)
     readonly property color accentWarning: "#F59E0B"
+    readonly property color accentDanger: "#DC2626"
+    readonly property color accentSuccess: "#10B981"
 
 
     // ================================
     // Text Colors
     // ================================
 
-    // Primary text (headings, values, critical info)
     readonly property color textPrimary: "#F9FAFB"
-
-    // Secondary text (labels, descriptions, metadata)
     readonly property color textSecondary: "#CBD5E1"
-
-    // Muted / disabled text (inactive states, placeholders)
     readonly property color textMuted: "#9CA3AF"
 
 
@@ -78,7 +106,5 @@ QtObject {
     // Borders & Dividers
     // ================================
 
-    // Default card border / section divider
     readonly property color borderDefault: "#374151"
-
 }
