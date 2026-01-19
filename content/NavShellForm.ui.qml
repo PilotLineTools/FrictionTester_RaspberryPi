@@ -44,7 +44,7 @@ Rectangle {
             anchors.fill: parent
             anchors.margins: 16
             anchors.rightMargin: 156
-            spacing: 12
+            spacing: constants.mediumSpacing
 
             Button {
                 id: homeButton
