@@ -241,6 +241,8 @@ Rectangle {
             spacing: 12
 
             Button {
+                // Visible as "Back" in selectOnly mode, or "Cancel" when editing
+                visible: (root.mode === "selectOnly") || editorOpen
                 text: editorOpen ? "Cancel" : "Back"
                 Layout.preferredWidth: 120
                 onClicked: { if (editorOpen) editorOpen = false }
