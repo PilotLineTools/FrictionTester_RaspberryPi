@@ -245,7 +245,15 @@ Rectangle {
                 visible: (root.mode === "selectOnly") || editorOpen
                 text: editorOpen ? "Cancel" : "Back"
                 Layout.preferredWidth: 120
-                onClicked: { if (editorOpen) editorOpen = false }
+                onClicked: {
+                    if (editorOpen) {
+                        editorOpen = false
+                    } else {
+                        // go back to HomeScreen
+                        root.stack.pop()
+                    }
+                }
+                //onClicked: { if (editorOpen) editorOpen = false }
                 background: Rectangle { radius: 10; color: "transparent" }
                 contentItem: Text { text: parent.text; color: Constants.textPrimary; font.pixelSize: 16 }
             }
