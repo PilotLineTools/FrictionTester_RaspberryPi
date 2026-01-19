@@ -52,8 +52,8 @@ Rectangle {
                 checkable: true
                 checked: true
                 ButtonGroup.group: navGroup
-                width: 80
-                height: 80
+                width: 120
+                height: 120
                 enabled: root.navEnabled
 
                 background: Rectangle {
@@ -69,8 +69,8 @@ Rectangle {
                 text: qsTr("Protocols")
                 checkable: true
                 ButtonGroup.group: navGroup
-                width: 80
-                height: 80
+                width: 120
+                height: 120
                 enabled: root.navEnabled
 
                 background: Rectangle {

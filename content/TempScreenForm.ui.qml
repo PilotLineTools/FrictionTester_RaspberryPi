@@ -14,11 +14,6 @@ Rectangle {
 
     Text {
         id: temp
-        x: 656
-        y: 487
-
-        width: 348
-        height: 106
         color: "#f3f4f6"
 
         text: qsTr("Temp Screen")
