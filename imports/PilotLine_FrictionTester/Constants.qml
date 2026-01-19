@@ -10,12 +10,12 @@ QtObject {
     /* Comment out the unpreferred screen deminsions */
 
     // 7-Inch screen
-    readonly property int width: 800
-    readonly property int height: 480
+    //readonly property int width: 800
+    //readonly property int height: 480
 
     // 10-Inch screen
-    //readonly property int width: 1920
-    //readonly property int height: 1080
+    readonly property int width: 1920
+    readonly property int height: 1080
 
     property string relativeFontDirectory: "fonts"
 
