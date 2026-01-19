@@ -459,6 +459,23 @@ Rectangle {
                                 background: Rectangle { radius: 10; color: Constants.bgSurface }
                                 contentItem: Text { text: "Duplicate"; color: Constants.textPrimary; font.pixelSize: 14 }
                             }
+
+                            Button {
+                                text: "🗑"
+                                enabled: factory !== true && !busy
+                                onClicked: root.deleteProtocol(index)
+                                background: Rectangle {
+                                    radius: 10
+                                    color: enabled ? Qt.rgba(0.87, 0.13, 0.13, 0.30) : Qt.rgba(0.87, 0.13, 0.13, 0.15)
+                                    border.color: "#DC2626"
+                                    border.width: 1
+                                }
+                                contentItem: Text {
+                                    text: "🗑"
+                                    color: enabled ? "#DC2626" : Constants.textSecondary
+                                    font.pixelSize: 14
+                                }
+                            }
                         }
                     }
                 }
