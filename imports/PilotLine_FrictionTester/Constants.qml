@@ -15,7 +15,7 @@ QtObject {
 
     // 10-Inch screen
     readonly property int width: 1280
-    readonly property int height: 800
+    readonly property int height: 1080
 
     property string relativeFontDirectory: "fonts"
 
