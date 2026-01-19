@@ -6,8 +6,7 @@ import PilotLine_FrictionTester
 LoadingScreenForm {
     id: view
 
-    width: Constants.width
-    height: Constants.height
+    anchors.fill: parent
 
     // ✅ Rename to avoid clashing with LoadingScreenForm.statusText
     property string statusMessage: "Initializing…"

@@ -6,8 +6,7 @@ import PilotLine_FrictionTester
 SettingsScreenForm {
     id: view
 
-    width: Constants.width
-    height: Constants.height
+    anchors.fill: parent
 
     // passed in from NavShell
     property QtObject appMachine

@@ -25,7 +25,7 @@ Rectangle {
     // NAV
     Rectangle {
         id: nav
-        width: 117
+        width: Constants.sidebarWidth
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.bottom: parent.bottom
