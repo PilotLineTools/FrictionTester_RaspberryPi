@@ -11,17 +11,16 @@ Rectangle {
     property alias stack: stack
     property alias homeButton: homeButton
     property alias protocolsButton: protocolsButton
-    property alias settingsButton: settingsButton
     property alias historyButton: historyButton
+    property alias settingsButton: settingsButton
     property alias aboutButton: aboutButton
 
-    property var serialController: null
-
-    // Nav interactivity control (set from NavShell.qml)
     property bool navEnabled: true
     property real navOpacity: navEnabled ? 1.0 : 0.35
 
-    // NAV
+    // ======================
+    // NAV SIDEBAR
+    // ======================
     Rectangle {
         id: nav
         width: Constants.sidebarWidth
@@ -29,7 +28,6 @@ Rectangle {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         color: Constants.bgCard
-
         enabled: root.navEnabled
         opacity: root.navOpacity
 
@@ -38,115 +36,119 @@ Rectangle {
             exclusive: true
         }
 
-        // ✅ Center the whole button stack inside the nav
-        Item {
-            id: navCenter
-            anchors.centerIn: parent
-            width: parent.width
+        // Column fills entire sidebar height
+        Column {
+            anchors.fill: parent
+            anchors.margins: 24
+            spacing: 0
 
-            Column {
-                id: navButtons
-                anchors.horizontalCenter: parent.horizontalCenter
-                spacing: Constants.spacingMD   // replace your constants.mediumSpacing
+            function navButtonHeight() {
+                return height / 5
+            }
 
-                Button {
-                    id: homeButton
-                    text: qsTr("Home")
-                    checkable: true
-                    checked: true
-                    ButtonGroup.group: navGroup
-                    width: 200
-                    height: 150
-                    enabled: root.navEnabled
+            // ========= HOME =========
+            Button {
+                id: homeButton
+                ButtonGroup.group: navGroup
+                checkable: true
+                checked: true
+                width: 150
+                height: parent.navButtonHeight()
+                enabled: root.navEnabled
 
-                    background: Rectangle {
-                        radius: 14
-                        color: homeButton.checked ? Constants.accentPrimary : Constants.bgSurface
-                        border.width: homeButton.checked ? 2 : 1
-                        border.color: homeButton.checked ? Constants.accentSky : Constants.borderDefault
-                    }
-                }
+                background: navBg(homeButton.checked)
 
-                Button {
-                    id: protocolsButton
-                    text: qsTr("Protocols")
-                    checkable: true
-                    ButtonGroup.group: navGroup
-                    width: 200
-                    height: 150
-                    enabled: root.navEnabled
+                contentItem: navLabel("Home")
+            }
 
-                    background: Rectangle {
-                        radius: 14
-                        color: protocolsButton.checked ? Constants.accentPrimary : Constants.bgSurface
-                        border.width: protocolsButton.checked ? 2 : 1
-                        border.color: protocolsButton.checked ? Constants.accentSky : Constants.borderDefault
-                    }
-                }
+            // ======= PROTOCOLS =======
+            Button {
+                id: protocolsButton
+                ButtonGroup.group: navGroup
+                checkable: true
+                width: 150
+                height: parent.navButtonHeight()
+                enabled: root.navEnabled
 
-                Button {
-                    id: historyButton
-                    text: qsTr("History")
-                    checkable: true
-                    ButtonGroup.group: navGroup
-                    width: 200
-                    height: 150
-                    enabled: root.navEnabled
+                background: navBg(protocolsButton.checked)
+                contentItem: navLabel("Protocols")
+            }
 
-                    background: Rectangle {
-                        radius: 14
-                        color: historyButton.checked ? Constants.accentPrimary : Constants.bgSurface
-                        border.width: historyButton.checked ? 2 : 1
-                        border.color: historyButton.checked ? Constants.accentSky : Constants.borderDefault
-                    }
-                }
+            // ========= HISTORY =========
+            Button {
+                id: historyButton
+                ButtonGroup.group: navGroup
+                checkable: true
+                width: 150
+                height: parent.navButtonHeight()
+                enabled: root.navEnabled
 
-                Button {
-                    id: settingsButton
-                    text: qsTr("Settings")
-                    checkable: true
-                    ButtonGroup.group: navGroup
-                    width: 200
-                    height: 150
-                    enabled: root.navEnabled
+                background: navBg(historyButton.checked)
+                contentItem: navLabel("History")
+            }
 
-                    background: Rectangle {
-                        radius: 14
-                        color: settingsButton.checked ? Constants.accentPrimary : Constants.bgSurface
-                        border.width: settingsButton.checked ? 2 : 1
-                        border.color: settingsButton.checked ? Constants.accentSky : Constants.borderDefault
-                    }
-                }
+            // ========= SETTINGS =========
+            Button {
+                id: settingsButton
+                ButtonGroup.group: navGroup
+                checkable: true
+                width: 150
+                height: parent.navButtonHeight()
+                enabled: root.navEnabled
 
-                Button {
-                    id: aboutButton
-                    text: qsTr("About")
-                    checkable: true
-                    ButtonGroup.group: navGroup
-                    width: 200
-                    height: 150
-                    enabled: root.navEnabled
+                background: navBg(settingsButton.checked)
+                contentItem: navLabel("Settings")
+            }
 
-                    background: Rectangle {
-                        radius: 14
-                        color: aboutButton.checked ? Constants.accentPrimary : Constants.bgSurface
-                        border.width: aboutButton.checked ? 2 : 1
-                        border.color: aboutButton.checked ? Constants.accentSky : Constants.borderDefault
-                    }
-                }
+            // ========= ABOUT =========
+            Button {
+                id: aboutButton
+                ButtonGroup.group: navGroup
+                checkable: true
+                width: 150
+                height: parent.navButtonHeight()
+                enabled: root.navEnabled
+
+                background: navBg(aboutButton.checked)
+                contentItem: navLabel("About")
             }
         }
     }
 
-    // CONTENT
+    // ======================
+    // MAIN CONTENT
+    // ======================
     StackView {
         id: stack
         anchors.left: nav.right
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-
         replaceEnter: null
         replaceExit: null
+    }
+
+    // ======================
+    // REUSABLE STYLES
+    // ======================
+    function navBg(checked) {
+        return Rectangle {
+            radius: Constants.radiusLG
+            color: checked ? Constants.accentPrimary : Constants.bgSurface
+            border.width: checked ? 2 : 1
+            border.color: checked ? Constants.accentSky : Constants.borderDefault
+        }
+    }
+
+    function navLabel(text) {
+        return Text {
+            anchors.centerIn: parent
+            text: text
+            color: Constants.textPrimary
+            font.pixelSize: Constants.fontLG
+            font.bold: true
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+        }
     }
 }
