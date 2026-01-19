@@ -36,7 +36,6 @@ Rectangle {
             exclusive: true
         }
 
-        // Column fills entire sidebar height
         Column {
             anchors.fill: parent
             anchors.margins: 24
@@ -46,71 +45,130 @@ Rectangle {
                 return height / 5
             }
 
-            // ========= HOME =========
+            // ===== HOME =====
             Button {
                 id: homeButton
-                ButtonGroup.group: navGroup
                 checkable: true
                 checked: true
+                ButtonGroup.group: navGroup
                 width: 150
                 height: parent.navButtonHeight()
                 enabled: root.navEnabled
 
-                background: navBg(homeButton.checked)
+                background: Rectangle {
+                    radius: Constants.radiusLG
+                    color: homeButton.checked ? Constants.accentPrimary : Constants.bgSurface
+                    border.width: homeButton.checked ? 2 : 1
+                    border.color: homeButton.checked ? Constants.accentSky : Constants.borderDefault
+                }
 
-                contentItem: navLabel("Home")
+                contentItem: Text {
+                    text: "Home"
+                    anchors.centerIn: parent
+                    color: Constants.textPrimary
+                    font.pixelSize: Constants.fontLG
+                    font.bold: true
+                }
             }
 
-            // ======= PROTOCOLS =======
+            // ===== PROTOCOLS =====
             Button {
                 id: protocolsButton
-                ButtonGroup.group: navGroup
                 checkable: true
+                ButtonGroup.group: navGroup
                 width: 150
                 height: parent.navButtonHeight()
                 enabled: root.navEnabled
 
-                background: navBg(protocolsButton.checked)
-                contentItem: navLabel("Protocols")
+                background: Rectangle {
+                    radius: Constants.radiusLG
+                    color: protocolsButton.checked ? Constants.accentPrimary : Constants.bgSurface
+                    border.width: protocolsButton.checked ? 2 : 1
+                    border.color: protocolsButton.checked ? Constants.accentSky : Constants.borderDefault
+                }
+
+                contentItem: Text {
+                    text: "Protocols"
+                    anchors.centerIn: parent
+                    color: Constants.textPrimary
+                    font.pixelSize: Constants.fontLG
+                    font.bold: true
+                }
             }
 
-            // ========= HISTORY =========
+            // ===== HISTORY =====
             Button {
                 id: historyButton
-                ButtonGroup.group: navGroup
                 checkable: true
+                ButtonGroup.group: navGroup
                 width: 150
                 height: parent.navButtonHeight()
                 enabled: root.navEnabled
 
-                background: navBg(historyButton.checked)
-                contentItem: navLabel("History")
+                background: Rectangle {
+                    radius: Constants.radiusLG
+                    color: historyButton.checked ? Constants.accentPrimary : Constants.bgSurface
+                    border.width: historyButton.checked ? 2 : 1
+                    border.color: historyButton.checked ? Constants.accentSky : Constants.borderDefault
+                }
+
+                contentItem: Text {
+                    text: "History"
+                    anchors.centerIn: parent
+                    color: Constants.textPrimary
+                    font.pixelSize: Constants.fontLG
+                    font.bold: true
+                }
             }
 
-            // ========= SETTINGS =========
+            // ===== SETTINGS =====
             Button {
                 id: settingsButton
-                ButtonGroup.group: navGroup
                 checkable: true
+                ButtonGroup.group: navGroup
                 width: 150
                 height: parent.navButtonHeight()
                 enabled: root.navEnabled
 
-                background: navBg(settingsButton.checked)
-                contentItem: navLabel("Settings")
+                background: Rectangle {
+                    radius: Constants.radiusLG
+                    color: settingsButton.checked ? Constants.accentPrimary : Constants.bgSurface
+                    border.width: settingsButton.checked ? 2 : 1
+                    border.color: settingsButton.checked ? Constants.accentSky : Constants.borderDefault
+                }
+
+                contentItem: Text {
+                    text: "Settings"
+                    anchors.centerIn: parent
+                    color: Constants.textPrimary
+                    font.pixelSize: Constants.fontLG
+                    font.bold: true
+                }
             }
 
-            // ========= ABOUT =========
+            // ===== ABOUT =====
             Button {
                 id: aboutButton
-                ButtonGroup.group: navGroup
                 checkable: true
+                ButtonGroup.group: navGroup
                 width: 150
                 height: parent.navButtonHeight()
                 enabled: root.navEnabled
 
-                background: navBg(aboutButton.checked)
-                contentItem: navLabel("About")
+                background: Rectangle {
+                    radius: Constants.radiusLG
+                    color: aboutButton.checked ? Constants.accentPrimary : Constants.bgSurface
+                    border.width: aboutButton.checked ? 2 : 1
+                    border.color: aboutButton.checked ? Constants.accentSky : Constants.borderDefault
+                }
+
+                contentItem: Text {
+                    text: "About"
+                    anchors.centerIn: parent
+                    color: Constants.textPrimary
+                    font.pixelSize: Constants.fontLG
+                    font.bold: true
+                }
             }
         }
     }
@@ -126,29 +184,5 @@ Rectangle {
         anchors.bottom: parent.bottom
         replaceEnter: null
         replaceExit: null
-    }
-
-    // ======================
-    // REUSABLE STYLES
-    // ======================
-    function navBg(checked) {
-        return Rectangle {
-            radius: Constants.radiusLG
-            color: checked ? Constants.accentPrimary : Constants.bgSurface
-            border.width: checked ? 2 : 1
-            border.color: checked ? Constants.accentSky : Constants.borderDefault
-        }
-    }
-
-    function navLabel(text) {
-        return Text {
-            anchors.centerIn: parent
-            text: text
-            color: Constants.textPrimary
-            font.pixelSize: Constants.fontLG
-            font.bold: true
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-        }
     }
 }
