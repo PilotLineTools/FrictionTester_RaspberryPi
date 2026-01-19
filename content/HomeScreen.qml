@@ -6,7 +6,7 @@ import PilotLine_FrictionTester
 HomeScreenForm {
     id: view
 
-    width: Constants.width
+    width: Constants.width - 117
     height: Constants.height
 
     // Let NavShell handle init + loading + serial responses
