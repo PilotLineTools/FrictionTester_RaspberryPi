@@ -56,7 +56,7 @@ Rectangle {
                     checked: true
                     ButtonGroup.group: navGroup
                     width: 200
-                    height: 64
+                    height: 150
                     enabled: root.navEnabled
 
                     background: Rectangle {
@@ -73,7 +73,7 @@ Rectangle {
                     checkable: true
                     ButtonGroup.group: navGroup
                     width: 200
-                    height: 64
+                    height: 150
                     enabled: root.navEnabled
 
                     background: Rectangle {
@@ -90,7 +90,7 @@ Rectangle {
                     checkable: true
                     ButtonGroup.group: navGroup
                     width: 200
-                    height: 64
+                    height: 150
                     enabled: root.navEnabled
 
                     background: Rectangle {
@@ -107,7 +107,7 @@ Rectangle {
                     checkable: true
                     ButtonGroup.group: navGroup
                     width: 200
-                    height: 64
+                    height: 150
                     enabled: root.navEnabled
 
                     background: Rectangle {
@@ -124,7 +124,7 @@ Rectangle {
                     checkable: true
                     ButtonGroup.group: navGroup
                     width: 200
-                    height: 64
+                    height: 150
                     enabled: root.navEnabled
 
                     background: Rectangle {
