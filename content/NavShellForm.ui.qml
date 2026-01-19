@@ -52,8 +52,8 @@ Rectangle {
                 checkable: true
                 checked: true
                 ButtonGroup.group: navGroup
-                width: 120
-                height: 120
+                width: Constants.mediumButtonWidth
+                height: Constants.mediumButtonHeight
                 enabled: root.navEnabled
 
                 background: Rectangle {
@@ -69,8 +69,8 @@ Rectangle {
                 text: qsTr("Protocols")
                 checkable: true
                 ButtonGroup.group: navGroup
-                width: 120
-                height: 120
+                width: Constants.mediumButtonWidth
+                height: Constants.mediumButtonHeight
                 enabled: root.navEnabled
 
                 background: Rectangle {
@@ -86,8 +86,8 @@ Rectangle {
                 text: qsTr("History")
                 checkable: true
                 ButtonGroup.group: navGroup
-                width: 80
-                height: 80
+                width: Constants.mediumButtonWidth
+                height: Constants.mediumButtonHeight
                 enabled: root.navEnabled
 
                 background: Rectangle {
@@ -103,8 +103,8 @@ Rectangle {
                 text: qsTr("Settings")
                 checkable: true
                 ButtonGroup.group: navGroup
-                width: 80
-                height: 80
+                width: Constants.mediumButtonWidth
+                height: Constants.mediumButtonHeight
                 enabled: root.navEnabled
 
                 background: Rectangle {
@@ -120,8 +120,8 @@ Rectangle {
                 text: qsTr("About")
                 checkable: true
                 ButtonGroup.group: navGroup
-                width: 80
-                height: 80
+                width: Constants.mediumButtonWidth
+                height: Constants.mediumButtonHeight
                 enabled: root.navEnabled
 
                 background: Rectangle {

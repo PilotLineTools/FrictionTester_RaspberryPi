@@ -10,6 +10,18 @@ QtObject {
     readonly property int width: 1280
     readonly property int height: 800
 
+    // ================================
+    // Button sizing reference (10.1" DSI)
+    // ================================
+
+    readonly property int smallButtonHeight: 80
+    readonly property int smallButtonWidth: 80
+    readonly property int mediumButtonHeight: 120
+    readonly property int mediumButtonWidth: 120
+    readonly property int largeButtonHeight: 160
+    readonly property int largeButtonWidth: 160
+    readonly property int extraLargeButtonHeight: 200
+    readonly property int extraLargeButtonWidth: 200
 
     // ================================
     // Typography (touch-optimized)
@@ -63,7 +75,7 @@ QtObject {
     // Layout
     // ================================
 
-    readonly property int sidebarWidth: 300
+    readonly property int sidebarWidth: 220
     readonly property int topBarHeight: 64
     readonly property int bottomBarHeight: 78
 
