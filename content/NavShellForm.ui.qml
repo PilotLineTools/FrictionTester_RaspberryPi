@@ -37,22 +37,25 @@ Rectangle {
         }
 
         Column {
+            id: navColumn
             anchors.fill: parent
             anchors.margins: 24
-            spacing: 0
+            spacing: 16
+
+            readonly property int buttonCount: 5
+            readonly property int totalSpacing: 16 * (buttonCount - 1)
 
             function navButtonHeight() {
-                return height / 5
+                return Math.floor((height - totalSpacing) / buttonCount)
             }
 
-            // ===== HOME =====
             Button {
                 id: homeButton
                 checkable: true
                 checked: true
                 ButtonGroup.group: navGroup
                 width: 150
-                height: parent.navButtonHeight()
+                height: navColumn.navButtonHeight()
                 enabled: root.navEnabled
 
                 background: Rectangle {
@@ -71,13 +74,12 @@ Rectangle {
                 }
             }
 
-            // ===== PROTOCOLS =====
             Button {
                 id: protocolsButton
                 checkable: true
                 ButtonGroup.group: navGroup
                 width: 150
-                height: parent.navButtonHeight()
+                height: navColumn.navButtonHeight()
                 enabled: root.navEnabled
 
                 background: Rectangle {
@@ -96,13 +98,12 @@ Rectangle {
                 }
             }
 
-            // ===== HISTORY =====
             Button {
                 id: historyButton
                 checkable: true
                 ButtonGroup.group: navGroup
                 width: 150
-                height: parent.navButtonHeight()
+                height: navColumn.navButtonHeight()
                 enabled: root.navEnabled
 
                 background: Rectangle {
@@ -121,13 +122,12 @@ Rectangle {
                 }
             }
 
-            // ===== SETTINGS =====
             Button {
                 id: settingsButton
                 checkable: true
                 ButtonGroup.group: navGroup
                 width: 150
-                height: parent.navButtonHeight()
+                height: navColumn.navButtonHeight()
                 enabled: root.navEnabled
 
                 background: Rectangle {
@@ -146,13 +146,12 @@ Rectangle {
                 }
             }
 
-            // ===== ABOUT =====
             Button {
                 id: aboutButton
                 checkable: true
                 ButtonGroup.group: navGroup
                 width: 150
-                height: parent.navButtonHeight()
+                height: navColumn.navButtonHeight()
                 enabled: root.navEnabled
 
                 background: Rectangle {
