@@ -309,7 +309,7 @@ Rectangle {
                     Button {
                         id: pauseResumeButton
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 84
+                        Layout.preferredHeight: Constants.largeButtonHeight
                         text: qsTr("⏸  PAUSE TEST")
 
                         // wrapper will override this
@@ -336,7 +336,7 @@ Rectangle {
                     Button {
                         id: abortButton
                         Layout.fillWidth: true
-                        Layout.preferredHeight: 84
+                        Layout.preferredHeight: Constants.largeButtonHeight
                         text: qsTr("⨯  ABORT TEST")
 
                         background: Rectangle {
