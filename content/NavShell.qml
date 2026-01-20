@@ -20,6 +20,9 @@ NavShellForm {
     property string protocolsMode: "prepAndRun"
 
     // ===== Run state =====
+    
+    property var backend: pythonBackend
+
     property var _pendingRunProtocol: null
     property var activeProtocol: null
     property bool isPaused: false
