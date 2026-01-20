@@ -373,7 +373,7 @@ class SerialController(QObject):
         self.send_cmd("CMD TEST_PREP")
     
     # function that sends commands to start a test run with given parameters
-    @Slot(float, int, int, int)
+    @Slot(float, int, int, int, int)
     def start_test(self, speed_cm_s: float, stroke_length_mm: int, clamp_force_g: int, water_temp: int ,cycles: int):
         """
         Start a test run with specified parameters.
