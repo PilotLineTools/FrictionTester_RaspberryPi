@@ -19,7 +19,13 @@ NavShellForm {
     property string pendingNavTarget: ""
     property string protocolsMode: "prepAndRun"
 
+    // ===== Run state =====
+    property var _pendingRunProtocol: null
+    property var activeProtocol: null
+    property bool isPaused: false
+
     // Sidebar enabled only when safe (idle/config/browse) and dialog not visible
+    // (running/paused should lock nav)
     navEnabled: (uiState === "idle" || uiState === "config" || uiState === "browse") && !exitConfigDialog.visible
 
     function ensureConnectedAndSend(line) {
@@ -41,12 +47,76 @@ NavShellForm {
         return true
     }
 
-    // Home "Begin" -> show loading -> wait for PREP_COMPLETE -> config
+    function ensureConnected() {
+        if (!serialController) return false
+        if (serialController.connected) return true
+        return serialController.connectPort()
+    }
+
+    // Home "Begin" -> show loading -> wait for PREP_COMPLETE -> config (or run if queued)
     function beginInit() {
         if (uiState === "initializing") return
         uiState = "initializing"
         initStatusText = "Prepping for test"
+        if (!ensureConnected()) {
+            console.error("❌ Cannot prep: serial not connected")
+            uiState = "idle"
+            return
+        }
         serialController.prep_test_run()
+    }
+
+    function startRunWithProtocol(proto) {
+        if (!proto) return
+
+        // Save for ActiveRunScreen UI
+        activeProtocol = proto
+        isPaused = false
+
+        // ✅ Make sure connected
+        if (!ensureConnected()) {
+            console.error("❌ Cannot start test: serial not connected")
+            // stay in config so user can retry
+            uiState = "config"
+            return
+        }
+
+        // ✅ Map protocol fields to your slot args
+        // DB/API uses: speed, stroke_length_mm, clamp_force_g, water_temp_c, cycles
+        const speed  = Number(proto.speed)                // cm/s (per storage.py comment)
+        const stroke = Number(proto.stroke_length_mm)
+        const clamp  = Number(proto.clamp_force_g)
+        const temp   = Number(proto.water_temp_c)
+        const cycles = Number(proto.cycles)
+
+        console.log("➡️ START_TEST:", speed, stroke, clamp, temp, cycles)
+        serialController.start_test(speed, stroke, clamp, temp, cycles)
+
+        // Route to active run screen
+        uiState = "running"
+    }
+
+    function togglePause() {
+        if (uiState !== "running" && uiState !== "paused") return
+        isPaused = !isPaused
+        uiState = isPaused ? "paused" : "running"
+
+        // When you add firmware commands later:
+        // ensureConnectedAndSend(isPaused ? "PAUSE_TEST" : "RESUME_TEST")
+    }
+
+    function abortRun() {
+        if (uiState !== "running" && uiState !== "paused") return
+
+        // When you add firmware commands later:
+        // ensureConnectedAndSend("ABORT_TEST")
+
+        // Return to config (or idle, your choice)
+        uiState = "config"
+        isPaused = false
+        // Keep activeProtocol if you want to display it back in config,
+        // or clear it if abort should discard selection:
+        // activeProtocol = null
     }
 
     // ===== Model/state =====
@@ -111,7 +181,6 @@ NavShellForm {
             backend: pythonBackend
 
             onChooseProtocolRequested: {
-                // open protocols in select-only mode (no prep)
                 shell.protocolsMode = "selectOnly"
                 shell.uiState = "browse"
                 stack.replace(protocolsComp)
@@ -119,25 +188,35 @@ NavShellForm {
                 prevCheckedTarget = "protocols"
             }
 
-            // ✅ Decide run behavior here
-            onRunTestRequested: {
-                if (!machineState.selectedProtocol) {
-                    console.warn("Run requested but no protocol selected")
+            onRunTestRequested: function(protocol) {
+                if (!protocol) return
+
+                // Usually config implies prep already complete.
+                // But if you ever allow running without prep, do it here:
+                if (shell.uiState !== "config") {
+                    console.log("Not in config; prepping first...")
+                    shell._pendingRunProtocol = protocol
+                    shell.beginInit()
                     return
                 }
 
-                // If already in config (meaning prep already done), go to running next (later)
-                // For now, keep a placeholder transition:
-                // shell.uiState = "running"
-
-                // If user somehow is here without prep (rare), prep now:
-                if (shell.uiState === "browse") {
-                    shell.beginInit()
-                } else {
-                    console.log("Run requested from config (prep already complete)")
-                    // TODO: transition to running screen when ready
-                }
+                shell.startRunWithProtocol(protocol)
             }
+        }
+    }
+
+    Component {
+        id: activeRunComp
+        ActiveRunScreen {
+            appMachine: machineState
+            serialController: shell.serialController
+            backend: pythonBackend
+
+            protocolObj: shell.activeProtocol
+            runStatus: shell.isPaused ? "PAUSED" : "RUNNING"
+
+            onPauseResumeRequested: shell.togglePause()
+            onAbortRequested: shell.abortRun()
         }
     }
 
@@ -153,16 +232,20 @@ NavShellForm {
                 machineState.selectedProtocol = proto
 
                 if (mode === "selectOnly") {
-                    // just return to config, no prep
                     shell.uiState = "config"
                     setChecked("home")
                     prevCheckedTarget = "home"
                     return
                 }
 
-                // prepAndRun mode: select + prep, then PREP_COMPLETE will route to config
+                // prepAndRun mode: select + prep, then PREP_COMPLETE routes to config
+                shell._pendingRunProtocol = null
                 shell.uiState = "initializing"
                 shell.initStatusText = "Prepping for test"
+                if (!shell.ensureConnected()) {
+                    shell.uiState = "idle"
+                    return
+                }
                 shell.serialController.prep_test_run()
             }
         }
@@ -180,9 +263,12 @@ NavShellForm {
             prevCheckedTarget = "home"
         } else if (uiState === "initializing") {
             stack.replace(loadingComp)
-            // keep whatever was previously checked
         } else if (uiState === "config") {
             stack.replace(configComp)
+            setChecked("home")
+            prevCheckedTarget = "home"
+        } else if (uiState === "running" || uiState === "paused") {
+            stack.replace(activeRunComp)
             setChecked("home")
             prevCheckedTarget = "home"
         }
@@ -194,7 +280,11 @@ NavShellForm {
     }
 
     onUiStateChanged: {
-        if (uiState === "idle" || uiState === "initializing" || uiState === "config") {
+        if (uiState === "idle" ||
+            uiState === "initializing" ||
+            uiState === "config" ||
+            uiState === "running" ||
+            uiState === "paused") {
             routeToState()
         }
     }
@@ -216,26 +306,21 @@ NavShellForm {
     function goTo(target) {
         if (suppressNavCheck) return
 
+        // Only allow nav in safe states
         if (!(uiState === "idle" || uiState === "config" || uiState === "browse")) {
             console.log("Nav blocked in state:", uiState)
-            // restore highlight
             setChecked(prevCheckedTarget)
             return
         }
 
-        // In config: confirmation before leaving
         if (uiState === "config") {
             pendingNavTarget = target
-
-            // ✅ immediately force highlight back to Home while dialog is open
             setChecked("home")
             prevCheckedTarget = "home"
-
             exitConfigDialog.open()
             return
         }
 
-        // Idle/browse: navigate immediately
         performNav(target)
     }
 
@@ -251,9 +336,7 @@ NavShellForm {
 
         uiState = "browse"
 
-        // ✅ IMPORTANT: set protocolsMode depending on where user came from
         if (t === "protocols") {
-            // Normal sidebar visit should prep+run behavior
             protocolsMode = "prepAndRun"
             stack.replace(protocolsComp)
         } else if (t === "settings") stack.replace(settingsComp)
@@ -272,8 +355,9 @@ NavShellForm {
     function clearConfigSelection() {
         machineState.selectedProtocol = null
         protocolsMode = "prepAndRun"
+        // also clear active protocol preview if you want:
+        // activeProtocol = null
     }
-
 
     // ===== Exit confirm dialog =====
     Dialog {
@@ -288,13 +372,9 @@ NavShellForm {
         implicitHeight: contentItem.implicitHeight + 40
         title: ""
 
-        onOpened: {
-            // ensure home is highlighted while modal is visible
-            setChecked("home")
-        }
+        onOpened: setChecked("home")
 
         onClosed: {
-            // If user canceled by tapping outside / Cancel, keep them in config visually as Home
             setChecked("home")
             prevCheckedTarget = "home"
         }
@@ -373,14 +453,10 @@ NavShellForm {
                     onClicked: {
                         const t = pendingNavTarget
                         pendingNavTarget = ""
-
-                        // ✅ confirmed leaving config → clear selected protocol
                         clearConfigSelection()
-
                         exitConfigDialog.close()
                         performNav(t)
                     }
-
                 }
             }
         }
@@ -393,7 +469,7 @@ NavShellForm {
     historyButton.onClicked:   goTo("history")
     aboutButton.onClicked:     goTo("about")
 
-    // ===== ESP32 init completion =====
+    // ===== ESP32 messages =====
     Connections {
         target: shell.serialController ? shell.serialController : null
 
@@ -404,14 +480,26 @@ NavShellForm {
             if (shell.uiState === "initializing") {
                 if (msg === "PREP_COMPLETE") {
                     shell.initStatusText = "Prep complete"
+
+                    // ✅ If a run was queued during prep, start it now
+                    if (shell._pendingRunProtocol) {
+                        const p = shell._pendingRunProtocol
+                        shell._pendingRunProtocol = null
+                        shell.startRunWithProtocol(p)
+                        return
+                    }
+
                     shell.uiState = "config"
                     return
                 } else if (msg.startsWith("INIT_ERROR")) {
                     shell.initStatusText = msg
+                    shell._pendingRunProtocol = null
                     shell.uiState = "idle"
                     return
                 }
             }
+
+            // Later: running stream updates, run complete, faults, etc.
         }
     }
 }

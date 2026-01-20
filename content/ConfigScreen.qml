@@ -14,7 +14,7 @@ ConfigScreenForm {
 
     // Tell NavShell what to do
     signal chooseProtocolRequested()
-    signal runTestRequested()
+    signal runTestRequested(var protocol)
 
     // internal clamp ui state (until you have real feedback)
     property bool clampOpen: true
@@ -78,24 +78,8 @@ ConfigScreenForm {
         // flip UI state
         clampOpen = !clampOpen
         clampToggleButton.text = clampOpen ? "OPEN CLAMP" : "CLOSE CLAMP"
+        serialController.set_clamp(clampOpen)
 
-        // Send to ESP32 (adjust command strings to what your firmware expects)
-        if (!serialController) {
-            console.warn("No serialController for clamp command")
-            return
-        }
-
-        if (!serialController.connected) {
-            const ok = serialController.connectPort()
-            if (!ok) {
-                console.warn("Failed to connect serial for clamp command")
-                return
-            }
-        }
-
-        const cmd = clampOpen ? "CLAMP_OPEN" : "CLAMP_CLOSE"
-        console.log("➡️ Send:", cmd)
-        serialController.send_cmd(cmd)
     }
 
     // ===== Jog Buttons =====
@@ -115,8 +99,8 @@ ConfigScreenForm {
         serialController.send_cmd(cmd)
     }
 
-    jogUpButton.onPressed:  sendJog("JOG_UP")
-    jogDownButton.onPressed: sendJog("JOG_DOWN")
+    jogUpButton.onPressed:  serialController.jog_up("Z")
+    jogDownButton.onPressed: serialController.jog_down("Z")
 
     // If you want “stop on release” behavior (recommended for jogging):
     jogUpButton.onReleased:   sendJog("JOG_STOP")
@@ -128,6 +112,6 @@ ConfigScreenForm {
             console.warn("Run requested but no protocol selected")
             return
         }
-        runTestRequested()
+        runTestRequested(appMachine.selectedProtocol)
     }
 }

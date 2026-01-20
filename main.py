@@ -374,7 +374,7 @@ class SerialController(QObject):
     
     # function that sends commands to start a test run with given parameters
     @Slot(float, int, int, int)
-    def start_test(self, speed_cm_s: float, stroke_length_mm: int, clamp_force_g: int, cycles: int):
+    def start_test(self, speed_cm_s: float, stroke_length_mm: int, clamp_force_g: int, water_temp: int ,cycles: int):
         """
         Start a test run with specified parameters.
         
@@ -382,9 +382,10 @@ class SerialController(QObject):
             speed_cm_s (float): Speed in cm/s for the test run.
             stroke_length_mm (int): Stroke length in mm.
             clamp_force_g (int): Clamp force in grams.
+            water_temp (int): Water temperature in degrees Celsius.
             cycles (int): Number of cycles to perform.
         """
-        self.send_cmd(f"CMD START_TEST speed={speed_cm_s:.2f} stroke_length={stroke_length_mm} clamp_force={clamp_force_g} cycles={cycles}")
+        self.send_cmd(f"CMD START_TEST speed={speed_cm_s:.2f} stroke_length={stroke_length_mm} clamp_force={clamp_force_g} water_temp={water_temp} cycles={cycles}")
 
     @Slot()
     def pause_test(self):
@@ -404,6 +405,16 @@ class SerialController(QObject):
         """
         self.send_cmd("CMD STOP_TEST")
 
+    @Slot(str)
+    def jog_up(self, axis: str):
+        """Jog the specified axis up by a fixed increment."""
+        self.send_cmd(f"CMD JOG_UP axis={axis}")
+
+    @Slot(str)
+    def jog_down(self, axis: str):
+        """Jog the specified axis down by a fixed increment."""
+        self.send_cmd(f"CMD JOG_DOWN axis={axis}")
+    
 def main():
     # Kiosk settings (optional)
     os.environ.setdefault("QT_QPA_PLATFORM", "eglfs")
