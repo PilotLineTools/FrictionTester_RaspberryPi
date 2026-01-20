@@ -238,15 +238,24 @@ Rectangle {
                     spacing: 6
 
                     Text { text: qsTr("Cycles"); color: Constants.textSecondary; font.pixelSize: 11 }
-                    Text {
+                    /*Text {
                         id: cyclesValueText
                         text: qsTr("-")
                         color: "#A78BFA"
                         font.pixelSize: 26
                         font.bold: true
+                    }*/
+                    Text {
+                        id: cycleText
+                        text: qsTr("- / -")
+                        color: "#A78BFA"
+                        font.pixelSize: 26
+                        font.bold: true
                     }
-                    Text { text: qsTr("count"); color: Constants.textMuted; font.pixelSize: 11 }
+                    
+                    Text { text: qsTr("current/total"); color: Constants.textMuted; font.pixelSize: 11 }
                 }
+                
             }
         }
 
@@ -298,6 +307,8 @@ Rectangle {
                 }
             }
 
+
+
             // Right controls stack
             ColumnLayout {
                 Layout.preferredWidth: 320
@@ -340,8 +351,8 @@ Rectangle {
 
                 // Elapsed time
                 Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 120
+                    //Layout.fillWidth: true
+                    //Layout.preferredHeight: 120
                     radius: 14
                     color: Constants.bgCard
                     border.color: Constants.borderDefault
@@ -361,12 +372,38 @@ Rectangle {
                             font.pixelSize: 34
                             font.bold: true
                         }
+
+                        // Pause / Resume
+                        Button {
+                            id: pauseResumeButton
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 84
+                            text: qsTr("⏸  PAUSE TEST")
+
+                            // wrapper will override this color using a dynamic property
+                            property color backgroundColor: "#F59E0B"
+
+                            background: Rectangle {
+                                radius: 16
+                                color: pauseResumeButton.pressed ? Qt.darker(pauseResumeButton.backgroundColor, 1.15)
+                                                                : pauseResumeButton.backgroundColor
+                            }
+
+                            contentItem: Text {
+                                text: pauseResumeButton.text
+                                color: "white"
+                                font.pixelSize: 20
+                                font.bold: true
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
                     }
                 }
 
                 Item { Layout.fillHeight: true }
 
-                // Pause / Resume
+                /* Pause / Resume
                 Button {
                     id: pauseResumeButton
                     Layout.fillWidth: true
@@ -390,7 +427,7 @@ Rectangle {
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                     }
-                }
+                }*/
 
                 // Abort
                 Button {
