@@ -23,6 +23,7 @@ NavShellForm {
     property var _pendingRunProtocol: null
     property var activeProtocol: null
     property bool isPaused: false
+    property int activeRunId: -1
 
     // Sidebar enabled only when safe (idle/config/browse) and dialog not visible
     // (running/paused should lock nav)
@@ -69,32 +70,42 @@ NavShellForm {
     function startRunWithProtocol(proto) {
         if (!proto) return
 
-        // Save for ActiveRunScreen UI
         activeProtocol = proto
         isPaused = false
 
-        // ✅ Make sure connected
         if (!ensureConnected()) {
             console.error("❌ Cannot start test: serial not connected")
-            // stay in config so user can retry
             uiState = "config"
             return
         }
 
-        // ✅ Map protocol fields to your slot args
-        // DB/API uses: speed, stroke_length_mm, clamp_force_g, water_temp_c, cycles
-        const speed  = Number(proto.speed)                // cm/s (per storage.py comment)
-        const stroke = Number(proto.stroke_length_mm)
-        const clamp  = Number(proto.clamp_force_g)
-        const temp   = Number(proto.water_temp_c)
-        const cycles = Number(proto.cycles)
+        // 1) Create run record in DB
+        backend.request("POST", "/runs", { protocol_id: proto.id, notes: "" }, function(ok, status, data) {
+            if (!ok || !data) {
+                console.error("❌ Failed to create run record", status, data)
+                uiState = "config"
+                return
+            }
 
-        console.log("➡️ START_TEST:", speed, stroke, clamp, temp, cycles)
-        serialController.start_test(speed, stroke, clamp, temp, cycles)
+            activeRunId = data.run_id
+            console.log("✅ activeRunId:", activeRunId)
 
-        // Route to active run screen
-        uiState = "running"
+            // 2) Mark status running
+            backend.request("PUT", "/runs/" + activeRunId + "/status", { status: "running" }, function(){ })
+
+            // 3) Start test on controller
+            const speed  = Number(proto.speed)
+            const stroke = Number(proto.stroke_length_mm)
+            const clamp  = Number(proto.clamp_force_g)
+            const temp   = Number(proto.water_temp_c)
+            const cycles = Number(proto.cycles)
+
+            serialController.start_test(speed, stroke, clamp, temp, cycles)
+
+            uiState = "running"
+        })
     }
+
 
     function togglePause() {
         if (uiState !== "running" && uiState !== "paused") return
@@ -108,16 +119,17 @@ NavShellForm {
     function abortRun() {
         if (uiState !== "running" && uiState !== "paused") return
 
-        // When you add firmware commands later:
         // ensureConnectedAndSend("ABORT_TEST")
 
-        // Return to config (or idle, your choice)
+        if (activeRunId > 0) {
+            backend.request("PUT", "/runs/" + activeRunId + "/status", { status: "aborted" }, function(){ })
+        }
+
         uiState = "config"
         isPaused = false
-        // Keep activeProtocol if you want to display it back in config,
-        // or clear it if abort should discard selection:
-        // activeProtocol = null
+        activeRunId = -1
     }
+
 
     // ===== Model/state =====
     QtObject {
@@ -254,8 +266,26 @@ NavShellForm {
         }
     }
 
+    Component {
+        id: historyComp
+        HistoryScreen {
+            backend: pythonBackend
+
+            onBackRequested: {
+                // for sidebar navigation, just go back to idle
+                shell.uiState = "idle"
+            }
+
+            onRunChosen: function(runObj) {
+                console.log("Run chosen:", runObj.id, runObj.protocol_name)
+                // TODO next: route to RunDetailScreen with this run id
+                // shell.openRunDetails(runObj) or stack.replace(runDetailComp)
+            }
+        }
+    }
+
+
     Component { id: settingsComp; SettingsScreen { appMachine: machineState } }
-    Component { id: historyComp; TempScreen { appMachine: machineState } }
     Component { id: aboutComp; TempScreen { appMachine: machineState } }
 
     // ===== Routing =====
@@ -500,6 +530,13 @@ NavShellForm {
                     shell.uiState = "idle"
                     return
                 }
+            }
+            if (msg === "RUN_COMPLETE") {
+                if (shell.activeRunId > 0) {
+                    shell.backend.request("PUT", "/runs/" + shell.activeRunId + "/status", { status: "completed" }, function(){ })
+                }
+                shell.activeRunId = -1
+                shell.uiState = "config"
             }
 
             // Later: running stream updates, run complete, faults, etc.

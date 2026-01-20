@@ -82,6 +82,16 @@ class Protocol:
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 
+@dataclass
+class RunRow:
+    id: int
+    protocol_id: int
+    protocol_snapshot_json: str
+    status: str
+    started_at: Optional[str]
+    finished_at: Optional[str]
+    run_dir: str
+    notes: Optional[str]
 
 def list_protocols(conn: sqlite3.Connection) -> List[Protocol]:
     rows = conn.execute(
@@ -172,3 +182,99 @@ def mark_run_status(conn: sqlite3.Connection, run_id: int, status: str) -> None:
         conn.execute("UPDATE runs SET status = ? WHERE id = ?", (status, run_id))
 
     conn.commit()
+
+def _run_protocol_name(run: RunRow) -> str:
+    try:
+        snap = json.loads(run.protocol_snapshot_json or "{}")
+        return snap.get("name") or f"Protocol {run.protocol_id}"
+    except Exception:
+        return f"Protocol {run.protocol_id}"
+
+
+def list_runs(conn: sqlite3.Connection) -> List[RunRow]:
+    rows = conn.execute(
+        "SELECT * FROM runs ORDER BY id DESC"
+    ).fetchall()
+    return [RunRow(**dict(r)) for r in rows]
+
+
+def get_run(conn: sqlite3.Connection, run_id: int) -> Optional[RunRow]:
+    row = conn.execute("SELECT * FROM runs WHERE id = ?", (run_id,)).fetchone()
+    return RunRow(**dict(row)) if row else None
+
+
+def delete_run(conn: sqlite3.Connection, run_id: int, delete_files: bool = False) -> None:
+    r = get_run(conn, run_id)
+    if not r:
+        return
+
+    conn.execute("DELETE FROM runs WHERE id = ?", (run_id,))
+    conn.commit()
+
+    if delete_files:
+        # optional: remove run directory contents
+        try:
+            import shutil
+            shutil.rmtree(r.run_dir, ignore_errors=True)
+        except Exception:
+            pass
+
+
+def get_run_snapshot(run: RunRow) -> Dict[str, Any]:
+    try:
+        return json.loads(run.protocol_snapshot_json or "{}")
+    except Exception:
+        return {}
+
+
+def export_run_csv(conn: sqlite3.Connection, run_id: int) -> str:
+    """
+    Export CSV from a standard JSON file if it exists in run_dir.
+    You can change this to whatever format you actually save.
+
+    Expected file (example): <run_dir>/points.json
+      [{"t":0.0,"pos":0.0,"force":0.1}, ...]
+    """
+    r = get_run(conn, run_id)
+    if not r:
+        raise ValueError("Run not found")
+
+    run_dir = Path(r.run_dir)
+    points_path = run_dir / "points.json"
+
+    points: List[Dict[str, Any]] = []
+    if points_path.exists():
+        try:
+            points = json.loads(points_path.read_text())
+        except Exception:
+            points = []
+
+    # Header + rows
+    lines = ["t_s,position_mm,force_n"]
+    for p in points:
+        t = p.get("t", 0)
+        pos = p.get("pos", 0)
+        force = p.get("force", 0)
+        lines.append(f"{t},{pos},{force}")
+
+    return "\n".join(lines)
+
+
+def write_export_file(conn: sqlite3.Connection, run_id: int, fmt: str = "csv") -> str:
+    """
+    Writes an export file into the run_dir and returns the full path.
+    """
+    r = get_run(conn, run_id)
+    if not r:
+        raise ValueError("Run not found")
+
+    run_dir = Path(r.run_dir)
+    run_dir.mkdir(parents=True, exist_ok=True)
+
+    if fmt.lower() == "csv":
+        content = export_run_csv(conn, run_id)
+        out_path = run_dir / "export.csv"
+        out_path.write_text(content)
+        return str(out_path)
+
+    raise ValueError("Unsupported export format")

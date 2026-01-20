@@ -415,6 +415,11 @@ class SerialController(QObject):
         """Jog the specified axis down by a fixed increment."""
         self.send_cmd(f"CMD JOG_DOWN axis={axis}")
     
+    @Slot(str)
+    def jog_stop(self, axis: str):
+        """Stop jogging the specified axis."""
+        self.send_cmd(f"CMD JOG_STOP axis={axis}")
+
 def main():
     # Kiosk settings (optional)
     os.environ.setdefault("QT_QPA_PLATFORM", "eglfs")

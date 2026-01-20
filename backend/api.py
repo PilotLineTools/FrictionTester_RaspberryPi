@@ -9,8 +9,12 @@ from .storage import (
     connect, init_db,
     list_protocols, get_protocol,
     create_protocol, update_protocol, delete_protocol,
-    create_run, Protocol
+    create_run, mark_run_status,
+    list_runs, get_run, delete_run, get_run_snapshot,
+    export_run_csv, write_export_file,
+    Protocol
 )
+
 
 app = FastAPI(title="FrictionTester Backend")
 
@@ -34,6 +38,20 @@ class RunCreateIn(BaseModel):
 
 class RunCreateOut(BaseModel):
     run_id: int
+
+class RunOut(BaseModel):
+    id: int
+    protocol_id: int
+    protocol_name: str
+    status: str
+    started_at: Optional[str] = None
+    finished_at: Optional[str] = None
+    run_dir: str
+    notes: Optional[str] = None
+
+class RunStatusIn(BaseModel):
+    status: str   # queued/running/completed/aborted/failed
+
 
 # ---------- Startup ----------
 @app.get("/health")
@@ -106,3 +124,105 @@ def api_create_run(req: RunCreateIn):
         return RunCreateOut(run_id=run_id)
     finally:
         conn.close()
+
+@app.get("/runs", response_model=List[RunOut])
+def api_list_runs():
+    conn = connect()
+    try:
+        items = list_runs(conn)
+        out: List[RunOut] = []
+        for r in items:
+            snap = get_run_snapshot(r)
+            out.append(RunOut(
+                id=r.id,
+                protocol_id=r.protocol_id,
+                protocol_name=snap.get("name", f"Protocol {r.protocol_id}"),
+                status=r.status,
+                started_at=r.started_at,
+                finished_at=r.finished_at,
+                run_dir=r.run_dir,
+                notes=r.notes,
+            ))
+        return out
+    finally:
+        conn.close()
+
+
+@app.get("/runs/{run_id}", response_model=Dict[str, Any])
+def api_get_run(run_id: int):
+    conn = connect()
+    try:
+        r = get_run(conn, run_id)
+        if not r:
+            raise HTTPException(status_code=404, detail="Run not found")
+
+        snap = get_run_snapshot(r)
+        return {
+            "run": {
+                "id": r.id,
+                "protocol_id": r.protocol_id,
+                "protocol_name": snap.get("name", f"Protocol {r.protocol_id}"),
+                "status": r.status,
+                "started_at": r.started_at,
+                "finished_at": r.finished_at,
+                "run_dir": r.run_dir,
+                "notes": r.notes,
+            },
+            "protocol_snapshot": snap,
+            # Later: include result summary, stats, etc.
+        }
+    finally:
+        conn.close()
+
+
+@app.put("/runs/{run_id}/status")
+def api_set_run_status(run_id: int, req: RunStatusIn):
+    conn = connect()
+    try:
+        r = get_run(conn, run_id)
+        if not r:
+            raise HTTPException(status_code=404, detail="Run not found")
+
+        mark_run_status(conn, run_id, req.status)
+        return {"ok": True}
+    finally:
+        conn.close()
+
+
+@app.delete("/runs/{run_id}")
+def api_delete_run(run_id: int, delete_files: bool = False):
+    conn = connect()
+    try:
+        r = get_run(conn, run_id)
+        if not r:
+            raise HTTPException(status_code=404, detail="Run not found")
+
+        delete_run(conn, run_id, delete_files=delete_files)
+        return {"ok": True}
+    finally:
+        conn.close()
+
+
+@app.get("/runs/{run_id}/export")
+def api_export_run(run_id: int, fmt: str = "csv", mode: str = "content"):
+    """
+    mode=content -> return the export content (CSV text)
+    mode=file    -> write export into run_dir and return its path
+    """
+    conn = connect()
+    try:
+        if not get_run(conn, run_id):
+            raise HTTPException(status_code=404, detail="Run not found")
+
+        if fmt.lower() != "csv":
+            raise HTTPException(status_code=400, detail="Only csv supported for now")
+
+        if mode == "file":
+            path = write_export_file(conn, run_id, fmt="csv")
+            return {"format": "csv", "path": path}
+
+        content = export_run_csv(conn, run_id)
+        return {"format": "csv", "content": content}
+    finally:
+        conn.close()
+

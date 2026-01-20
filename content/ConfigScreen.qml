@@ -82,29 +82,13 @@ ConfigScreenForm {
 
     }
 
-    // ===== Jog Buttons =====
-    function sendJog(cmd) {
-        if (!serialController) {
-            console.warn("No serialController for jog command")
-            return
-        }
-        if (!serialController.connected) {
-            const ok = serialController.connectPort()
-            if (!ok) {
-                console.warn("Failed to connect serial for jog command")
-                return
-            }
-        }
-        console.log("➡️ Send:", cmd)
-        serialController.send_cmd(cmd)
-    }
-
+    // ===== Jog Z Axis =====
     jogUpButton.onPressed:  serialController.jog_up("Z")
     jogDownButton.onPressed: serialController.jog_down("Z")
 
     // If you want “stop on release” behavior (recommended for jogging):
-    jogUpButton.onReleased:   sendJog("JOG_STOP")
-    jogDownButton.onReleased: sendJog("JOG_STOP")
+    jogUpButton.onReleased:   serialController.jog_stop("Z")
+    jogDownButton.onReleased: serialController.jog_stop("Z")
 
     // ===== Run Test =====
     runTestButton.onClicked: {
