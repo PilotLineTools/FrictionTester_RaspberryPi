@@ -269,6 +269,12 @@ NavShellForm {
         exitConfigDialog.close()
     }
 
+    function clearConfigSelection() {
+        machineState.selectedProtocol = null
+        protocolsMode = "prepAndRun"
+    }
+
+
     // ===== Exit confirm dialog =====
     Dialog {
         id: exitConfigDialog
@@ -367,10 +373,14 @@ NavShellForm {
                     onClicked: {
                         const t = pendingNavTarget
                         pendingNavTarget = ""
-                        selectedProtocol = null
+
+                        // ✅ confirmed leaving config → clear selected protocol
+                        clearConfigSelection()
+
                         exitConfigDialog.close()
                         performNav(t)
                     }
+
                 }
             }
         }
