@@ -15,8 +15,15 @@ ActiveRunScreenForm {
     property var serialController
     property var backend
 
-    // run state
-    property bool isPaused: false
+    // ✅ inputs from NavShell
+    property var protocolObj: null
+    property bool paused: false
+
+    // ✅ outputs to NavShell
+    signal abortRequested()
+    signal pauseResumeRequested()
+
+    // elapsed
     property int elapsedSeconds: 0
 
     function formatTime(totalSeconds) {
@@ -27,11 +34,21 @@ ActiveRunScreenForm {
         return mm + ":" + ss
     }
 
-    function applyPauseUI() {
-        statusBadgeText.text = isPaused ? "PAUSED" : "RUNNING"
+    function applyUIFromProtocol() {
+        const p = protocolObj
 
-        // Button text + color
-        if (isPaused) {
+        protocolTitleText.text = p ? p.name : "No protocol selected"
+        speedValueText.text  = p ? String(p.speed) : "-"
+        clampValueText.text  = p ? String(p.clamp_force_g) : "-"
+        strokeValueText.text = p ? String(p.stroke_length_mm) : "-"
+        tempValueText.text   = p ? String(p.water_temp_c) : "-"
+        cycleText.text       = p ? ("0 / " + String(p.cycles)) : "- / -"
+    }
+
+    function applyPauseUI() {
+        statusBadgeText.text = paused ? "PAUSED" : "RUNNING"
+
+        if (paused) {
             pauseResumeButton.text = "▶  RESUME TEST"
             pauseResumeButton.backgroundColor = "#10B981" // green
         } else {
@@ -41,49 +58,26 @@ ActiveRunScreenForm {
     }
 
     Component.onCompleted: {
+        applyUIFromProtocol()
         applyPauseUI()
-
-        // populate protocol info from selected protocol if available
-        const p = appMachine && appMachine.selectedProtocol ? appMachine.selectedProtocol : null
-
-        protocolTitleText.text = p ? p.name : "No protocol selected"
-        speedValueText.text  = p ? String(p.speed) : "-"
-        clampValueText.text  = p ? String(p.clamp_force_g) : "-"
-        strokeValueText.text = p ? String(p.stroke_length_mm) : "-"
-        tempValueText.text   = p ? String(p.water_temp_c) : "-"
-
-        // ✅ cycles card uses cycleText (not cyclesValueText)
-        cycleText.text = p ? ("0 / " + String(p.cycles)) : "- / -"
-
         elapsedText.text = formatTime(elapsedSeconds)
     }
 
-    // Tick timer (pauses/resumes without resetting)
+    onProtocolObjChanged: applyUIFromProtocol()
+    onPausedChanged: applyPauseUI()
+
+    // ✅ tick timer (pauses/resumes without resetting)
     Timer {
         id: elapsedTimer
         interval: 1000
         repeat: true
-        running: !view.isPaused
+        running: !view.paused
         onTriggered: {
             view.elapsedSeconds += 1
             elapsedText.text = view.formatTime(view.elapsedSeconds)
         }
     }
 
-    pauseResumeButton.onClicked: {
-        // toggle pause
-        view.isPaused = !view.isPaused
-        view.applyPauseUI()
-
-        // TODO: call your backend/serial pause/resume when ready:
-        // if (view.isPaused) serialController.send_cmd("PAUSE")
-        // else serialController.send_cmd("RESUME")
-    }
-
-    abortButton.onClicked: {
-        // TODO: abort command + route back when ready
-        // serialController.send_cmd("ABORT")
-
-        console.log("ABORT pressed")
-    }
+    pauseResumeButton.onClicked: pauseResumeRequested()
+    abortButton.onClicked: abortRequested()
 }

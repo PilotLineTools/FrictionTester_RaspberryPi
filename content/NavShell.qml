@@ -212,13 +212,16 @@ NavShellForm {
             serialController: shell.serialController
             backend: pythonBackend
 
+            // ✅ feed UI
             protocolObj: shell.activeProtocol
-            runStatus: shell.isPaused ? "PAUSED" : "RUNNING"
+            paused: shell.isPaused
 
+            // ✅ signals that exist on the wrapper
             onPauseResumeRequested: shell.togglePause()
             onAbortRequested: shell.abortRun()
         }
     }
+
 
     Component {
         id: protocolsComp
