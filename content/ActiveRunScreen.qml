@@ -21,8 +21,10 @@ ActiveRunScreenForm {
 
     // ---- local run UI state (placeholder until real streaming comes in) ----
     property int currentCycle: 0
-    property int totalCycles: protocolObj ? Number(protocolObj.cycles) : 0
     property int elapsedSeconds: 0
+
+    // derived
+    property int totalCycles: protocolObj ? Number(protocolObj.cycles) : 0
 
     Timer {
         id: elapsedTimer
@@ -30,16 +32,17 @@ ActiveRunScreenForm {
         running: view.runStatus === "RUNNING"
         repeat: true
         onTriggered: {
-            elapsedSeconds += 1
-            if (totalCycles > 0 && currentCycle < totalCycles) {
-                // Fake cycle progress for now (replace with real ESP32 data later)
-                if (elapsedSeconds % 5 === 0) currentCycle += 1
+            view.elapsedSeconds += 1
+
+            // Fake cycle progress for now (replace with real ESP32 data later)
+            if (view.totalCycles > 0 && view.currentCycle < view.totalCycles) {
+                if (view.elapsedSeconds % 5 === 0) view.currentCycle += 1
             }
         }
     }
 
     function fmtTime(sec) {
-        const s = Math.max(0, sec|0)
+        const s = Math.max(0, sec | 0)
         const hh = Math.floor(s / 3600)
         const mm = Math.floor((s % 3600) / 60)
         const ss = s % 60
@@ -47,44 +50,72 @@ ActiveRunScreenForm {
         return (hh > 0 ? (pad(hh) + ":") : "") + pad(mm) + ":" + pad(ss)
     }
 
-    Component.onCompleted: {
-        console.log("✅ ActiveRunScreen WRAPPER LOADED", appMachine, protocolObj, runStatus)
+    function safeText(v) {
+        return (v === undefined || v === null || v === "") ? "-" : String(v)
+    }
 
-        // fill header title + status
-        protocolTitleText.text = protocolObj && protocolObj.name ? protocolObj.name : "No protocol"
-        statusBadgeText.text = view.runStatus
+    function updateUi() {
+        // Header
+        if (protocolTitleText)
+            protocolTitleText.text = (protocolObj && protocolObj.name) ? String(protocolObj.name) : "No protocol"
 
-        // fill metric cards (use '-' when missing)
-        speedValueText.text  = protocolObj ? String(protocolObj.speed) : "-"
-        clampValueText.text  = protocolObj ? String(protocolObj.clamp_force_g) : "-"
-        strokeValueText.text = protocolObj ? String(protocolObj.stroke_length_mm) : "-"
-        tempValueText.text   = protocolObj ? String(protocolObj.water_temp_c) : "-"
-        cyclesValueText.text = protocolObj ? String(protocolObj.cycles) : "-"
+        if (statusBadgeText)
+            statusBadgeText.text = view.runStatus
 
-        // init cycles
+        // Metric cards
+        if (speedValueText)  speedValueText.text  = protocolObj ? safeText(protocolObj.speed) : "-"
+        if (clampValueText)  clampValueText.text  = protocolObj ? safeText(protocolObj.clamp_force_g) : "-"
+        if (strokeValueText) strokeValueText.text = protocolObj ? safeText(protocolObj.stroke_length_mm) : "-"
+        if (tempValueText)   tempValueText.text   = protocolObj ? safeText(protocolObj.water_temp_c) : "-"
+        if (cyclesValueText) cyclesValueText.text = protocolObj ? safeText(protocolObj.cycles) : "-"
+
+        // Right panel
+        if (cycleText) {
+            cycleText.text = (view.totalCycles > 0)
+                ? (view.currentCycle + " / " + view.totalCycles)
+                : "- / -"
+        }
+
+        if (elapsedText)
+            elapsedText.text = fmtTime(view.elapsedSeconds)
+
+        if (progressBar) {
+            progressBar.value = (view.totalCycles > 0)
+                ? Math.max(0, Math.min(1, view.currentCycle / view.totalCycles))
+                : 0
+        }
+
+        // Buttons
+        if (pauseResumeButton) {
+            pauseResumeButton.text =
+                (view.runStatus === "PAUSED") ? "▶  RESUME TEST" : "⏸  PAUSE TEST"
+
+            // this property exists in your .ui.qml button
+            pauseResumeButton.backgroundColor =
+                (view.runStatus === "PAUSED") ? "#16A34A" : "#F59E0B"
+        }
+    }
+
+    // Keep UI synced
+    Component.onCompleted: updateUi()
+    onProtocolObjChanged: {
+        // reset local counters when a new protocol starts
         currentCycle = 0
         elapsedSeconds = 0
+        updateUi()
+    }
+    onRunStatusChanged: updateUi()
+    onCurrentCycleChanged: updateUi()
+    onElapsedSecondsChanged: updateUi()
+
+    // Wire button clicks (these are safe at top level)
+    Connections {
+        target: pauseResumeButton
+        function onClicked() { view.pauseResumeRequested() }
     }
 
-    onRunStatusChanged: {
-        statusBadgeText.text = view.runStatus
-        // Timer auto-runs only when RUNNING
+    Connections {
+        target: abortButton
+        function onClicked() { view.abortRequested() }
     }
-
-    // right stack bindings
-    cycleText.text = (totalCycles > 0)
-        ? (currentCycle + " / " + totalCycles)
-        : "- / -"
-
-    elapsedText.text = fmtTime(elapsedSeconds)
-
-    progressBar.value = (totalCycles > 0)
-        ? Math.max(0, Math.min(1, currentCycle / totalCycles))
-        : 0
-
-    pauseResumeButton.text = (view.runStatus === "PAUSED") ? "▶  RESUME TEST" : "⏸  PAUSE TEST"
-    pauseResumeButton.backgroundColor = (view.runStatus === "PAUSED") ? "#16A34A" : "#F59E0B"
-
-    pauseResumeButton.onClicked: pauseResumeRequested()
-    abortButton.onClicked: abortRequested()
 }
