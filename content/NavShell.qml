@@ -367,6 +367,7 @@ NavShellForm {
                     onClicked: {
                         const t = pendingNavTarget
                         pendingNavTarget = ""
+                        selectedProtocol = null
                         exitConfigDialog.close()
                         performNav(t)
                     }
