@@ -332,7 +332,7 @@ Rectangle {
         }
     }
     // Run test button at bottom center
-    button {
+    Button {
         id: runTestButton
         text: qsTr("▶  RUN TEST")
         background: Rectangle { radius: 12; color: parent.pressed ? "#059669" : "#10B981" }
