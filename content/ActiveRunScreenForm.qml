@@ -315,7 +315,7 @@ Rectangle {
                 Layout.fillHeight: true
                 spacing: root.gap
 
-                // Current cycle + progress
+                /* Current cycle + progress
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 150
@@ -347,7 +347,7 @@ Rectangle {
                             value: 0
                         }
                     }
-                }
+                }*/
 
                 // Elapsed time
                 Rectangle {
