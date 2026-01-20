@@ -21,16 +21,17 @@ Rectangle {
     property alias clampValueText: clampValueText
     property alias strokeValueText: strokeValueText
     property alias tempValueText: tempValueText
-    property alias cyclesValueText: cyclesValueText
 
+    // show current/total cycles in the 5th card
     property alias cycleText: cycleText
-    property alias elapsedText: elapsedText
-    property alias progressBar: progressBar
 
+    property alias elapsedText: elapsedText
     property alias pauseResumeButton: pauseResumeButton
     property alias abortButton: abortButton
 
-    // Page padding
+    // Optional (if you wire a progress bar later)
+    // property alias progressBar: progressBar
+
     readonly property int pad: 16
     readonly property int gap: 14
 
@@ -40,7 +41,7 @@ Rectangle {
         spacing: root.gap
 
         // =========================
-        // TOP: Protocol Title + Status Badge (replaces Choose)
+        // TOP: Protocol Title + Status Badge
         // =========================
         Rectangle {
             Layout.fillWidth: true
@@ -119,10 +120,14 @@ Rectangle {
         // Metric cards row
         // =========================
         GridLayout {
+            id: metricsGrid
             Layout.fillWidth: true
             columns: 5
             rowSpacing: root.gap
             columnSpacing: root.gap
+
+            // This width is what we want the right-side control card to match.
+            readonly property real metricW: (width - (columnSpacing * (columns - 1))) / columns
 
             Rectangle {
                 Layout.fillWidth: true
@@ -136,15 +141,8 @@ Rectangle {
                     anchors.fill: parent
                     anchors.margins: 14
                     spacing: 6
-
                     Text { text: qsTr("Speed"); color: Constants.textSecondary; font.pixelSize: 11 }
-                    Text {
-                        id: speedValueText
-                        text: qsTr("-")
-                        color: Constants.accentSky
-                        font.pixelSize: 26
-                        font.bold: true
-                    }
+                    Text { id: speedValueText; text: qsTr("-"); color: Constants.accentSky; font.pixelSize: 26; font.bold: true }
                     Text { text: qsTr("cm/s"); color: Constants.textMuted; font.pixelSize: 11 }
                 }
             }
@@ -161,15 +159,8 @@ Rectangle {
                     anchors.fill: parent
                     anchors.margins: 14
                     spacing: 6
-
                     Text { text: qsTr("Clamp"); color: Constants.textSecondary; font.pixelSize: 11 }
-                    Text {
-                        id: clampValueText
-                        text: qsTr("-")
-                        color: "#FBBF24"
-                        font.pixelSize: 26
-                        font.bold: true
-                    }
+                    Text { id: clampValueText; text: qsTr("-"); color: "#FBBF24"; font.pixelSize: 26; font.bold: true }
                     Text { text: qsTr("g"); color: Constants.textMuted; font.pixelSize: 11 }
                 }
             }
@@ -186,15 +177,8 @@ Rectangle {
                     anchors.fill: parent
                     anchors.margins: 14
                     spacing: 6
-
                     Text { text: qsTr("Stroke"); color: Constants.textSecondary; font.pixelSize: 11 }
-                    Text {
-                        id: strokeValueText
-                        text: qsTr("-")
-                        color: Constants.textPrimary
-                        font.pixelSize: 26
-                        font.bold: true
-                    }
+                    Text { id: strokeValueText; text: qsTr("-"); color: Constants.textPrimary; font.pixelSize: 26; font.bold: true }
                     Text { text: qsTr("mm"); color: Constants.textMuted; font.pixelSize: 11 }
                 }
             }
@@ -211,15 +195,8 @@ Rectangle {
                     anchors.fill: parent
                     anchors.margins: 14
                     spacing: 6
-
                     Text { text: qsTr("Temp"); color: Constants.textSecondary; font.pixelSize: 11 }
-                    Text {
-                        id: tempValueText
-                        text: qsTr("-")
-                        color: "#60A5FA"
-                        font.pixelSize: 26
-                        font.bold: true
-                    }
+                    Text { id: tempValueText; text: qsTr("-"); color: "#60A5FA"; font.pixelSize: 26; font.bold: true }
                     Text { text: qsTr("°C"); color: Constants.textMuted; font.pixelSize: 11 }
                 }
             }
@@ -236,38 +213,22 @@ Rectangle {
                     anchors.fill: parent
                     anchors.margins: 14
                     spacing: 6
-
                     Text { text: qsTr("Cycles"); color: Constants.textSecondary; font.pixelSize: 11 }
-                    /*Text {
-                        id: cyclesValueText
-                        text: qsTr("-")
-                        color: "#A78BFA"
-                        font.pixelSize: 26
-                        font.bold: true
-                    }*/
-                    Text {
-                        id: cycleText
-                        text: qsTr("- / -")
-                        color: "#A78BFA"
-                        font.pixelSize: 26
-                        font.bold: true
-                    }
-                    
+                    Text { id: cycleText; text: qsTr("- / -"); color: "#A78BFA"; font.pixelSize: 26; font.bold: true }
                     Text { text: qsTr("current/total"); color: Constants.textMuted; font.pixelSize: 11 }
                 }
-                
             }
         }
 
         // =========================
-        // MAIN: Graph (left) + Controls (right)
+        // MAIN: Graph (left) + Right Control Card (width matches 1 metric card)
         // =========================
         RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
             spacing: root.gap
 
-            // Graph panel
+            // Graph panel (takes remaining space)
             Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -296,7 +257,6 @@ Rectangle {
                         border.color: Constants.borderDefault
                         border.width: 1
 
-                        // Placeholder until we wire real chart rendering
                         Text {
                             anchors.centerIn: parent
                             text: qsTr("LIVE GRAPH AREA")
@@ -307,63 +267,30 @@ Rectangle {
                 }
             }
 
-
-
-            // Right controls stack
-            ColumnLayout {
-                Layout.preferredWidth: 320
+            // Right-side control card (aligned to far-right metric card)
+            Rectangle {
+                Layout.preferredWidth: metricsGrid.metricW
                 Layout.fillHeight: true
-                spacing: root.gap
+                radius: 14
+                color: Constants.bgCard
+                border.color: Constants.borderDefault
+                border.width: 1
 
-                /* Current cycle + progress
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 150
-                    radius: 14
-                    color: Constants.bgCard
-                    border.color: Constants.borderDefault
-                    border.width: 1
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 16
+                    spacing: 14
 
+                    // Elapsed time
                     ColumnLayout {
-                        anchors.fill: parent
-                        anchors.margins: 16
-                        spacing: 10
-
-                        Text { text: qsTr("Current Cycle"); color: Constants.textSecondary; font.pixelSize: 12 }
+                        Layout.fillWidth: true
+                        spacing: 6
 
                         Text {
-                            id: cycleText
-                            text: qsTr("- / -")
-                            color: Constants.accentSky
-                            font.pixelSize: 34
-                            font.bold: true
+                            text: qsTr("Elapsed Time")
+                            color: Constants.textSecondary
+                            font.pixelSize: 12
                         }
-
-                        ProgressBar {
-                            id: progressBar
-                            Layout.fillWidth: true
-                            from: 0
-                            to: 1
-                            value: 0
-                        }
-                    }
-                }*/
-
-                // Elapsed time
-                Rectangle {
-                    //Layout.fillWidth: true
-                    //Layout.preferredHeight: 120
-                    radius: 14
-                    color: Constants.bgCard
-                    border.color: Constants.borderDefault
-                    border.width: 1
-
-                    ColumnLayout {
-                        anchors.fill: parent
-                        anchors.margins: 16
-                        spacing: 8
-
-                        Text { text: qsTr("Elapsed Time"); color: Constants.textSecondary; font.pixelSize: 12 }
 
                         Text {
                             id: elapsedText
@@ -372,82 +299,57 @@ Rectangle {
                             font.pixelSize: 34
                             font.bold: true
                         }
+                    }
 
-                        // Pause / Resume
-                        Button {
-                            id: pauseResumeButton
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 84
-                            text: qsTr("⏸  PAUSE TEST")
+                    Item { Layout.fillHeight: true }
 
-                            // wrapper will override this color using a dynamic property
-                            property color backgroundColor: "#F59E0B"
+                    // Pause / Resume
+                    Button {
+                        id: pauseResumeButton
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 84
+                        text: qsTr("⏸  PAUSE TEST")
 
-                            background: Rectangle {
-                                radius: 16
-                                color: pauseResumeButton.pressed ? Qt.darker(pauseResumeButton.backgroundColor, 1.15)
-                                                                : pauseResumeButton.backgroundColor
-                            }
+                        // wrapper will override this
+                        property color backgroundColor: "#F59E0B"
 
-                            contentItem: Text {
-                                text: pauseResumeButton.text
-                                color: "white"
-                                font.pixelSize: 20
-                                font.bold: true
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                            }
+                        background: Rectangle {
+                            radius: 16
+                            color: pauseResumeButton.pressed
+                                   ? Qt.darker(pauseResumeButton.backgroundColor, 1.15)
+                                   : pauseResumeButton.backgroundColor
+                        }
+
+                        contentItem: Text {
+                            text: pauseResumeButton.text
+                            color: "white"
+                            font.pixelSize: 20
+                            font.bold: true
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
                         }
                     }
-                }
 
-                Item { Layout.fillHeight: true }
+                    // Abort
+                    Button {
+                        id: abortButton
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 84
+                        text: qsTr("⨯  ABORT TEST")
 
-                /* Pause / Resume
-                Button {
-                    id: pauseResumeButton
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 84
-                    text: qsTr("⏸  PAUSE TEST")
+                        background: Rectangle {
+                            radius: 16
+                            color: abortButton.pressed ? "#B91C1C" : "#DC2626"
+                        }
 
-                    // wrapper will override this color using a dynamic property
-                    property color backgroundColor: "#F59E0B"
-
-                    background: Rectangle {
-                        radius: 16
-                        color: pauseResumeButton.pressed ? Qt.darker(pauseResumeButton.backgroundColor, 1.15)
-                                                        : pauseResumeButton.backgroundColor
-                    }
-
-                    contentItem: Text {
-                        text: pauseResumeButton.text
-                        color: "white"
-                        font.pixelSize: 20
-                        font.bold: true
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
-                }*/
-
-                // Abort
-                Button {
-                    id: abortButton
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 84
-                    text: qsTr("⨯  ABORT TEST")
-
-                    background: Rectangle {
-                        radius: 16
-                        color: abortButton.pressed ? "#B91C1C" : "#DC2626"
-                    }
-
-                    contentItem: Text {
-                        text: abortButton.text
-                        color: "white"
-                        font.pixelSize: 20
-                        font.bold: true
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
+                        contentItem: Text {
+                            text: abortButton.text
+                            color: "white"
+                            font.pixelSize: 20
+                            font.bold: true
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
                     }
                 }
             }
