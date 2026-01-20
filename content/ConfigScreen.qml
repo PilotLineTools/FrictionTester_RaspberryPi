@@ -5,7 +5,6 @@ import PilotLine_FrictionTester
 
 ConfigScreenForm {
     id: view
-
     anchors.fill: parent
 
     // passed in from NavShell
@@ -13,129 +12,122 @@ ConfigScreenForm {
     property var serialController
     property var backend
 
-    // ✅ NEW: tell NavShell to open Protocols in selectOnly mode
+    // Tell NavShell what to do
     signal chooseProtocolRequested()
+    signal runTestRequested()
 
-    // ✅ push wrapper prop down into the Form instance
-    serialController: view.serialController
+    // internal clamp ui state (until you have real feedback)
+    property bool clampOpen: true
+
+    function fmtOrDash(v) {
+        return (v === undefined || v === null) ? "-" : ("" + v)
+    }
+
+    function currentProto() {
+        return (appMachine && appMachine.selectedProtocol) ? appMachine.selectedProtocol : null
+    }
+
+    function refreshProtocolUI() {
+        const p = currentProto()
+
+        if (!p) {
+            protocolTitleText.text = "No protocol selected"
+            speedValueText.text  = "-"
+            clampValueText.text  = "-"
+            strokeValueText.text = "-"
+            tempValueText.text   = "-"
+            cyclesValueText.text = "-"
+            return
+        }
+
+        // Title
+        protocolTitleText.text = p.name ? p.name : "Unnamed Protocol"
+
+        // Values (map your backend field names)
+        // Your API/storage uses: speed, clamp_force_g, stroke_length_mm, water_temp_c, cycles
+        // Your UI labels: Speed mm/s, Clamp N, Stroke mm, Temp °C, Cycles count
+        //
+        // NOTE: If you later decide speed is cm/s, change the unit or conversion here.
+        speedValueText.text  = fmtOrDash(p.speed)
+        clampValueText.text  = fmtOrDash(p.clamp_force_g)
+        strokeValueText.text = fmtOrDash(p.stroke_length_mm)
+        tempValueText.text   = fmtOrDash(p.water_temp_c)
+        cyclesValueText.text = fmtOrDash(p.cycles)
+    }
 
     Component.onCompleted: {
-        console.log("✅ ConfigScreen WRAPPER LOADED", appMachine)
-        if (serialController) {
-            console.log("✅ SerialController available")
-            console.log("Serial connected:", serialController.connected)
-        } else {
-            console.error("❌ SerialController is NOT available")
+        console.log("✅ ConfigScreen wrapper loaded")
+        refreshProtocolUI()
+
+        // set initial clamp button text
+        clampToggleButton.text = clampOpen ? "OPEN CLAMP" : "CLOSE CLAMP"
+    }
+
+    Connections {
+        target: appMachine
+        function onSelectedProtocolChanged() {
+            refreshProtocolUI()
         }
     }
 
-    // ✅ Show selected protocol name (requires UI aliases in ConfigScreenForm.ui.qml below)
-    protocolNameText.text: appMachine && appMachine.selectedProtocol
-        ? appMachine.selectedProtocol.name
-        : "No protocol selected"
-
+    // ===== Choose Protocol =====
     chooseProtocolButton.onClicked: chooseProtocolRequested()
 
-    // show values
-    positionText.text: appMachine
-        ? qsTr("Position: %1mm").arg(appMachine.position)
-        : qsTr("Position: -- (NO MACHINE)")
+    // ===== Clamp Toggle =====
+    clampToggleButton.onClicked: {
+        // flip UI state
+        clampOpen = !clampOpen
+        clampToggleButton.text = clampOpen ? "OPEN CLAMP" : "CLOSE CLAMP"
 
-    speedText.text: qsTr("Speed: %1").arg(speedSlider.value.toFixed(0))
-
-    // keep jogSpeed synced to slider
-    speedSlider.onValueChanged: {
-        if (!appMachine) return
-        appMachine.jogSpeed = Math.round(speedSlider.value)
-    }
-
-    function handleJogUp() {
-        if (!appMachine) return
-        if (appMachine.isHomed && appMachine.status !== "Fault") {
-            appMachine.position = Math.min(appMachine.position + appMachine.jogSpeed, 200)
-        }
-    }
-
-    function handleJogDown() {
-        if (!appMachine) return
-        if (appMachine.isHomed && appMachine.status !== "Fault") {
-            appMachine.position = Math.max(appMachine.position - appMachine.jogSpeed, 0)
-        }
-    }
-
-    function handleReset() {
-        if (!appMachine) return
-        appMachine.position = 0
-    }
-
-    jogUpButton.onClicked: handleJogUp()
-    jogDownButton.onClicked: handleJogDown()
-    resetButton.onClicked: handleReset()
-
-    motorToggleButton.checked: appMachine ? appMachine.motorEnabled : false
-
-    motorToggleButton.onClicked: {
-        if (!appMachine) return
-
-        if (motorToggleButton.checked) {
-            appMachine.motorOn()
-            motorToggleButton.text = qsTr("MOTOR: ON")
-        } else {
-            appMachine.motorOff()
-            motorToggleButton.text = qsTr("MOTOR: OFF")
-        }
-    }
-
-    // PING button handler
-    pingButton.onClicked: {
-        console.log("PING button clicked")
-
+        // Send to ESP32 (adjust command strings to what your firmware expects)
         if (!serialController) {
-            console.error("serialController is null")
-            pingStatusBox.color = Constants.accentWarning
-            pingResetTimer.restart()
+            console.warn("No serialController for clamp command")
             return
         }
 
         if (!serialController.connected) {
-            console.warn("Not connected. Attempting connect...")
             const ok = serialController.connectPort()
             if (!ok) {
-                pingStatusBox.color = Constants.accentWarning
-                pingResetTimer.restart()
+                console.warn("Failed to connect serial for clamp command")
                 return
             }
         }
 
-        console.log("Sending PING...")
-        serialController.sendPing()
-        pingStatusBox.color = Constants.accentSky
-        pingResetTimer.restart()
+        const cmd = clampOpen ? "CLAMP_OPEN" : "CLAMP_CLOSE"
+        console.log("➡️ Send:", cmd)
+        serialController.send_cmd(cmd)
     }
 
-    Connections {
-        target: view.serialController ? view.serialController : null
-
-        function onLineReceived(line) {
-            console.log("RX:", line)
-            if (line.trim() === "PONG") {
-                pingStatusBox.color = Constants.accentSuccess !== undefined
-                    ? Constants.accentSuccess
-                    : Constants.accentSky
-                pingResetTimer.restart()
+    // ===== Jog Buttons =====
+    function sendJog(cmd) {
+        if (!serialController) {
+            console.warn("No serialController for jog command")
+            return
+        }
+        if (!serialController.connected) {
+            const ok = serialController.connectPort()
+            if (!ok) {
+                console.warn("Failed to connect serial for jog command")
+                return
             }
         }
-
-        function onError(message) {
-            console.error("Serial error:", message)
-            pingStatusBox.color = Constants.accentWarning
-            pingResetTimer.restart()
-        }
+        console.log("➡️ Send:", cmd)
+        serialController.send_cmd(cmd)
     }
 
-    Timer {
-        id: pingResetTimer
-        interval: 500
-        onTriggered: pingStatusBox.color = Constants.bgSurface
+    jogUpButton.onPressed:  sendJog("JOG_UP")
+    jogDownButton.onPressed: sendJog("JOG_DOWN")
+
+    // If you want “stop on release” behavior (recommended for jogging):
+    jogUpButton.onReleased:   sendJog("JOG_STOP")
+    jogDownButton.onReleased: sendJog("JOG_STOP")
+
+    // ===== Run Test =====
+    runTestButton.onClicked: {
+        if (!currentProto()) {
+            console.warn("Run requested but no protocol selected")
+            return
+        }
+        runTestRequested()
     }
 }

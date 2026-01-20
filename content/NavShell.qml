@@ -11,17 +11,15 @@ NavShellForm {
 
     property var serialController: null
 
-    // "idle" | "initializing" | "config" | "running" | "paused"
+    // "idle" | "initializing" | "config" | "running" | "paused" | "browse"
     property string uiState: "idle"
     property string initStatusText: "Initializing system…"
 
     // Leaving-config confirmation support
-    property string pendingNavTarget: ""   // "home" | "protocols" | "settings" | "calibration" | "about"
-    property var selectedProtocol: null
+    property string pendingNavTarget: ""
     property string protocolsMode: "prepAndRun"
 
-
-    // Sidebar enabled only when safe (idle/config)
+    // Sidebar enabled only when safe (idle/config/browse) and dialog not visible
     navEnabled: (uiState === "idle" || uiState === "config" || uiState === "browse") && !exitConfigDialog.visible
 
     function ensureConnectedAndSend(line) {
@@ -43,39 +41,28 @@ NavShellForm {
         return true
     }
 
-    // Home "Begin" -> show loading -> wait for INIT_COMPLETE -> config
+    // Home "Begin" -> show loading -> wait for PREP_COMPLETE -> config
     function beginInit() {
         if (uiState === "initializing") return
-
         uiState = "initializing"
         initStatusText = "Prepping for test"
         serialController.prep_test_run()
-
     }
 
-    function hideKeyboard() { Qt.inputMethod.hide() }
-    function showKeyboard() { Qt.inputMethod.show() }
-
+    // ===== Model/state =====
     QtObject {
         id: machineState
         property bool isHomed: true
         property string status: "Ready"
         property int position: 0
         property int jogSpeed: 1
+
+        // Selected protocol shared across Config/Protocols
         property var selectedProtocol: null
+
         property bool motorEnabled: false
-
-        function motorOn() {
-            motorEnabled = true
-            console.log("➡️ Send to ESP32: MOTOR_ON")
-            shell.ensureConnectedAndSend("MOTOR_ON")
-        }
-
-        function motorOff() {
-            motorEnabled = false
-            console.log("➡️ Send to ESP32: MOTOR_OFF")
-            shell.ensureConnectedAndSend("MOTOR_OFF")
-        }
+        function motorOn()  { motorEnabled = true;  shell.ensureConnectedAndSend("MOTOR_ON") }
+        function motorOff() { motorEnabled = false; shell.ensureConnectedAndSend("MOTOR_OFF") }
     }
 
     QtObject {
@@ -104,7 +91,6 @@ NavShellForm {
     }
 
     // ===== Screens =====
-
     Component {
         id: beginComp
         HomeScreen {
@@ -114,9 +100,7 @@ NavShellForm {
 
     Component {
         id: loadingComp
-        LoadingScreen {
-            statusMessage: shell.initStatusText
-        }
+        LoadingScreen { statusMessage: shell.initStatusText }
     }
 
     Component {
@@ -127,16 +111,35 @@ NavShellForm {
             backend: pythonBackend
 
             onChooseProtocolRequested: {
-                // open protocols in select-only mode
-                protocolsMode = "selectOnly"
-                uiState = "browse"
+                // open protocols in select-only mode (no prep)
+                shell.protocolsMode = "selectOnly"
+                shell.uiState = "browse"
                 stack.replace(protocolsComp)
                 setChecked("protocols")
+                prevCheckedTarget = "protocols"
+            }
+
+            // ✅ Decide run behavior here
+            onRunTestRequested: {
+                if (!machineState.selectedProtocol) {
+                    console.warn("Run requested but no protocol selected")
+                    return
+                }
+
+                // If already in config (meaning prep already done), go to running next (later)
+                // For now, keep a placeholder transition:
+                // shell.uiState = "running"
+
+                // If user somehow is here without prep (rare), prep now:
+                if (shell.uiState === "browse") {
+                    shell.beginInit()
+                } else {
+                    console.log("Run requested from config (prep already complete)")
+                    // TODO: transition to running screen when ready
+                }
             }
         }
     }
-
-
 
     Component {
         id: protocolsComp
@@ -151,14 +154,16 @@ NavShellForm {
 
                 if (mode === "selectOnly") {
                     // just return to config, no prep
-                    uiState = "config"
+                    shell.uiState = "config"
+                    setChecked("home")
+                    prevCheckedTarget = "home"
                     return
                 }
 
-                // browse mode: select + prep + go to config via PREP_COMPLETE
-                uiState = "initializing"
-                initStatusText = "Prepping for test"
-                serialController.prep_test_run()
+                // prepAndRun mode: select + prep, then PREP_COMPLETE will route to config
+                shell.uiState = "initializing"
+                shell.initStatusText = "Prepping for test"
+                shell.serialController.prep_test_run()
             }
         }
     }
@@ -167,8 +172,7 @@ NavShellForm {
     Component { id: historyComp; TempScreen { appMachine: machineState } }
     Component { id: aboutComp; TempScreen { appMachine: machineState } }
 
-    // Central screen router for state-driven screens
-    // This is mainly for routing to screens based on uiState (not nav buttons)
+    // ===== Routing =====
     function routeToState() {
         if (uiState === "idle") {
             stack.replace(beginComp)
@@ -182,66 +186,58 @@ NavShellForm {
             setChecked("home")
             prevCheckedTarget = "home"
         }
-        // running/paused later
     }
 
     Component.onCompleted: {
-        console.log("NavShell loaded, serialController:", serialController,
-                    "connected:", serialController ? serialController.connected : "null")
         uiState = "idle"
         routeToState()
     }
 
     onUiStateChanged: {
-        // Only auto-route for core machine states
-        if (uiState === "idle" ||
-            uiState === "initializing" ||
-            uiState === "config") {
+        if (uiState === "idle" || uiState === "initializing" || uiState === "config") {
             routeToState()
         }
     }
 
-
-    // ===== Nav logic (enforces confirm + locks) =====
-
+    // ===== Nav helpers =====
     property string prevCheckedTarget: "home"
     property bool suppressNavCheck: false
 
     function setChecked(target) {
-        // Prevent recursion/flicker if needed
         suppressNavCheck = true
-
         homeButton.checked      = (target === "home")
         protocolsButton.checked = (target === "protocols")
         settingsButton.checked  = (target === "settings")
         historyButton.checked   = (target === "history")
         aboutButton.checked     = (target === "about")
-
         suppressNavCheck = false
     }
-
 
     function goTo(target) {
         if (suppressNavCheck) return
 
-        // Block navigation in unsafe states
         if (!(uiState === "idle" || uiState === "config" || uiState === "browse")) {
             console.log("Nav blocked in state:", uiState)
+            // restore highlight
+            setChecked(prevCheckedTarget)
             return
         }
 
-        // In config: confirmation before leaving to ANY nav target (including home)
+        // In config: confirmation before leaving
         if (uiState === "config") {
             pendingNavTarget = target
-            prevCheckedTarget = "home"     // config highlights home
+
+            // ✅ immediately force highlight back to Home while dialog is open
+            setChecked("home")
+            prevCheckedTarget = "home"
+
             exitConfigDialog.open()
             return
         }
 
-        // In idle/browse: navigate immediately
+        // Idle/browse: navigate immediately
         performNav(target)
     }
-
 
     function performNav(target) {
         const t = target || "home"
@@ -253,11 +249,14 @@ NavShellForm {
             return
         }
 
-        // Not machine-state screens
         uiState = "browse"
 
-        if (t === "protocols") stack.replace(protocolsComp)
-        else if (t === "settings") stack.replace(settingsComp)
+        // ✅ IMPORTANT: set protocolsMode depending on where user came from
+        if (t === "protocols") {
+            // Normal sidebar visit should prep+run behavior
+            protocolsMode = "prepAndRun"
+            stack.replace(protocolsComp)
+        } else if (t === "settings") stack.replace(settingsComp)
         else if (t === "history") stack.replace(historyComp)
         else if (t === "about") stack.replace(aboutComp)
 
@@ -270,33 +269,28 @@ NavShellForm {
         exitConfigDialog.close()
     }
 
+    // ===== Exit confirm dialog =====
     Dialog {
         id: exitConfigDialog
-
         modal: true
         dim: true
         focus: true
 
-        // ✅ Explicit centering
         x: Math.round((parent.width  - width)  / 2)
         y: Math.round((parent.height - height) / 2)
-
-        // Prevent default platform sizing weirdness
         width: 420
         implicitHeight: contentItem.implicitHeight + 40
-
-        // Remove native title bar look
         title: ""
 
-        // When dialog opens/closes, restore nav highlight reliably
         onOpened: {
-            // In config you intentionally keep Home selected
-            prevCheckedTarget = "home"
+            // ensure home is highlighted while modal is visible
+            setChecked("home")
         }
 
         onClosed: {
-            // ✅ After dismissal (tap outside / Cancel), restore highlight
-            setChecked(prevCheckedTarget)
+            // If user canceled by tapping outside / Cancel, keep them in config visually as Home
+            setChecked("home")
+            prevCheckedTarget = "home"
         }
 
         background: Rectangle {
@@ -306,9 +300,8 @@ NavShellForm {
             border.width: 1
         }
 
-        // Tap outside the dialog = Cancel
         Overlay.modal: Rectangle {
-            color: "transparent" // dim handled by `dim: true`
+            color: "transparent"
             TapHandler { onTapped: cancelExitConfirm() }
         }
 
@@ -342,14 +335,12 @@ NavShellForm {
                     text: "Cancel"
                     width: 140
                     height: 44
-
                     background: Rectangle {
                         radius: 10
                         color: Constants.bgSurface
                         border.color: Constants.borderDefault
                         border.width: 1
                     }
-
                     contentItem: Text {
                         text: "Cancel"
                         color: Constants.textPrimary
@@ -357,7 +348,6 @@ NavShellForm {
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                     }
-
                     onClicked: cancelExitConfirm()
                 }
 
@@ -365,12 +355,7 @@ NavShellForm {
                     text: "Exit"
                     width: 140
                     height: 44
-
-                    background: Rectangle {
-                        radius: 10
-                        color: Constants.accentPrimary
-                    }
-
+                    background: Rectangle { radius: 10; color: Constants.accentPrimary }
                     contentItem: Text {
                         text: "Exit"
                         color: "white"
@@ -379,7 +364,6 @@ NavShellForm {
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                     }
-
                     onClicked: {
                         const t = pendingNavTarget
                         pendingNavTarget = ""
@@ -391,17 +375,14 @@ NavShellForm {
         }
     }
 
-
-
-    // Sidebar button handlers (all go through goTo)
-    homeButton.onClicked:        goTo("home")
-    protocolsButton.onClicked:   goTo("protocols")
-    settingsButton.onClicked:    goTo("settings")
-    historyButton.onClicked: goTo("history")
-    aboutButton.onClicked:       goTo("about")
+    // Sidebar handlers
+    homeButton.onClicked:      goTo("home")
+    protocolsButton.onClicked: goTo("protocols")
+    settingsButton.onClicked:  goTo("settings")
+    historyButton.onClicked:   goTo("history")
+    aboutButton.onClicked:     goTo("about")
 
     // ===== ESP32 init completion =====
-
     Connections {
         target: shell.serialController ? shell.serialController : null
 
@@ -414,20 +395,12 @@ NavShellForm {
                     shell.initStatusText = "Prep complete"
                     shell.uiState = "config"
                     return
-                }
-                else if (msg.startsWith("INIT_ERROR")) {
+                } else if (msg.startsWith("INIT_ERROR")) {
                     shell.initStatusText = msg
                     shell.uiState = "idle"
                     return
                 }
-                else {
-                    console.warn("Unexpected message during initialization:", msg)
-                }   
             }
-
-            // TODO later: DATA streaming, faults, run complete, etc.
         }
     }
-
-    onSerialControllerChanged: console.log("NavShell serialController CHANGED:", serialController)
 }

@@ -1,7 +1,6 @@
-
 /*
   Qt Design Studio UI file (.ui.qml)
-  Keep this declarative (layout + styling). Put logic in HomeScreen.qml.
+  Keep declarative. Put logic in ConfigScreen.qml.
 */
 import QtQuick
 import QtQuick.Controls
@@ -14,334 +13,392 @@ Rectangle {
     color: Constants.bgPrimary
     radius: 0
 
-    // ✅ EXPOSE UI ELEMENTS
-    property alias positionText: positionText
-    property alias speedText: speedText
+    // ===== EXPOSE UI ELEMENTS (to ConfigScreen.qml wrapper) =====
+    property alias protocolTitleText: protocolTitleText
+    property alias speedValueText: speedValueText
+    property alias clampValueText: clampValueText
+    property alias strokeValueText: strokeValueText
+    property alias tempValueText: tempValueText
+    property alias cyclesValueText: cyclesValueText
+
+    property alias clampToggleButton: clampToggleButton
     property alias jogUpButton: jogUpButton
     property alias jogDownButton: jogDownButton
-    property alias resetButton: resetButton
-    property alias speedSlider: speedSlider
-    property alias motorToggleButton: motorToggleButton
-    property alias pingButton: pingButton
-    property alias pingStatusBox: pingStatusBox
-    property alias protocolNameText: protocolNameText
+    property alias runTestButton: runTestButton
     property alias chooseProtocolButton: chooseProtocolButton
 
-    
-    // Property to receive SerialController from parent
-    property var serialController: null
-
-
     // Page padding
-    readonly property int pad: 12
-    readonly property int gap: 12
+    readonly property int pad: 16
+    readonly property int gap: 14
 
-    GridLayout {
-        id: grid
+    ColumnLayout {
         anchors.fill: parent
         anchors.margins: root.pad
-        rowSpacing: root.gap
-        columnSpacing: root.gap
-        columns: 2
-
-        // Make left column wider than right
-        //columnStretchFactor: [3, 2]
+        spacing: root.gap
 
         // =========================
-        // Jog Control (top-left)
+        // TOP: Protocol Title + Choose
         // =========================
         Rectangle {
-            id: jog_control_content
-            color: Constants.bgCard
-            radius: 12
-
             Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            // Give this row more height than bottom row
-            Layout.preferredHeight: 230
-
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: 14
-                spacing: 10
-
-                RowLayout {
-                    Layout.fillWidth: true
-
-                    Text {
-                        id: jog_control_title
-                        text: qsTr("Jog Control")
-                        color: "#F3F4F6"
-                        font.pixelSize: 22
-                        Layout.fillWidth: true
-                        elide: Text.ElideRight
-                    }
-
-                    Text {
-                        id: speedText
-                        text: qsTr("Speed: --")
-                        color: "#F3F4F6"
-                        font.pixelSize: 18
-                        horizontalAlignment: Text.AlignRight
-                        Layout.preferredWidth: 160
-                    }
-                }
-
-                Slider {
-                    id: speedSlider
-                    from: 1
-                    to: 50
-                    value: 1
-                    Layout.fillWidth: true
-                }
-
-                RowLayout {
-                    id: posittion_control_row
-                    Layout.fillWidth: true
-                    spacing: 10
-
-                    Button {
-                        id: jogUpButton
-                        text: qsTr("↑ UP")
-                        font.pixelSize: 16
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 44
-                    }
-
-                    Button {
-                        id: jogDownButton
-                        text: qsTr("↓ DOWN")
-                        font.pixelSize: 16
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 44
-                    }
-                }
-
-                Button {
-                    id: resetButton
-                    text: qsTr("Reset Position")
-                    font.pixelSize: 16
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 44
-                    rotation: 0
-                }
-            }
-        }
-
-        // =========================
-        // Live Readings (top-right)
-        // =========================
-        Rectangle {
-            id: live_readings_content
+            Layout.preferredHeight: 84
+            radius: 14
             color: Constants.bgCard
-            radius: 12
+            border.color: Constants.borderDefault
+            border.width: 1
 
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.preferredHeight: 230
-
-            ColumnLayout {
+            RowLayout {
                 anchors.fill: parent
-                anchors.margins: 14
-                spacing: 10
+                anchors.margins: 16
+                spacing: 12
 
-                Text {
-                    id: live_readings_title
-                    text: qsTr("Live Readings")
-                    color: "#F3F4F6"
-                    font.pixelSize: 22
-                    Layout.fillWidth: true
-                    elide: Text.ElideRight
-                }
+                Item { Layout.fillWidth: true }
 
                 ColumnLayout {
-                    id: readout
-                    Layout.fillWidth: true
-                    spacing: 6
+                    spacing: 4
+                    Layout.alignment: Qt.AlignHCenter
 
                     Text {
-                        id: positionText
-                        text: qsTr("Position: --")
-                        color: "#F3F4F6"
-                        font.pixelSize: 16
-                        Layout.fillWidth: true
-                        elide: Text.ElideRight
+                        text: qsTr("Selected Protocol")
+                        color: Constants.textSecondary
+                        font.pixelSize: 12
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.alignment: Qt.AlignHCenter
                     }
 
                     Text {
-                        id: live_pullforce
-                        text: qsTr("Pull Force: --")
-                        color: "#F3F4F6"
-                        font.pixelSize: 16
-                        Layout.fillWidth: true
+                        id: protocolTitleText
+                        text: qsTr("No protocol selected")
+                        color: Constants.textPrimary
+                        font.pixelSize: 24
+                        font.bold: true
                         elide: Text.ElideRight
-                    }
-
-                    Text {
-                        id: live_clampforce
-                        text: qsTr("Clamp Force: --")
-                        color: "#F3F4F6"
-                        font.pixelSize: 16
-                        Layout.fillWidth: true
-                        elide: Text.ElideRight
-                    }
-
-                    Text {
-                        id: live_watertemp
-                        text: qsTr("Water Temp: --")
-                        color: "#F3F4F6"
-                        font.pixelSize: 16
-                        Layout.fillWidth: true
-                        elide: Text.ElideRight
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.alignment: Qt.AlignHCenter
                     }
                 }
 
-                Item {
-                    Layout.fillHeight: true
-                } // spacer
-            }
-        }
-
-        // =========================
-        // Water Bath (bottom-left)
-        // =========================
-        Rectangle {
-            id: water_bath_content
-            color: Constants.bgCard
-            radius: 12
-
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.preferredHeight: 200
-
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: 14
-                spacing: 10
-
-                Text {
-                    text: qsTr("Water Bath")
-                    color: "#F3F4F6"
-                    font.pixelSize: 22
-                    Layout.fillWidth: true
-                }
-
-                Item {
-                    Layout.fillHeight: true
-                }
+                Item { Layout.fillWidth: true }
 
                 Button {
-                    id: motorToggleButton
-                    text: qsTr("Motor: OFF")
-                    checkable: true
-                    font.pixelSize: 16
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 48
+                    id: chooseProtocolButton
+                    text: qsTr("Choose")
+                    Layout.preferredWidth: 140
+                    Layout.preferredHeight: 44
+
+                    background: Rectangle {
+                        radius: 12
+                        color: parent.pressed ? Constants.accentSky : Constants.accentPrimary
+                    }
+                    contentItem: Text {
+                        text: qsTr("Choose")
+                        color: "white"
+                        font.pixelSize: 15
+                        font.bold: true
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
                 }
             }
         }
 
         // =========================
-        // Test Protocol (bottom-right)
+        // Metric cards row
         // =========================
-        Rectangle {
-            id: test_protocol_content
-            color: Constants.bgCard
-            radius: 12
+        GridLayout {
+            Layout.fillWidth: true
+            columns: 5
+            rowSpacing: root.gap
+            columnSpacing: root.gap
 
+            // Card helper
+            function metricCard(title, valueId) { /* placeholder so Design Studio doesn't complain */ }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 112
+                radius: 14
+                color: Constants.bgCard
+                border.color: Constants.borderDefault
+                border.width: 1
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 14
+                    spacing: 6
+
+                    Text { text: qsTr("Speed"); color: Constants.textSecondary; font.pixelSize: 11 }
+                    Text {
+                        id: speedValueText
+                        text: qsTr("-")
+                        color: Constants.accentSky
+                        font.pixelSize: 26
+                        font.bold: true
+                    }
+                    Text { text: qsTr("mm/s"); color: Constants.textMuted; font.pixelSize: 11 }
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 112
+                radius: 14
+                color: Constants.bgCard
+                border.color: Constants.borderDefault
+                border.width: 1
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 14
+                    spacing: 6
+
+                    Text { text: qsTr("Clamp Force"); color: Constants.textSecondary; font.pixelSize: 11 }
+                    Text {
+                        id: clampValueText
+                        text: qsTr("-")
+                        color: "#FBBF24"
+                        font.pixelSize: 26
+                        font.bold: true
+                    }
+                    Text { text: qsTr("N"); color: Constants.textMuted; font.pixelSize: 11 }
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 112
+                radius: 14
+                color: Constants.bgCard
+                border.color: Constants.borderDefault
+                border.width: 1
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 14
+                    spacing: 6
+
+                    Text { text: qsTr("Stroke Length"); color: Constants.textSecondary; font.pixelSize: 11 }
+                    Text {
+                        id: strokeValueText
+                        text: qsTr("-")
+                        color: Constants.textPrimary
+                        font.pixelSize: 26
+                        font.bold: true
+                    }
+                    Text { text: qsTr("mm"); color: Constants.textMuted; font.pixelSize: 11 }
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 112
+                radius: 14
+                color: Constants.bgCard
+                border.color: Constants.borderDefault
+                border.width: 1
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 14
+                    spacing: 6
+
+                    Text { text: qsTr("Water Temp"); color: Constants.textSecondary; font.pixelSize: 11 }
+                    Text {
+                        id: tempValueText
+                        text: qsTr("-")
+                        color: "#60A5FA"
+                        font.pixelSize: 26
+                        font.bold: true
+                    }
+                    Text { text: qsTr("°C"); color: Constants.textMuted; font.pixelSize: 11 }
+                }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 112
+                radius: 14
+                color: Constants.bgCard
+                border.color: Constants.borderDefault
+                border.width: 1
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 14
+                    spacing: 6
+
+                    Text { text: qsTr("Cycles"); color: Constants.textSecondary; font.pixelSize: 11 }
+                    Text {
+                        id: cyclesValueText
+                        text: qsTr("-")
+                        color: "#A78BFA"
+                        font.pixelSize: 26
+                        font.bold: true
+                    }
+                    Text { text: qsTr("count"); color: Constants.textMuted; font.pixelSize: 11 }
+                }
+            }
+        }
+
+        // =========================
+        // Controls row: Clamp + Jog
+        // =========================
+        RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.preferredHeight: 200
+            spacing: root.gap
 
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: 14
-                spacing: 10
+            // Clamp card
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                radius: 14
+                color: Constants.bgCard
+                border.color: Constants.borderDefault
+                border.width: 1
 
-                Text {
-                    text: qsTr("Test Protocol")
-                    color: "#F3F4F6"
-                    font.pixelSize: 22
-                    Layout.fillWidth: true
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 16
+                    spacing: 12
+
+                    Text {
+                        text: qsTr("Clamp")
+                        color: Constants.textSecondary
+                        font.pixelSize: 14
+                        font.bold: true
+                    }
+
+                    Item { Layout.fillHeight: true }
+
+                    Button {
+                        id: clampToggleButton
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 140
+                        text: qsTr("OPEN CLAMP")
+
+                        background: Rectangle {
+                            radius: 14
+                            color: parent.pressed ? Constants.accentSky : Constants.bgSurface
+                            border.color: Constants.borderDefault
+                            border.width: 1
+                        }
+
+                        contentItem: Text {
+                            text: clampToggleButton.text
+                            color: Constants.textPrimary
+                            font.pixelSize: 22
+                            font.bold: true
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
+
+                    Item { Layout.fillHeight: true }
                 }
+            }
 
-                // Selected Protocol
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 10
+            // Jog card
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                radius: 14
+                color: Constants.bgCard
+                border.color: Constants.borderDefault
+                border.width: 1
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 16
+                    spacing: 12
+
+                    Text {
+                        text: qsTr("Jog Z")
+                        color: Constants.textSecondary
+                        font.pixelSize: 14
+                        font.bold: true
+                    }
+
+                    Item { Layout.fillHeight: true }
 
                     ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 4
+                        spacing: 12
 
-                        Text {
-                            text: qsTr("Selected Protocol")
-                            color: "#9CA3AF"
-                            font.pixelSize: 12
-                        }
-
-                        Text {
-                            id: protocolNameText
-                            text: qsTr("No protocol selected")
-                            color: "#F3F4F6"
-                            font.pixelSize: 16
-                            elide: Text.ElideRight
+                        Button {
+                            id: jogUpButton
                             Layout.fillWidth: true
+                            Layout.preferredHeight: 120
+                            text: qsTr("▲  UP")
+
+                            background: Rectangle {
+                                radius: 14
+                                color: parent.pressed ? Constants.accentSky : Constants.bgSurface
+                                border.color: Constants.borderDefault
+                                border.width: 1
+                            }
+
+                            contentItem: Text {
+                                text: qsTr("▲  UP")
+                                color: Constants.textPrimary
+                                font.pixelSize: 22
+                                font.bold: true
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
+
+                        Button {
+                            id: jogDownButton
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 120
+                            text: qsTr("▼  DOWN")
+
+                            background: Rectangle {
+                                radius: 14
+                                color: parent.pressed ? Constants.accentSky : Constants.bgSurface
+                                border.color: Constants.borderDefault
+                                border.width: 1
+                            }
+
+                            contentItem: Text {
+                                text: qsTr("▼  DOWN")
+                                color: Constants.textPrimary
+                                font.pixelSize: 22
+                                font.bold: true
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
                         }
                     }
 
-                    Button {
-                        id: chooseProtocolButton
-                        text: qsTr("Choose")
-                        font.pixelSize: 14
-                        Layout.preferredWidth: 110
-                        Layout.preferredHeight: 40
-                    }
-                }
-
-
-                // ESP32 PING Section
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 10
-
-                    Rectangle {
-                        id: pingStatusBox
-                        Layout.preferredWidth: 40
-                        Layout.preferredHeight: 40
-                        radius: 8
-                        color: Constants.bgSurface
-                        border.color: Constants.borderDefault
-                        border.width: 2
-                    }
-
-                    Button {
-                        id: pingButton
-                        text: qsTr("PING ESP32")
-                        font.pixelSize: 16
-                        Layout.fillWidth: true
-                        Layout.preferredHeight: 44
-                    }
-                }
-
-                Item {
-                    Layout.fillHeight: true
+                    Item { Layout.fillHeight: true }
                 }
             }
         }
-    }
-    // Run test button at bottom center
-    Button {
-        id: runTestButton
-        text: qsTr("▶  RUN TEST")
-        background: Rectangle { radius: 12; color: parent.pressed ? "#059669" : "#10B981" }
-        font.pixelSize: 20
-        width: 200
-        height: 60
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: root.pad
-    }
 
+        // =========================
+        // Bottom: Run Test (full width)
+        // =========================
+        Button {
+            id: runTestButton
+            Layout.fillWidth: true
+            Layout.preferredHeight: 72
+            text: qsTr("▶  RUN TEST")
+
+            background: Rectangle {
+                radius: 16
+                color: parent.pressed ? "#059669" : "#10B981"
+            }
+
+            contentItem: Text {
+                text: qsTr("▶  RUN TEST")
+                color: "white"
+                font.pixelSize: 22
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
+        }
+    }
 }
