@@ -331,4 +331,17 @@ Rectangle {
             }
         }
     }
+    // Run test button at bottom center
+    button {
+        id: runTestButton
+        text: qsTr("▶  RUN TEST")
+        background: Rectangle { radius: 12; color: parent.pressed ? "#059669" : "#10B981" }
+        font.pixelSize: 20
+        width: 200
+        height: 60
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: root.pad
+    }
+
 }

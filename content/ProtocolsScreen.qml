@@ -601,7 +601,7 @@ Rectangle {
                     enabled: editingProtocol && editingProtocol.factory !== true
                     onValueEdited: (v) => updateField("cycles", Math.round(v))
                 }
-
+                /*
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 12
@@ -661,7 +661,7 @@ Rectangle {
                         }
                         onClicked: deleteProtocol(editingIndex)
                     }
-                }
+                }*/
 
                 Item { Layout.preferredHeight: 12 }
             }
