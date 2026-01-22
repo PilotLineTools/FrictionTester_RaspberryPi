@@ -374,11 +374,15 @@ Rectangle {
                             anchors.margins: 14
                             spacing: 12
 
+                            // Header
                             Text {
                                 text: qsTr("Start Position")
                                 color: Constants.textSecondary
                                 font.pixelSize: 13
                                 font.bold: true
+                                Layout.alignment: Qt.AlignHCenter
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.fillWidth: true
                             }
 
                             Button {
@@ -484,13 +488,17 @@ Rectangle {
                             anchors.margins: 14
                             spacing: 12
 
+                            // Header
                             Text {
                                 text: qsTr("Clamp")
                                 color: Constants.textSecondary
                                 font.pixelSize: 13
                                 font.bold: true
+                                Layout.alignment: Qt.AlignHCenter
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.fillWidth: true
                             }
-
+                            
                             Button {
                                 id: clampToggleButton
                                 Layout.fillWidth: true
