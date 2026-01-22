@@ -171,7 +171,7 @@ Rectangle {
                     // Full width row (spans 2 columns)
                     RowLayout {
                         Layout.fillWidth: true
-                        Layout.columnSpan: 2
+                        //Layout.columnSpan: 2
                         Text { text: qsTr("Cycles"); color: Constants.textMuted; font.pixelSize: 13 }
                         Item { Layout.fillWidth: true }
                         Text { id: cyclesValueText; text: qsTr("-"); color: Constants.textPrimary; font.pixelSize: 13; font.bold: true }
@@ -221,42 +221,6 @@ Rectangle {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         spacing: 12
-
-                        // Clamp
-                        Text {
-                            text: qsTr("Clamp")
-                            color: Constants.textSecondary
-                            font.pixelSize: 13
-                            font.bold: true
-                        }
-
-                        Button {
-                            id: clampToggleButton
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 120
-                            text: qsTr("OPEN CLAMP")
-
-                            enabled: root.protocolSelected
-                            opacity: root.lockedOpacity()
-
-                            background: Rectangle {
-                                radius: 14
-                                color: parent.enabled
-                                       ? (parent.pressed ? Constants.accentSky : Constants.bgSurface)
-                                       : Constants.bgPrimary
-                                border.color: Constants.borderDefault
-                                border.width: 1
-                            }
-
-                            contentItem: Text {
-                                text: clampToggleButton.text
-                                color: Constants.textPrimary
-                                font.pixelSize: 22
-                                font.bold: true
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                            }
-                        }
 
                         // Temp block
                         Rectangle {
@@ -329,7 +293,7 @@ Rectangle {
                     }
 
                     // -----------------------------
-                    // RIGHT COLUMN: Jog stacked + Z value next to it
+                    // RIGHT COLUMN: Jog stacked + Z value 
                     // -----------------------------
                     ColumnLayout {
                         Layout.fillWidth: true
@@ -382,6 +346,31 @@ Rectangle {
                                     }
                                 }
 
+                                TextField {
+                                    id: zPositionField
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: 52
+                                    text: qsTr("0.00")
+                                    enabled: root.protocolSelected
+                                    opacity: root.lockedOpacity()
+
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    validator: DoubleValidator { bottom: -9999; top: 9999; decimals: 2 }
+
+                                    background: Rectangle {
+                                        radius: 12
+                                        color: Constants.bgSurface
+                                        border.color: Constants.borderDefault
+                                        border.width: 1
+                                    }
+
+                                    color: Constants.textPrimary
+                                    font.pixelSize: 18
+                                    font.bold: true
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+
                                 Button {
                                     id: jogDownButton
                                     Layout.fillWidth: true
@@ -411,7 +400,35 @@ Rectangle {
                                 }
                             }
 
+                            Button {
+                                id: clampToggleButton
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 120
+                                text: qsTr("OPEN CLAMP")
+
+                                enabled: root.protocolSelected
+                                opacity: root.lockedOpacity()
+
+                                background: Rectangle {
+                                    radius: 14
+                                    color: parent.enabled
+                                        ? (parent.pressed ? Constants.accentSky : Constants.bgSurface)
+                                        : Constants.bgPrimary
+                                    border.color: Constants.borderDefault
+                                    border.width: 1
+                                }
+
+                                contentItem: Text {
+                                    text: clampToggleButton.text
+                                    color: Constants.textPrimary
+                                    font.pixelSize: 22
+                                    font.bold: true
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                            }
                             // Value next to buttons
+                            /*
                             ColumnLayout {
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
@@ -424,33 +441,10 @@ Rectangle {
                                     font.bold: true
                                 }
 
-                                TextField {
-                                    id: zPositionField
-                                    Layout.fillWidth: true
-                                    Layout.preferredHeight: 52
-                                    text: qsTr("0.00")
-                                    enabled: root.protocolSelected
-                                    opacity: root.lockedOpacity()
-
-                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    validator: DoubleValidator { bottom: -9999; top: 9999; decimals: 2 }
-
-                                    background: Rectangle {
-                                        radius: 12
-                                        color: Constants.bgSurface
-                                        border.color: Constants.borderDefault
-                                        border.width: 1
-                                    }
-
-                                    color: Constants.textPrimary
-                                    font.pixelSize: 18
-                                    font.bold: true
-                                    horizontalAlignment: Text.AlignHCenter
-                                    verticalAlignment: Text.AlignVCenter
-                                }
+                                
 
                                 Item { Layout.fillHeight: true }
-                            }
+                            }*/
                         }
                     }
                 }
