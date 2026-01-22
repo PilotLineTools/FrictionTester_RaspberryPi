@@ -249,7 +249,7 @@ Rectangle {
                                 Layout.fillWidth: true
 
                                 Text {
-                                    text: qsTr("Current Temp")
+                                    text: qsTr("Current Temp.")
                                     color: Constants.textSecondary
                                     font.pixelSize: 13
                                     font.bold: true
@@ -258,7 +258,7 @@ Rectangle {
                                 Item { Layout.fillWidth: true }
 
                                 Text {
-                                    text: qsTr("Test Temp")
+                                    text: qsTr("Test Temp. Target")
                                     color: Constants.textSecondary
                                     font.pixelSize: 13
                                     font.bold: true
@@ -287,8 +287,6 @@ Rectangle {
                                 }
                             }
 
-                            
-
                             Item { Layout.fillHeight: true }
 
                             Button {
@@ -301,14 +299,17 @@ Rectangle {
                                 opacity: root.lockedOpacity()
 
                                 background: Rectangle {
-                                    radius: 12
+                                    radius: 14
                                     color: parent.enabled
                                            ? (parent.pressed ? Constants.accentSky : Constants.accentPrimary)
                                            : Constants.bgPrimary
+                                    border.color: Constants.borderDefault
+                                    border.width: 1
                                 }
+
                                 contentItem: Text {
-                                    text: qsTr("Preheat")
-                                    color: "white"
+                                    text: qsTr("PREHEAT")
+                                    color: Constants.textPrimary
                                     font.pixelSize: 22
                                     font.bold: true
                                     horizontalAlignment: Text.AlignHCenter
