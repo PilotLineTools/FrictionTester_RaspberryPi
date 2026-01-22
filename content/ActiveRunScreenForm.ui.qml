@@ -24,7 +24,7 @@ Rectangle {
     property alias strokeValueText: strokeValueText
     property alias tempValueText: tempValueText
 
-    
+    // show current/total cycles in the 5th card
     property alias cycleText: cycleText
 
     property alias elapsedText: elapsedText
@@ -119,7 +119,7 @@ Rectangle {
         }
 
         // =========================
-        // Metric cards row (LIVE READINGS)
+        // Metric cards row
         // =========================
         GridLayout {
             id: metricsGrid
@@ -128,9 +128,10 @@ Rectangle {
             rowSpacing: root.gap
             columnSpacing: root.gap
 
-            // width of one card (used to match the right control card)
+            // This width is what we want the right-side control card to match.
             readonly property real metricW: (width - (columnSpacing * (columns - 1))) / columns
 
+            
             Rectangle {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 112
@@ -148,6 +149,7 @@ Rectangle {
                     Text { text: qsTr("cm/s"); color: Constants.textMuted; font.pixelSize: 11 }
                 }
             }
+            
 
             Rectangle {
                 Layout.fillWidth: true
@@ -197,13 +199,12 @@ Rectangle {
                     anchors.fill: parent
                     anchors.margins: 14
                     spacing: 6
-                    Text { text: qsTr("Water Temp"); color: Constants.textSecondary; font.pixelSize: 11 }
+                    Text { text: qsTr("Temp"); color: Constants.textSecondary; font.pixelSize: 11 }
                     Text { id: tempValueText; text: qsTr("-"); color: "#60A5FA"; font.pixelSize: 26; font.bold: true }
                     Text { text: qsTr("°C"); color: Constants.textMuted; font.pixelSize: 11 }
                 }
             }
         }
-
 
         // =========================
         // MAIN: Graph (left) + Right Control Card (width matches 1 metric card)
@@ -261,12 +262,41 @@ Rectangle {
                 border.color: Constants.borderDefault
                 border.width: 1
 
-                // Elapsed time + cycles
+                // Cycles (at the top, as requested)
                 ColumnLayout {
                     Layout.fillWidth: true
-                    spacing: 12
+                    spacing: 6
 
-                    // Elapsed
+                    Text {
+                        text: qsTr("Cycles")
+                        color: Constants.textSecondary
+                        font.pixelSize: 12
+                    }
+
+                    Text {
+                        id: cycleText
+                        text: qsTr("- / -")
+                        color: "#A78BFA"
+                        font.pixelSize: 30
+                        font.bold: true
+                    }
+
+                    Text {
+                        text: qsTr("current / total")
+                        color: Constants.textMuted
+                        font.pixelSize: 11
+                    }
+                }
+
+                // Divider (optional)
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 1
+                    color: Constants.borderDefault
+                    opacity: 0.6
+                }
+
+                    // Elapsed time
                     ColumnLayout {
                         Layout.fillWidth: true
                         spacing: 6
@@ -285,41 +315,6 @@ Rectangle {
                             font.bold: true
                         }
                     }
-
-                    // Divider (optional but looks nice)
-                    Rectangle {
-                        Layout.fillWidth: true
-                        height: 1
-                        color: Constants.borderDefault
-                        opacity: 0.6
-                    }
-
-                    // Cycles
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        spacing: 6
-
-                        Text {
-                            text: qsTr("Cycles")
-                            color: Constants.textSecondary
-                            font.pixelSize: 12
-                        }
-
-                        Text {
-                            id: cycleText
-                            text: qsTr("- / -")
-                            color: "#A78BFA"
-                            font.pixelSize: 28
-                            font.bold: true
-                        }
-
-                        Text {
-                            text: qsTr("current / total")
-                            color: Constants.textMuted
-                            font.pixelSize: 11
-                        }
-                    }
-
 
                     Item { Layout.fillHeight: true }
 
@@ -372,7 +367,6 @@ Rectangle {
                         }
                     }
                 }
-
             }
         }
     }
