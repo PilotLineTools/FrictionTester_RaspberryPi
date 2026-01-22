@@ -443,7 +443,7 @@ Rectangle {
                                 verticalAlignment: Text.AlignVCenter
                             }
                         }
-                        
+                    }   
                 }
             }
         }
