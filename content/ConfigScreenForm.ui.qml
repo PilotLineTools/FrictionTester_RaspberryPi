@@ -321,7 +321,7 @@ Rectangle {
                             Button {
                                 id: jogUpButton
                                 Layout.fillWidth: true
-                                Layout.preferredHeight: 90
+                                Layout.preferredHeight: 105
                                 text: qsTr("▲  UP")
 
                                 enabled: root.protocolSelected
@@ -375,7 +375,7 @@ Rectangle {
                             Button {
                                 id: jogDownButton
                                 Layout.fillWidth: true
-                                Layout.preferredHeight: 110
+                                Layout.preferredHeight: 105
                                 text: qsTr("▼  DOWN")
 
                                 enabled: root.protocolSelected
