@@ -220,7 +220,7 @@ Rectangle {
                     spacing: 12
 
                     // -----------------------------
-                    // COL 1: TEMP CARD
+                    // COL 1: TEMP CARD 
                     // -----------------------------
                     Rectangle {
                         Layout.fillWidth: true
@@ -234,79 +234,102 @@ Rectangle {
                         ColumnLayout {
                             anchors.fill: parent
                             anchors.margins: 14
-                            spacing: 8
+                            spacing: 10
 
+                            // Header
                             Text {
                                 text: qsTr("Temperature")
                                 color: Constants.textSecondary
                                 font.pixelSize: 13
                                 font.bold: true
+                                Layout.alignment: Qt.AlignHCenter
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.fillWidth: true
                             }
 
                             Item { Layout.fillHeight: true }
 
+                            // Centered 2-column temp block
                             RowLayout {
                                 Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignHCenter
+                                spacing: 28
 
-                                Text {
-                                    text: qsTr("Current Temp.")
-                                    color: Constants.textSecondary
-                                    font.pixelSize: 13
-                                    font.bold: true
+                                // ---- Current column ----
+                                ColumnLayout {
+                                    Layout.alignment: Qt.AlignHCenter
+                                    spacing: 6
+
+                                    Text {
+                                        text: qsTr("Current Temp.")
+                                        color: Constants.textSecondary
+                                        font.pixelSize: 13
+                                        font.bold: true
+                                        Layout.alignment: Qt.AlignHCenter
+                                        horizontalAlignment: Text.AlignHCenter
+                                    }
+
+                                    Text {
+                                        id: currentTempText
+                                        text: qsTr("-- °C")
+                                        color: Constants.textPrimary
+                                        font.pixelSize: 36
+                                        font.bold: true
+                                        Layout.alignment: Qt.AlignHCenter
+                                        horizontalAlignment: Text.AlignHCenter
+                                    }
                                 }
 
-                                Item { Layout.fillWidth: true }
+                                // ---- Target column ----
+                                ColumnLayout {
+                                    Layout.alignment: Qt.AlignHCenter
+                                    spacing: 6
 
-                                Text {
-                                    text: qsTr("Test Target Temp.")
-                                    color: Constants.textSecondary
-                                    font.pixelSize: 13
-                                    font.bold: true
-                                }
-                            }
+                                    Text {
+                                        text: qsTr("Test Target Temp.")
+                                        color: Constants.textSecondary
+                                        font.pixelSize: 13
+                                        font.bold: true
+                                        Layout.alignment: Qt.AlignHCenter
+                                        horizontalAlignment: Text.AlignHCenter
+                                    }
 
-                            RowLayout {
-                                Layout.fillWidth: true
-
-                                Text {
-                                    id: currentTempText
-                                    text: qsTr("-- °C")
-                                    color: Constants.textPrimary
-                                    font.pixelSize: 36
-                                    font.bold: true
-                                }
-
-                                Item { Layout.fillWidth: true }
-
-                                Text {
-                                    id: tempStatusText
-                                    text: root.protocolSelected ? (waterTempValueText.text + " °C") : qsTr("-- °C")
-                                    color: Constants.textPrimary
-                                    font.pixelSize: 36
-                                    font.bold: true
+                                    Text {
+                                        id: tempStatusText
+                                        text: root.protocolSelected
+                                            ? (waterTempValueText.text + " °C")
+                                            : qsTr("-- °C")
+                                        color: Constants.textPrimary
+                                        font.pixelSize: 36
+                                        font.bold: true
+                                        Layout.alignment: Qt.AlignHCenter
+                                        horizontalAlignment: Text.AlignHCenter
+                                    }
                                 }
                             }
 
                             Item { Layout.fillHeight: true }
 
-                            // PREHEAT BUTTON
-                            // Message above preheat button to  let user know that preheating isn't required but reccommended
-                            // If no protocol is selected, this message is hidden
-                            // If preheat is not selected and the temp is below target the the preheat will happen automatically when the test is started
+                            // Centered helper message (wraps nicely)
                             Text {
                                 text: root.protocolSelected
-                                      ? qsTr("Preheating is recommended before running the test.")
-                                      : ""
+                                    ? qsTr("Preheating is recommended before running the test.")
+                                    : ""
+                                visible: root.protocolSelected
+                                Layout.fillWidth: true
+                                Layout.alignment: Qt.AlignHCenter
+                                horizontalAlignment: Text.AlignHCenter
+                                wrapMode: Text.WordWrap
                                 color: Constants.textMuted
                                 font.pixelSize: 12
-                                horizontalAlignment: Text.AlignHCenter
-                                Layout.alignment: Qt.AlignHCenter
                             }
 
+                            // Centered button (not full width)
                             Button {
                                 id: preheatButton
-                                Layout.fillWidth: true
+                                Layout.preferredWidth: 260
                                 Layout.preferredHeight: 100
+                                Layout.alignment: Qt.AlignHCenter
                                 text: qsTr("Preheat")
 
                                 enabled: root.protocolSelected
@@ -315,8 +338,8 @@ Rectangle {
                                 background: Rectangle {
                                     radius: 14
                                     color: parent.enabled
-                                           ? (parent.pressed ? Constants.accentSky : Constants.accentPrimary)
-                                           : Constants.bgPrimary
+                                        ? (parent.pressed ? Constants.accentSky : Constants.accentPrimary)
+                                        : Constants.bgPrimary
                                     border.color: Constants.borderDefault
                                     border.width: 1
                                 }
@@ -332,6 +355,7 @@ Rectangle {
                             }
                         }
                     }
+
 
                     // -----------------------------
                     // COL 2: JOG CARD (stacked)
