@@ -14,7 +14,6 @@ Rectangle {
     radius: 0
 
     // ===== STATE (set by ConfigScreen.qml) =====
-    // Set true once a protocol is selected so motion controls can be enabled.
     property bool protocolSelected: false
 
     // ===== EXPOSE UI ELEMENTS (to ConfigScreen.qml wrapper) =====
@@ -40,11 +39,9 @@ Rectangle {
 
     property alias runTestButton: runTestButton
 
-    // Page padding
     readonly property int pad: 16
     readonly property int gap: 14
 
-    // Small helper for "locked" styling
     function lockedOpacity() { return root.protocolSelected ? 1.0 : 0.35 }
 
     ColumnLayout {
@@ -112,7 +109,7 @@ Rectangle {
         }
 
         // ==================================
-        // 2) PROTOCOL SUMMARY (two columns)
+        // 2) PROTOCOL SUMMARY (two columns, full width)
         // ==================================
         Rectangle {
             Layout.fillWidth: true
@@ -168,7 +165,7 @@ Rectangle {
                         Text { id: waterTempValueText; text: qsTr("-"); color: Constants.textPrimary; font.pixelSize: 13; font.bold: true }
                     }
 
-                    // Full width row (spans 2 columns)
+                    // Full width row (spans 2 columns) ✅
                     RowLayout {
                         Layout.fillWidth: true
                         //Layout.columnSpan: 2
@@ -183,9 +180,7 @@ Rectangle {
         }
 
         // ==================================
-        // 3) CONTROLLER (two columns)
-        //   Left column: Clamp first, then current temp + status + preheat
-        //   Right column: Jog buttons stacked, z value next to them
+        // 3) MACHINE CONTROLLER (3 columns as 3 rectangles)
         // ==================================
         Rectangle {
             Layout.fillWidth: true
@@ -207,243 +202,249 @@ Rectangle {
                     font.bold: true
                 }
 
-                GridLayout {
+                RowLayout {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
-                    columns: 3
-                    columnSpacing: 12
-                    rowSpacing: 12
+                    spacing: 12
 
                     // -----------------------------
-                    // LEFT COLUMN: Temp block
+                    // COL 1: TEMP CARD
                     // -----------------------------
-                    ColumnLayout {
+                    Rectangle {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        spacing: 12
+                        Layout.preferredWidth: 1
+                        radius: 14
+                        color: Constants.bgSurface
+                        border.color: Constants.borderDefault
+                        border.width: 1
 
-                        // Temp block
-                        Rectangle {
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            radius: 14
-                            color: Constants.bgSurface
-                            border.color: Constants.borderDefault
-                            border.width: 1
+                        ColumnLayout {
+                            anchors.fill: parent
+                            anchors.margins: 14
+                            spacing: 8
 
-                            ColumnLayout {
-                                anchors.fill: parent
-                                anchors.margins: 14
-                                spacing: 8
-
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    Text {
-                                        text: qsTr("Current Temp")
-                                        color: Constants.textSecondary
-                                        font.pixelSize: 13
-                                        font.bold: true
-                                    }
-                                    Item { Layout.fillWidth: true }
-                                    Text {
-                                        id: tempStatusText
-                                        text: qsTr("PREHEAT")
-                                        color: Constants.textMuted
-                                        font.pixelSize: 13
-                                        font.bold: true
-                                    }
-                                }
+                            RowLayout {
+                                Layout.fillWidth: true
 
                                 Text {
-                                    id: currentTempText
-                                    text: qsTr("-- °C")
-                                    color: Constants.textPrimary
-                                    font.pixelSize: 36
+                                    text: qsTr("Current Temp")
+                                    color: Constants.textSecondary
+                                    font.pixelSize: 13
                                     font.bold: true
                                 }
 
-                                Item { Layout.fillHeight: true }
+                                Item { Layout.fillWidth: true }
 
-                                Button {
-                                    id: preheatButton
-                                    Layout.fillWidth: true
-                                    Layout.preferredHeight: 44
-                                    text: qsTr("Preheat")
-
-                                    enabled: root.protocolSelected
-                                    opacity: root.lockedOpacity()
-
-                                    background: Rectangle {
-                                        radius: 12
-                                        color: parent.enabled
-                                               ? (parent.pressed ? Constants.accentSky : Constants.accentPrimary)
-                                               : Constants.bgPrimary
-                                    }
-                                    contentItem: Text {
-                                        text: qsTr("Preheat")
-                                        color: "white"
-                                        font.pixelSize: 15
-                                        font.bold: true
-                                        horizontalAlignment: Text.AlignHCenter
-                                        verticalAlignment: Text.AlignVCenter
-                                    }
+                                Text {
+                                    id: tempStatusText
+                                    text: qsTr("PREHEAT")
+                                    color: Constants.textMuted
+                                    font.pixelSize: 13
+                                    font.bold: true
                                 }
                             }
-                        }
-                    }
 
-                    // -----------------------------
-                    // MIDDLE COLUMN: Jog stacked + Z value 
-                    // -----------------------------
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        spacing: 12
+                            Text {
+                                id: currentTempText
+                                text: qsTr("-- °C")
+                                color: Constants.textPrimary
+                                font.pixelSize: 36
+                                font.bold: true
+                            }
 
-                        Text {
-                            text: qsTr("Jog (Z)")
-                            color: Constants.textSecondary
-                            font.pixelSize: 13
-                            font.bold: true
-                        }
+                            Item { Layout.fillHeight: true }
 
-                        RowLayout {
-                            Layout.fillWidth: true
-                            Layout.fillHeight: true
-                            spacing: 14
+                            Button {
+                                id: preheatButton
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 44
+                                text: qsTr("Preheat")
 
-                            // Jog buttons stacked
-                            ColumnLayout {
-                                Layout.preferredWidth: 220
-                                Layout.fillHeight: true
-                                spacing: 12
+                                enabled: root.protocolSelected
+                                opacity: root.lockedOpacity()
 
-                                Button {
-                                    id: jogUpButton
-                                    Layout.fillWidth: true
-                                    Layout.preferredHeight: 110
-                                    text: qsTr("▲  UP")
-
-                                    enabled: root.protocolSelected
-                                    opacity: root.lockedOpacity()
-
-                                    background: Rectangle {
-                                        radius: 14
-                                        color: parent.enabled
-                                               ? (parent.pressed ? Constants.accentSky : Constants.bgSurface)
-                                               : Constants.bgPrimary
-                                        border.color: Constants.borderDefault
-                                        border.width: 1
-                                    }
-
-                                    contentItem: Text {
-                                        text: qsTr("▲  UP")
-                                        color: Constants.textPrimary
-                                        font.pixelSize: 22
-                                        font.bold: true
-                                        horizontalAlignment: Text.AlignHCenter
-                                        verticalAlignment: Text.AlignVCenter
-                                    }
+                                background: Rectangle {
+                                    radius: 12
+                                    color: parent.enabled
+                                           ? (parent.pressed ? Constants.accentSky : Constants.accentPrimary)
+                                           : Constants.bgPrimary
                                 }
-
-                                TextField {
-                                    id: zPositionField
-                                    Layout.fillWidth: true
-                                    Layout.preferredHeight: 52
-                                    text: qsTr("0.00")
-                                    enabled: root.protocolSelected
-                                    opacity: root.lockedOpacity()
-
-                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                    validator: DoubleValidator { bottom: -9999; top: 9999; decimals: 2 }
-
-                                    background: Rectangle {
-                                        radius: 12
-                                        color: Constants.bgSurface
-                                        border.color: Constants.borderDefault
-                                        border.width: 1
-                                    }
-
-                                    color: Constants.textPrimary
-                                    font.pixelSize: 18
+                                contentItem: Text {
+                                    text: qsTr("Preheat")
+                                    color: "white"
+                                    font.pixelSize: 15
                                     font.bold: true
                                     horizontalAlignment: Text.AlignHCenter
                                     verticalAlignment: Text.AlignVCenter
                                 }
-
-                                Button {
-                                    id: jogDownButton
-                                    Layout.fillWidth: true
-                                    Layout.preferredHeight: 110
-                                    text: qsTr("▼  DOWN")
-
-                                    enabled: root.protocolSelected
-                                    opacity: root.lockedOpacity()
-
-                                    background: Rectangle {
-                                        radius: 14
-                                        color: parent.enabled
-                                               ? (parent.pressed ? Constants.accentSky : Constants.bgSurface)
-                                               : Constants.bgPrimary
-                                        border.color: Constants.borderDefault
-                                        border.width: 1
-                                    }
-
-                                    contentItem: Text {
-                                        text: qsTr("▼  DOWN")
-                                        color: Constants.textPrimary
-                                        font.pixelSize: 22
-                                        font.bold: true
-                                        horizontalAlignment: Text.AlignHCenter
-                                        verticalAlignment: Text.AlignVCenter
-                                    }
-                                }
                             }
                         }
                     }
 
                     // -----------------------------
-                    // RIGHT COLUMN: Clamp toggle
-                    ColumnLayout {
+                    // COL 2: JOG CARD (stacked)
+                    // -----------------------------
+                    Rectangle {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        spacing: 12
+                        Layout.preferredWidth: 1
+                        radius: 14
+                        color: Constants.bgSurface
+                        border.color: Constants.borderDefault
+                        border.width: 1
 
-                        Text {
-                            text: qsTr("Clamp")
-                            color: Constants.textSecondary
-                            font.pixelSize: 13
-                            font.bold: true
-                        }
+                        ColumnLayout {
+                            anchors.fill: parent
+                            anchors.margins: 14
+                            spacing: 12
 
-                        Button {
-                            id: clampToggleButton
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 120
-                            text: qsTr("OPEN CLAMP")
-
-                            enabled: root.protocolSelected
-                            opacity: root.lockedOpacity()
-
-                            background: Rectangle {
-                                radius: 14
-                                color: parent.enabled
-                                       ? (parent.pressed ? Constants.accentSky : Constants.bgSurface)
-                                       : Constants.bgPrimary
-                                border.color: Constants.borderDefault
-                                border.width: 1
+                            Text {
+                                text: qsTr("Jog (Z)")
+                                color: Constants.textSecondary
+                                font.pixelSize: 13
+                                font.bold: true
                             }
 
-                            contentItem: Text {
-                                text: clampToggleButton.text
+                            Button {
+                                id: jogUpButton
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 110
+                                text: qsTr("▲  UP")
+
+                                enabled: root.protocolSelected
+                                opacity: root.lockedOpacity()
+
+                                background: Rectangle {
+                                    radius: 14
+                                    color: parent.enabled
+                                           ? (parent.pressed ? Constants.accentSky : Constants.bgSurface)
+                                           : Constants.bgPrimary
+                                    border.color: Constants.borderDefault
+                                    border.width: 1
+                                }
+
+                                contentItem: Text {
+                                    text: qsTr("▲  UP")
+                                    color: Constants.textPrimary
+                                    font.pixelSize: 22
+                                    font.bold: true
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                            }
+
+                            TextField {
+                                id: zPositionField
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 52
+                                text: qsTr("0.00")
+
+                                enabled: root.protocolSelected
+                                opacity: root.lockedOpacity()
+
+                                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                validator: DoubleValidator { bottom: -9999; top: 9999; decimals: 2 }
+
+                                background: Rectangle {
+                                    radius: 12
+                                    color: Constants.bgSurface
+                                    border.color: Constants.borderDefault
+                                    border.width: 1
+                                }
+
                                 color: Constants.textPrimary
-                                font.pixelSize: 22
+                                font.pixelSize: 18
                                 font.bold: true
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
                             }
+
+                            Button {
+                                id: jogDownButton
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: 110
+                                text: qsTr("▼  DOWN")
+
+                                enabled: root.protocolSelected
+                                opacity: root.lockedOpacity()
+
+                                background: Rectangle {
+                                    radius: 14
+                                    color: parent.enabled
+                                           ? (parent.pressed ? Constants.accentSky : Constants.bgSurface)
+                                           : Constants.bgPrimary
+                                    border.color: Constants.borderDefault
+                                    border.width: 1
+                                }
+
+                                contentItem: Text {
+                                    text: qsTr("▼  DOWN")
+                                    color: Constants.textPrimary
+                                    font.pixelSize: 22
+                                    font.bold: true
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                            }
+
+                            Item { Layout.fillHeight: true }
                         }
-                    }   
+                    }
+
+                    // -----------------------------
+                    // COL 3: CLAMP CARD
+                    // -----------------------------
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        Layout.preferredWidth: 1
+                        radius: 14
+                        color: Constants.bgSurface
+                        border.color: Constants.borderDefault
+                        border.width: 1
+
+                        ColumnLayout {
+                            anchors.fill: parent
+                            anchors.margins: 14
+                            spacing: 12
+
+                            Text {
+                                text: qsTr("Clamp")
+                                color: Constants.textSecondary
+                                font.pixelSize: 13
+                                font.bold: true
+                            }
+
+                            Button {
+                                id: clampToggleButton
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+                                text: qsTr("OPEN CLAMP")
+
+                                enabled: root.protocolSelected
+                                opacity: root.lockedOpacity()
+
+                                background: Rectangle {
+                                    radius: 14
+                                    color: parent.enabled
+                                           ? (parent.pressed ? Constants.accentSky : Constants.bgSurface)
+                                           : Constants.bgPrimary
+                                    border.color: Constants.borderDefault
+                                    border.width: 1
+                                }
+
+                                contentItem: Text {
+                                    text: clampToggleButton.text
+                                    color: Constants.textPrimary
+                                    font.pixelSize: 22
+                                    font.bold: true
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
