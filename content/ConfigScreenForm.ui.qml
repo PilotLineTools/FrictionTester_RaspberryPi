@@ -143,16 +143,19 @@ Rectangle {
                     columns: 2
                     rowSpacing: 10
                     columnSpacing: 22
+                    
 
                     // Left column
                     RowLayout {
                         Layout.fillWidth: true
+                        Layout.minimumWidth: parent.width / 2 - 11
                         Text { text: qsTr("Speed"); color: Constants.textMuted; font.pixelSize: 13 }
                         Item { Layout.fillWidth: true }
                         Text { id: speedValueText; text: qsTr("-"); color: Constants.textPrimary; font.pixelSize: 13; font.bold: true }
                     }
                     RowLayout {
                         Layout.fillWidth: true
+                        Layout.minimumWidth: parent.width / 2 - 11
                         Text { text: qsTr("Clamp Force"); color: Constants.textMuted; font.pixelSize: 13 }
                         Item { Layout.fillWidth: true }
                         Text { id: clampForceValueText; text: qsTr("-"); color: Constants.textPrimary; font.pixelSize: 13; font.bold: true }
@@ -161,12 +164,14 @@ Rectangle {
                     // Right column
                     RowLayout {
                         Layout.fillWidth: true
+                        Layout.minimumWidth: parent.width / 2 - 11
                         Text { text: qsTr("Stroke"); color: Constants.textMuted; font.pixelSize: 13 }
                         Item { Layout.fillWidth: true }
                         Text { id: strokeValueText; text: qsTr("-"); color: Constants.textPrimary; font.pixelSize: 13; font.bold: true }
                     }
                     RowLayout {
                         Layout.fillWidth: true
+                        Layout.minimumWidth: parent.width / 2 - 11
                         Text { text: qsTr("Water Temp"); color: Constants.textMuted; font.pixelSize: 13 }
                         Item { Layout.fillWidth: true }
                         Text { id: waterTempValueText; text: qsTr("-"); color: Constants.textPrimary; font.pixelSize: 13; font.bold: true }
@@ -175,6 +180,7 @@ Rectangle {
                     
                     RowLayout {
                         Layout.fillWidth: true
+                        Layout.minimumWidth: parent.width / 2 - 11
                         Text { text: qsTr("Cycles"); color: Constants.textMuted; font.pixelSize: 13 }
                         Item { Layout.fillWidth: true }
                         Text { id: cyclesValueText; text: qsTr("-"); color: Constants.textPrimary; font.pixelSize: 13; font.bold: true }
@@ -324,7 +330,7 @@ Rectangle {
                                 background: Rectangle {
                                     radius: 14
                                     color: parent.enabled
-                                           ? (parent.pressed ? Constants.accentSky : Constants.bgSurface)
+                                           ? (parent.pressed ? Constants.accentSky : Constants.accentPrimary)
                                            : Constants.bgPrimary
                                     border.color: Constants.borderDefault
                                     border.width: 1
@@ -378,7 +384,7 @@ Rectangle {
                                 background: Rectangle {
                                     radius: 14
                                     color: parent.enabled
-                                           ? (parent.pressed ? Constants.accentSky : Constants.bgSurface)
+                                           ? (parent.pressed ? Constants.accentSky : Constants.accentPrimary)
                                            : Constants.bgPrimary
                                     border.color: Constants.borderDefault
                                     border.width: 1
@@ -434,7 +440,7 @@ Rectangle {
                                 background: Rectangle {
                                     radius: 14
                                     color: parent.enabled
-                                           ? (parent.pressed ? Constants.accentSky : Constants.bgSurface)
+                                           ? (parent.pressed ? Constants.accentSky : Constants.accentPrimary)
                                            : Constants.bgPrimary
                                     border.color: Constants.borderDefault
                                     border.width: 1
@@ -456,7 +462,32 @@ Rectangle {
         }
 
         // ==================================
-        // 4) RUN TEST (locked until protocol chosen)
+        // 4) Fine print MESSAGE AREA (info/warning) that only is visible when there is a message to show
+        // ==================================
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.preferredHeight: 60
+            radius: 12
+            color: "#FEF3C7"   // yellow-100
+            border.color: "#F59E0B"  // yellow-500
+            border.width: 1
+            visible: false   // set to true by ConfigScreen.qml when there is a message to show
+
+            Text {
+                id: messageText
+                anchors.fill: parent
+                anchors.margins: 12
+                text: qsTr("This is a warning or info message.")
+                color: "#92400E"  // yellow-800
+                font.pixelSize: 14
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                wrapMode: Text.WordWrap
+            }
+        }
+
+        // ==================================
+        // 5) RUN TEST (locked until protocol chosen)
         // ==================================
         Button {
             id: runTestButton
