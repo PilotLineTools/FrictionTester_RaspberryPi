@@ -54,7 +54,7 @@ Rectangle {
         // ==================================
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: 92
+            Layout.preferredHeight: 84
             radius: 14
             color: Constants.bgCard
             border.color: Constants.borderDefault
@@ -65,14 +65,18 @@ Rectangle {
                 anchors.margins: 16
                 spacing: 12
 
+                Item { Layout.fillWidth: true }
+
                 ColumnLayout {
-                    Layout.fillWidth: true
                     spacing: 4
+                    Layout.alignment: Qt.AlignHCenter
 
                     Text {
                         text: qsTr("Selected Protocol")
                         color: Constants.textSecondary
                         font.pixelSize: 12
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.alignment: Qt.AlignHCenter
                     }
 
                     Text {
@@ -82,20 +86,23 @@ Rectangle {
                         font.pixelSize: 24
                         font.bold: true
                         elide: Text.ElideRight
+                        horizontalAlignment: Text.AlignHCenter
+                        Layout.alignment: Qt.AlignHCenter
                     }
                 }
+
+                Item { Layout.fillWidth: true }
 
                 Button {
                     id: chooseProtocolButton
                     text: qsTr("Choose")
-                    Layout.preferredWidth: 160
-                    Layout.preferredHeight: 48
+                    Layout.preferredWidth: 140
+                    Layout.preferredHeight: 44
 
                     background: Rectangle {
                         radius: 12
                         color: parent.pressed ? Constants.accentSky : Constants.accentPrimary
                     }
-
                     contentItem: Text {
                         text: qsTr("Choose")
                         color: "white"
@@ -165,10 +172,9 @@ Rectangle {
                         Text { id: waterTempValueText; text: qsTr("-"); color: Constants.textPrimary; font.pixelSize: 13; font.bold: true }
                     }
 
-                    // Full width row (spans 2 columns) ✅
+                    
                     RowLayout {
                         Layout.fillWidth: true
-                        //Layout.columnSpan: 2
                         Text { text: qsTr("Cycles"); color: Constants.textMuted; font.pixelSize: 13 }
                         Item { Layout.fillWidth: true }
                         Text { id: cyclesValueText; text: qsTr("-"); color: Constants.textPrimary; font.pixelSize: 13; font.bold: true }
