@@ -39,6 +39,7 @@ Rectangle {
         // =========================
         // TOP: Protocol Title + Choose
         // =========================
+        /*
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: 84
@@ -101,7 +102,7 @@ Rectangle {
                 }
             }
         }
-
+        */
         Item { Layout.fillWidth: true }
         // Live Temperature Button (for testing) 
         Button {
@@ -112,7 +113,7 @@ Rectangle {
 
             background: Rectangle {
                 radius: 12
-                color: parent.pressed ? Constants.accentSky : Constants.accentPrimary
+                color: parent.pressed ? Constants.accentSky : Constants.bgSurface
             }
             contentItem: Text {
                 text: qsTr("Temp")
@@ -127,6 +128,7 @@ Rectangle {
         // =========================
         // Metric cards row
         // =========================
+        /*
         GridLayout {
             Layout.fillWidth: true
             columns: 5
@@ -134,7 +136,7 @@ Rectangle {
             columnSpacing: root.gap
 
             // Card helper
-            function metricCard(title, valueId) { /* placeholder so Design Studio doesn't complain */ }
+            function metricCard(title, valueId) {  }
 
             Rectangle {
                 Layout.fillWidth: true
@@ -260,17 +262,20 @@ Rectangle {
                     Text { text: qsTr("count"); color: Constants.textMuted; font.pixelSize: 11 }
                 }
             }
-        }
+        } 
+        */
+        
 
         // =========================
-        // Controls row: Clamp + Jog
+        // Controls row: Protocol + Controller
         // =========================
         RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
             spacing: root.gap
 
-            // Clamp card
+            // Protocol card
+            /*
             Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -284,6 +289,7 @@ Rectangle {
                     anchors.margins: 16
                     spacing: 12
 
+                    
                     Text {
                         text: qsTr("Clamp")
                         color: Constants.textSecondary
@@ -292,7 +298,7 @@ Rectangle {
                     }
 
                     Item { Layout.fillHeight: true }
-
+                    
                     Button {
                         id: clampToggleButton
                         Layout.fillWidth: true
@@ -315,8 +321,75 @@ Rectangle {
                             verticalAlignment: Text.AlignVCenter
                         }
                     }
-
+                    
                     Item { Layout.fillHeight: true }
+                }
+            }
+            */
+
+            // =========================
+            // TOP: Protocol Title + Choose
+            // =========================
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 84
+                radius: 14
+                color: Constants.bgCard
+                border.color: Constants.borderDefault
+                border.width: 1
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.margins: 16
+                    spacing: 12
+
+                    Item { Layout.fillWidth: true }
+
+                    ColumnLayout {
+                        spacing: 4
+                        Layout.alignment: Qt.AlignHCenter
+
+                        Text {
+                            text: qsTr("Selected Protocol")
+                            color: Constants.textSecondary
+                            font.pixelSize: 12
+                            horizontalAlignment: Text.AlignHCenter
+                            Layout.alignment: Qt.AlignHCenter
+                        }
+
+                        Text {
+                            id: protocolTitleText
+                            text: qsTr("No protocol selected")
+                            color: Constants.textPrimary
+                            font.pixelSize: 24
+                            font.bold: true
+                            elide: Text.ElideRight
+                            horizontalAlignment: Text.AlignHCenter
+                            Layout.alignment: Qt.AlignHCenter
+                        }
+                    }
+
+                    Item { Layout.fillWidth: true }
+
+                    Button {
+                        id: chooseProtocolButton
+                        text: qsTr("Choose")
+                        Layout.preferredWidth: 140
+                        Layout.preferredHeight: 44
+
+                        background: Rectangle {
+                            radius: 12
+                            color: parent.pressed ? Constants.accentSky : Constants.accentPrimary
+                        }
+                        contentItem: Text {
+                            text: qsTr("Choose")
+                            color: "white"
+                            font.pixelSize: 15
+                            font.bold: true
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
                 }
             }
 
@@ -335,7 +408,7 @@ Rectangle {
                     spacing: 12
 
                     Text {
-                        text: qsTr("Jog Z")
+                        text: qsTr("Contoller")
                         color: Constants.textSecondary
                         font.pixelSize: 14
                         font.bold: true
@@ -370,6 +443,13 @@ Rectangle {
                             }
                         }
 
+                        Text {
+                            text: qsTr("Z Position Value")
+                            color: Constants.textSecondary
+                            font.pixelSize: 14
+                            font.bold: true
+                        }
+
                         Button {
                             id: jogDownButton
                             Layout.fillWidth: true
@@ -385,6 +465,31 @@ Rectangle {
 
                             contentItem: Text {
                                 text: qsTr("▼  DOWN")
+                                color: Constants.textPrimary
+                                font.pixelSize: 22
+                                font.bold: true
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
+                        
+
+                        // Clamp Toggle Button
+                        Button {
+                            id: clampToggleButton
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 140
+                            text: qsTr("OPEN CLAMP")
+
+                            background: Rectangle {
+                                radius: 14
+                                color: parent.pressed ? Constants.accentSky : Constants.bgSurface
+                                border.color: Constants.borderDefault
+                                border.width: 1
+                            }
+
+                            contentItem: Text {
+                                text: clampToggleButton.text
                                 color: Constants.textPrimary
                                 font.pixelSize: 22
                                 font.bold: true
