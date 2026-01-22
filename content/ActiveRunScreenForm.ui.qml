@@ -119,17 +119,20 @@ Rectangle {
         }
 
         // =========================
-        // Metric cards row
+        // BODY: Metrics row + Graph + Tall Control Column
         // =========================
         GridLayout {
-            id: metricsGrid
+            id: bodyGrid
             Layout.fillWidth: true
+            Layout.fillHeight: true
             columns: 5
             rowSpacing: root.gap
             columnSpacing: root.gap
 
-            // 1) SPEED
+            // ---- Row 0: 4 metric cards ----
             Rectangle {
+                Layout.row: 0
+                Layout.column: 0
                 Layout.fillWidth: true
                 Layout.preferredHeight: 112
                 radius: 14
@@ -147,8 +150,9 @@ Rectangle {
                 }
             }
 
-            // 2) CLAMP
             Rectangle {
+                Layout.row: 0
+                Layout.column: 1
                 Layout.fillWidth: true
                 Layout.preferredHeight: 112
                 radius: 14
@@ -166,8 +170,9 @@ Rectangle {
                 }
             }
 
-            // 3) STROKE
             Rectangle {
+                Layout.row: 0
+                Layout.column: 2
                 Layout.fillWidth: true
                 Layout.preferredHeight: 112
                 radius: 14
@@ -185,8 +190,9 @@ Rectangle {
                 }
             }
 
-            // 4) TEMP
             Rectangle {
+                Layout.row: 0
+                Layout.column: 3
                 Layout.fillWidth: true
                 Layout.preferredHeight: 112
                 radius: 14
@@ -204,10 +210,13 @@ Rectangle {
                 }
             }
 
-            // 5) CONTROL CARD (Cycles + Elapsed + Pause/Abort)
+            // ---- Column 4: Tall Control Card spans BOTH rows ----
             Rectangle {
+                Layout.row: 0
+                Layout.column: 4
+                Layout.rowSpan: 2
                 Layout.fillWidth: true
-                Layout.preferredHeight: 112
+                Layout.fillHeight: true
                 radius: 14
                 color: Constants.bgCard
                 border.color: Constants.borderDefault
@@ -215,138 +224,156 @@ Rectangle {
 
                 ColumnLayout {
                     anchors.fill: parent
-                    anchors.margins: 12
-                    spacing: 8
+                    anchors.margins: 16
+                    spacing: 14
 
-                    // Top line: cycles
-                    RowLayout {
+                    // Cycles (top)
+                    ColumnLayout {
                         Layout.fillWidth: true
-                        spacing: 8
+                        spacing: 6
 
-                        Text { text: qsTr("Cycles"); color: Constants.textSecondary; font.pixelSize: 11 }
-                        Item { Layout.fillWidth: true }
+                        Text {
+                            text: qsTr("Cycles")
+                            color: Constants.textSecondary
+                            font.pixelSize: 12
+                        }
+
                         Text {
                             id: cycleText
                             text: qsTr("- / -")
                             color: "#A78BFA"
-                            font.pixelSize: 14
+                            font.pixelSize: 30
                             font.bold: true
+                        }
+
+                        Text {
+                            text: qsTr("current / total")
+                            color: Constants.textMuted
+                            font.pixelSize: 11
                         }
                     }
 
-                    // Middle: elapsed
-                    RowLayout {
+                    Rectangle {
                         Layout.fillWidth: true
-                        spacing: 8
+                        height: 1
+                        color: Constants.borderDefault
+                        opacity: 0.6
+                    }
 
-                        Text { text: qsTr("Elapsed"); color: Constants.textSecondary; font.pixelSize: 11 }
-                        Item { Layout.fillWidth: true }
+                    // Elapsed (under cycles)
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 6
+
+                        Text {
+                            text: qsTr("Elapsed Time")
+                            color: Constants.textSecondary
+                            font.pixelSize: 12
+                        }
+
                         Text {
                             id: elapsedText
                             text: qsTr("00:00")
                             color: "#22C55E"
-                            font.pixelSize: 16
+                            font.pixelSize: 34
                             font.bold: true
                         }
                     }
 
                     Item { Layout.fillHeight: true }
 
-                    // Bottom: buttons side-by-side
-                    RowLayout {
+                    // Pause / Resume
+                    Button {
+                        id: pauseResumeButton
                         Layout.fillWidth: true
-                        spacing: 8
+                        Layout.preferredHeight: Constants.largeButtonHeight
+                        text: qsTr("⏸  PAUSE TEST")
 
-                        Button {
-                            id: pauseResumeButton
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 36
-                            text: qsTr("PAUSE")
+                        property color backgroundColor: "#F59E0B"
 
-                            property color backgroundColor: "#F59E0B"
-
-                            background: Rectangle {
-                                radius: 10
-                                color: pauseResumeButton.pressed
-                                    ? Qt.darker(pauseResumeButton.backgroundColor, 1.15)
-                                    : pauseResumeButton.backgroundColor
-                            }
-
-                            contentItem: Text {
-                                text: pauseResumeButton.text
-                                color: "white"
-                                font.pixelSize: 13
-                                font.bold: true
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                            }
+                        background: Rectangle {
+                            radius: 16
+                            color: pauseResumeButton.pressed
+                                ? Qt.darker(pauseResumeButton.backgroundColor, 1.15)
+                                : pauseResumeButton.backgroundColor
                         }
 
-                        Button {
-                            id: abortButton
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 36
-                            text: qsTr("ABORT")
+                        contentItem: Text {
+                            text: pauseResumeButton.text
+                            color: "white"
+                            font.pixelSize: 20
+                            font.bold: true
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
 
-                            background: Rectangle {
-                                radius: 10
-                                color: abortButton.pressed ? "#B91C1C" : "#DC2626"
-                            }
+                    // Abort
+                    Button {
+                        id: abortButton
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: Constants.largeButtonHeight
+                        text: qsTr("⨯  ABORT TEST")
 
-                            contentItem: Text {
-                                text: abortButton.text
-                                color: "white"
-                                font.pixelSize: 13
-                                font.bold: true
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                            }
+                        background: Rectangle {
+                            radius: 16
+                            color: abortButton.pressed ? "#B91C1C" : "#DC2626"
+                        }
+
+                        contentItem: Text {
+                            text: abortButton.text
+                            color: "white"
+                            font.pixelSize: 20
+                            font.bold: true
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
                         }
                     }
                 }
             }
-        }
 
+            // ---- Row 1: Graph spans columns 0..3 ----
+            Rectangle {
+                Layout.row: 1
+                Layout.column: 0
+                Layout.columnSpan: 4
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                radius: 14
+                color: Constants.bgCard
+                border.color: Constants.borderDefault
+                border.width: 1
 
-        // =========================
-        // MAIN: Graph (full width)
-        // =========================
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            radius: 14
-            color: Constants.bgCard
-            border.color: Constants.borderDefault
-            border.width: 1
-
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: 16
-                spacing: 10
-
-                Text {
-                    text: qsTr("Force vs Position")
-                    color: Constants.textPrimary
-                    font.pixelSize: 18
-                    font.bold: true
-                }
-
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    radius: 12
-                    color: Constants.bgSurface
-                    border.color: Constants.borderDefault
-                    border.width: 1
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 16
+                    spacing: 10
 
                     Text {
-                        anchors.centerIn: parent
-                        text: qsTr("LIVE GRAPH AREA")
-                        color: Constants.textSecondary
-                        font.pixelSize: 14
+                        text: qsTr("Force vs Position")
+                        color: Constants.textPrimary
+                        font.pixelSize: 18
+                        font.bold: true
+                    }
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        radius: 12
+                        color: Constants.bgSurface
+                        border.color: Constants.borderDefault
+                        border.width: 1
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: qsTr("LIVE GRAPH AREA")
+                            color: Constants.textSecondary
+                            font.pixelSize: 14
+                        }
                     }
                 }
             }
         }
+
     }
 }
