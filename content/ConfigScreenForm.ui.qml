@@ -236,6 +236,15 @@ Rectangle {
                             anchors.margins: 14
                             spacing: 8
 
+                            Text {
+                                text: qsTr("Temperature")
+                                color: Constants.textSecondary
+                                font.pixelSize: 13
+                                font.bold: true
+                            }
+
+                            Item { Layout.fillHeight: true }
+
                             RowLayout {
                                 Layout.fillWidth: true
 
@@ -249,21 +258,36 @@ Rectangle {
                                 Item { Layout.fillWidth: true }
 
                                 Text {
-                                    id: tempStatusText
-                                    text: qsTr("PREHEAT")
-                                    color: Constants.textMuted
+                                    text: qsTr("Test Temp")
+                                    color: Constants.textSecondary
                                     font.pixelSize: 13
                                     font.bold: true
                                 }
                             }
 
-                            Text {
-                                id: currentTempText
-                                text: qsTr("-- °C")
-                                color: Constants.textPrimary
-                                font.pixelSize: 36
-                                font.bold: true
+                            RowLayout {
+                                Layout.fillWidth: true
+
+                                Text {
+                                    id: currentTempText
+                                    text: qsTr("-- °C")
+                                    color: Constants.textPrimary
+                                    font.pixelSize: 36
+                                    font.bold: true
+                                }
+
+                                Item { Layout.fillWidth: true }
+
+                                Text {
+                                    id: waterTempValueText
+                                    text: qsTr("-- °C")
+                                    color: Constants.textPrimary
+                                    font.pixelSize: 36
+                                    font.bold: true
+                                }
                             }
+
+                            
 
                             Item { Layout.fillHeight: true }
 
@@ -312,7 +336,7 @@ Rectangle {
                             spacing: 12
 
                             Text {
-                                text: qsTr("Jog (Z)")
+                                text: qsTr("Start Position")
                                 color: Constants.textSecondary
                                 font.pixelSize: 13
                                 font.bold: true
@@ -321,7 +345,7 @@ Rectangle {
                             Button {
                                 id: jogUpButton
                                 Layout.fillWidth: true
-                                Layout.preferredHeight: 105
+                                Layout.preferredHeight: 100
                                 text: qsTr("▲  UP")
 
                                 enabled: root.protocolSelected
@@ -375,7 +399,7 @@ Rectangle {
                             Button {
                                 id: jogDownButton
                                 Layout.fillWidth: true
-                                Layout.preferredHeight: 105
+                                Layout.preferredHeight: 100
                                 text: qsTr("▼  DOWN")
 
                                 enabled: root.protocolSelected
