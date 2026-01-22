@@ -258,7 +258,7 @@ Rectangle {
                                 Item { Layout.fillWidth: true }
 
                                 Text {
-                                    text: qsTr("Test Temp. Target")
+                                    text: qsTr("Test Target Temp.")
                                     color: Constants.textSecondary
                                     font.pixelSize: 13
                                     font.bold: true
@@ -288,6 +288,20 @@ Rectangle {
                             }
 
                             Item { Layout.fillHeight: true }
+
+                            // PREHEAT BUTTON
+                            // Message above preheat button to  let user know that preheating isn't required but reccommended
+                            // If no protocol is selected, this message is hidden
+                            // If preheat is not selected and the temp is below target the the preheat will happen automatically when the test is started
+                            Text {
+                                text: root.protocolSelected
+                                      ? qsTr("Preheating is recommended before running the test.")
+                                      : ""
+                                color: Constants.textMuted
+                                font.pixelSize: 12
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.alignment: Qt.AlignHCenter
+                            }
 
                             Button {
                                 id: preheatButton
