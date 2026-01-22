@@ -319,6 +319,58 @@ Rectangle {
                             font.pixelSize: 11
                         }
                     }
+
+
+                    Item { Layout.fillHeight: true }
+
+                    // Pause / Resume
+                    Button {
+                        id: pauseResumeButton
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: Constants.largeButtonHeight
+                        text: qsTr("⏸  PAUSE TEST")
+
+                        // wrapper will override this
+                        property color backgroundColor: "#F59E0B"
+
+                        background: Rectangle {
+                            radius: 16
+                            color: pauseResumeButton.pressed
+                                   ? Qt.darker(pauseResumeButton.backgroundColor, 1.15)
+                                   : pauseResumeButton.backgroundColor
+                        }
+
+                        contentItem: Text {
+                            text: pauseResumeButton.text
+                            color: "white"
+                            font.pixelSize: 20
+                            font.bold: true
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
+
+                    // Abort
+                    Button {
+                        id: abortButton
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: Constants.largeButtonHeight
+                        text: qsTr("⨯  ABORT TEST")
+
+                        background: Rectangle {
+                            radius: 16
+                            color: abortButton.pressed ? "#B91C1C" : "#DC2626"
+                        }
+
+                        contentItem: Text {
+                            text: abortButton.text
+                            color: "white"
+                            font.pixelSize: 20
+                            font.bold: true
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                        }
+                    }
                 }
 
             }
