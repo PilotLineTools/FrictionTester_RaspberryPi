@@ -294,7 +294,7 @@ Rectangle {
                             Button {
                                 id: preheatButton
                                 Layout.fillWidth: true
-                                Layout.preferredHeight: 44
+                                Layout.preferredHeight: 100
                                 text: qsTr("Preheat")
 
                                 enabled: root.protocolSelected
@@ -309,7 +309,7 @@ Rectangle {
                                 contentItem: Text {
                                     text: qsTr("Preheat")
                                     color: "white"
-                                    font.pixelSize: 15
+                                    font.pixelSize: 22
                                     font.bold: true
                                     horizontalAlignment: Text.AlignHCenter
                                     verticalAlignment: Text.AlignVCenter
