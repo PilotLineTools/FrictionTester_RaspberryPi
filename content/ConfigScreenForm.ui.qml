@@ -15,11 +15,11 @@ Rectangle {
 
     // ===== EXPOSE UI ELEMENTS (to ConfigScreen.qml wrapper) =====
     property alias protocolTitleText: protocolTitleText
-    property alias speedValueText: speedValueText
-    property alias clampValueText: clampValueText
-    property alias strokeValueText: strokeValueText
-    property alias tempValueText: tempValueText
-    property alias cyclesValueText: cyclesValueText
+    //property alias speedValueText: speedValueText
+    //property alias clampValueText: clampValueText
+    //property alias strokeValueText: strokeValueText
+    //property alias tempValueText: tempValueText
+    //property alias cyclesValueText: cyclesValueText
 
     property alias clampToggleButton: clampToggleButton
     property alias jogUpButton: jogUpButton
