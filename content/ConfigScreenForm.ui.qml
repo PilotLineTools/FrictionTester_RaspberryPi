@@ -279,8 +279,7 @@ Rectangle {
                                 Item { Layout.fillWidth: true }
 
                                 Text {
-                                    id: waterTempValueText
-                                    text: qsTr("-- °C")
+                                    text: root.protocolSelected ? (waterTempValueText.text + " °C") : qsTr("-- °C")
                                     color: Constants.textPrimary
                                     font.pixelSize: 36
                                     font.bold: true
