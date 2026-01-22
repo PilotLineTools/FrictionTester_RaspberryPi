@@ -24,7 +24,7 @@ Rectangle {
     property alias strokeValueText: strokeValueText
     property alias tempValueText: tempValueText
 
-    // show current/total cycles in the 5th card
+    
     property alias cycleText: cycleText
 
     property alias elapsedText: elapsedText
@@ -119,16 +119,16 @@ Rectangle {
         }
 
         // =========================
-        // Metric cards row
+        // Metric cards row (LIVE READINGS)
         // =========================
         GridLayout {
             id: metricsGrid
             Layout.fillWidth: true
-            columns: 5
+            columns: 4
             rowSpacing: root.gap
             columnSpacing: root.gap
 
-            // This width is what we want the right-side control card to match.
+            // width of one card (used to match the right control card)
             readonly property real metricW: (width - (columnSpacing * (columns - 1))) / columns
 
             Rectangle {
@@ -197,30 +197,13 @@ Rectangle {
                     anchors.fill: parent
                     anchors.margins: 14
                     spacing: 6
-                    Text { text: qsTr("Temp"); color: Constants.textSecondary; font.pixelSize: 11 }
+                    Text { text: qsTr("Water Temp"); color: Constants.textSecondary; font.pixelSize: 11 }
                     Text { id: tempValueText; text: qsTr("-"); color: "#60A5FA"; font.pixelSize: 26; font.bold: true }
                     Text { text: qsTr("°C"); color: Constants.textMuted; font.pixelSize: 11 }
                 }
             }
-
-            Rectangle {
-                Layout.fillWidth: true
-                Layout.preferredHeight: 112
-                radius: 14
-                color: Constants.bgCard
-                border.color: Constants.borderDefault
-                border.width: 1
-
-                ColumnLayout {
-                    anchors.fill: parent
-                    anchors.margins: 14
-                    spacing: 6
-                    Text { text: qsTr("Cycles"); color: Constants.textSecondary; font.pixelSize: 11 }
-                    Text { id: cycleText; text: qsTr("- / -"); color: "#A78BFA"; font.pixelSize: 26; font.bold: true }
-                    Text { text: qsTr("current/total"); color: Constants.textMuted; font.pixelSize: 11 }
-                }
-            }
         }
+
 
         // =========================
         // MAIN: Graph (left) + Right Control Card (width matches 1 metric card)
@@ -278,12 +261,12 @@ Rectangle {
                 border.color: Constants.borderDefault
                 border.width: 1
 
+                // Elapsed time + cycles
                 ColumnLayout {
-                    anchors.fill: parent
-                    anchors.margins: 16
-                    spacing: 14
+                    Layout.fillWidth: true
+                    spacing: 12
 
-                    // Elapsed time
+                    // Elapsed
                     ColumnLayout {
                         Layout.fillWidth: true
                         spacing: 6
@@ -303,57 +286,41 @@ Rectangle {
                         }
                     }
 
-                    Item { Layout.fillHeight: true }
-
-                    // Pause / Resume
-                    Button {
-                        id: pauseResumeButton
+                    // Divider (optional but looks nice)
+                    Rectangle {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: Constants.largeButtonHeight
-                        text: qsTr("⏸  PAUSE TEST")
-
-                        // wrapper will override this
-                        property color backgroundColor: "#F59E0B"
-
-                        background: Rectangle {
-                            radius: 16
-                            color: pauseResumeButton.pressed
-                                   ? Qt.darker(pauseResumeButton.backgroundColor, 1.15)
-                                   : pauseResumeButton.backgroundColor
-                        }
-
-                        contentItem: Text {
-                            text: pauseResumeButton.text
-                            color: "white"
-                            font.pixelSize: 20
-                            font.bold: true
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                        }
+                        height: 1
+                        color: Constants.borderDefault
+                        opacity: 0.6
                     }
 
-                    // Abort
-                    Button {
-                        id: abortButton
+                    // Cycles
+                    ColumnLayout {
                         Layout.fillWidth: true
-                        Layout.preferredHeight: Constants.largeButtonHeight
-                        text: qsTr("⨯  ABORT TEST")
+                        spacing: 6
 
-                        background: Rectangle {
-                            radius: 16
-                            color: abortButton.pressed ? "#B91C1C" : "#DC2626"
+                        Text {
+                            text: qsTr("Cycles")
+                            color: Constants.textSecondary
+                            font.pixelSize: 12
                         }
 
-                        contentItem: Text {
-                            text: abortButton.text
-                            color: "white"
-                            font.pixelSize: 20
+                        Text {
+                            id: cycleText
+                            text: qsTr("- / -")
+                            color: "#A78BFA"
+                            font.pixelSize: 28
                             font.bold: true
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
+                        }
+
+                        Text {
+                            text: qsTr("current / total")
+                            color: Constants.textMuted
+                            font.pixelSize: 11
                         }
                     }
                 }
+
             }
         }
     }
