@@ -294,7 +294,7 @@ Rectangle {
                     height: 1
                     color: Constants.borderDefault
                     opacity: 0.6
-                }
+                
 
                     // Elapsed time
                     ColumnLayout {
