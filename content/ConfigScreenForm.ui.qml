@@ -183,10 +183,9 @@ Rectangle {
         }
 
         // ==================================
-        // 3) CONTROLLER (three columns)
-        //   Col 1: Temp block (+ preheat inside)
-        //   Col 2: Jog controls stacked with Z value in between
-        //   Col 3: Clamp toggle
+        // 3) CONTROLLER (two columns)
+        //   Left column: Clamp first, then current temp + status + preheat
+        //   Right column: Jog buttons stacked, z value next to them
         // ==================================
         Rectangle {
             Layout.fillWidth: true
@@ -202,7 +201,7 @@ Rectangle {
                 spacing: 12
 
                 Text {
-                    text: qsTr("Controller")
+                    text: qsTr("Machine Controller")
                     color: Constants.textSecondary
                     font.pixelSize: 14
                     font.bold: true
@@ -212,17 +211,18 @@ Rectangle {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     columns: 3
-                    columnSpacing: 18
+                    columnSpacing: 12
                     rowSpacing: 12
 
                     // -----------------------------
-                    // COLUMN 1: TEMP BLOCK
+                    // LEFT COLUMN: Temp block
                     // -----------------------------
                     ColumnLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         spacing: 12
 
+                        // Temp block
                         Rectangle {
                             Layout.fillWidth: true
                             Layout.fillHeight: true
@@ -238,16 +238,13 @@ Rectangle {
 
                                 RowLayout {
                                     Layout.fillWidth: true
-
                                     Text {
                                         text: qsTr("Current Temp")
                                         color: Constants.textSecondary
                                         font.pixelSize: 13
                                         font.bold: true
                                     }
-
                                     Item { Layout.fillWidth: true }
-
                                     Text {
                                         id: tempStatusText
                                         text: qsTr("PREHEAT")
@@ -279,8 +276,8 @@ Rectangle {
                                     background: Rectangle {
                                         radius: 12
                                         color: parent.enabled
-                                            ? (parent.pressed ? Constants.accentSky : Constants.accentPrimary)
-                                            : Constants.bgPrimary
+                                               ? (parent.pressed ? Constants.accentSky : Constants.accentPrimary)
+                                               : Constants.bgPrimary
                                     }
                                     contentItem: Text {
                                         text: qsTr("Preheat")
@@ -296,7 +293,7 @@ Rectangle {
                     }
 
                     // -----------------------------
-                    // COLUMN 2: JOG STACK (UP, VALUE, DOWN)
+                    // MIDDLE COLUMN: Jog stacked + Z value 
                     // -----------------------------
                     ColumnLayout {
                         Layout.fillWidth: true
@@ -310,94 +307,103 @@ Rectangle {
                             font.bold: true
                         }
 
-                        Button {
-                            id: jogUpButton
+                        RowLayout {
                             Layout.fillWidth: true
-                            Layout.preferredHeight: 110
-                            text: qsTr("▲  UP")
+                            Layout.fillHeight: true
+                            spacing: 14
 
-                            enabled: root.protocolSelected
-                            opacity: root.lockedOpacity()
+                            // Jog buttons stacked
+                            ColumnLayout {
+                                Layout.preferredWidth: 220
+                                Layout.fillHeight: true
+                                spacing: 12
 
-                            background: Rectangle {
-                                radius: 14
-                                color: parent.enabled
-                                    ? (parent.pressed ? Constants.accentSky : Constants.bgSurface)
-                                    : Constants.bgPrimary
-                                border.color: Constants.borderDefault
-                                border.width: 1
-                            }
+                                Button {
+                                    id: jogUpButton
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: 110
+                                    text: qsTr("▲  UP")
 
-                            contentItem: Text {
-                                text: qsTr("▲  UP")
-                                color: Constants.textPrimary
-                                font.pixelSize: 22
-                                font.bold: true
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
+                                    enabled: root.protocolSelected
+                                    opacity: root.lockedOpacity()
+
+                                    background: Rectangle {
+                                        radius: 14
+                                        color: parent.enabled
+                                               ? (parent.pressed ? Constants.accentSky : Constants.bgSurface)
+                                               : Constants.bgPrimary
+                                        border.color: Constants.borderDefault
+                                        border.width: 1
+                                    }
+
+                                    contentItem: Text {
+                                        text: qsTr("▲  UP")
+                                        color: Constants.textPrimary
+                                        font.pixelSize: 22
+                                        font.bold: true
+                                        horizontalAlignment: Text.AlignHCenter
+                                        verticalAlignment: Text.AlignVCenter
+                                    }
+                                }
+
+                                TextField {
+                                    id: zPositionField
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: 52
+                                    text: qsTr("0.00")
+                                    enabled: root.protocolSelected
+                                    opacity: root.lockedOpacity()
+
+                                    inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                    validator: DoubleValidator { bottom: -9999; top: 9999; decimals: 2 }
+
+                                    background: Rectangle {
+                                        radius: 12
+                                        color: Constants.bgSurface
+                                        border.color: Constants.borderDefault
+                                        border.width: 1
+                                    }
+
+                                    color: Constants.textPrimary
+                                    font.pixelSize: 18
+                                    font.bold: true
+                                    horizontalAlignment: Text.AlignHCenter
+                                    verticalAlignment: Text.AlignVCenter
+                                }
+
+                                Button {
+                                    id: jogDownButton
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: 110
+                                    text: qsTr("▼  DOWN")
+
+                                    enabled: root.protocolSelected
+                                    opacity: root.lockedOpacity()
+
+                                    background: Rectangle {
+                                        radius: 14
+                                        color: parent.enabled
+                                               ? (parent.pressed ? Constants.accentSky : Constants.bgSurface)
+                                               : Constants.bgPrimary
+                                        border.color: Constants.borderDefault
+                                        border.width: 1
+                                    }
+
+                                    contentItem: Text {
+                                        text: qsTr("▼  DOWN")
+                                        color: Constants.textPrimary
+                                        font.pixelSize: 22
+                                        font.bold: true
+                                        horizontalAlignment: Text.AlignHCenter
+                                        verticalAlignment: Text.AlignVCenter
+                                    }
+                                }
                             }
                         }
-
-                        TextField {
-                            id: zPositionField
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 52
-                            text: qsTr("0.00")
-
-                            enabled: root.protocolSelected
-                            opacity: root.lockedOpacity()
-
-                            inputMethodHints: Qt.ImhFormattedNumbersOnly
-                            validator: DoubleValidator { bottom: -9999; top: 9999; decimals: 2 }
-
-                            background: Rectangle {
-                                radius: 12
-                                color: Constants.bgSurface
-                                border.color: Constants.borderDefault
-                                border.width: 1
-                            }
-
-                            color: Constants.textPrimary
-                            font.pixelSize: 18
-                            font.bold: true
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
-                        }
-
-                        Button {
-                            id: jogDownButton
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 110
-                            text: qsTr("▼  DOWN")
-
-                            enabled: root.protocolSelected
-                            opacity: root.lockedOpacity()
-
-                            background: Rectangle {
-                                radius: 14
-                                color: parent.enabled
-                                    ? (parent.pressed ? Constants.accentSky : Constants.bgSurface)
-                                    : Constants.bgPrimary
-                                border.color: Constants.borderDefault
-                                border.width: 1
-                            }
-
-                            contentItem: Text {
-                                text: qsTr("▼  DOWN")
-                                color: Constants.textPrimary
-                                font.pixelSize: 22
-                                font.bold: true
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                            }
-                        }
-
-                        Item { Layout.fillHeight: true }
                     }
 
                     // -----------------------------
-                    // COLUMN 3: CLAMP TOGGLE
-                    // -----------------------------
+                    // RIGHT COLUMN: Clamp toggle
                     ColumnLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
@@ -413,7 +419,7 @@ Rectangle {
                         Button {
                             id: clampToggleButton
                             Layout.fillWidth: true
-                            Layout.fillHeight: true
+                            Layout.fillHeight: 120
                             text: qsTr("OPEN CLAMP")
 
                             enabled: root.protocolSelected
@@ -422,8 +428,8 @@ Rectangle {
                             background: Rectangle {
                                 radius: 14
                                 color: parent.enabled
-                                    ? (parent.pressed ? Constants.accentSky : Constants.bgSurface)
-                                    : Constants.bgPrimary
+                                       ? (parent.pressed ? Constants.accentSky : Constants.bgSurface)
+                                       : Constants.bgPrimary
                                 border.color: Constants.borderDefault
                                 border.width: 1
                             }
@@ -437,11 +443,10 @@ Rectangle {
                                 verticalAlignment: Text.AlignVCenter
                             }
                         }
-                    }
+                        
                 }
             }
         }
-
 
         // ==================================
         // 4) RUN TEST (locked until protocol chosen)
