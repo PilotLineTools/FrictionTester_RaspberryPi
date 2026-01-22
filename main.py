@@ -385,7 +385,7 @@ class SerialController(QObject):
             water_temp (int): Water temperature in degrees Celsius.
             cycles (int): Number of cycles to perform.
         """
-        self.send_cmd(f"CMD START_TEST speed={speed_cm_s:.2f} stroke_length={stroke_length_mm} clamp_force={clamp_force_g} water_temp={water_temp} cycles={cycles}")
+        self.send_cmd(f"CMD TEST_START speed={speed_cm_s:.2f} stroke_length={stroke_length_mm} clamp_force={clamp_force_g} water_temp={water_temp} cycles={cycles}")
 
     @Slot()
     def pause_test(self):
@@ -394,7 +394,7 @@ class SerialController(QObject):
         
         Sends a command to pause the active test run.
         """
-        self.send_cmd("CMD PAUSE_TEST")
+        self.send_cmd("CMD TEST_PAUSE")
 
     @Slot()
     def stop_test(self):
@@ -403,7 +403,7 @@ class SerialController(QObject):
         
         Sends a command to stop the active test run.
         """
-        self.send_cmd("CMD STOP_TEST")
+        self.send_cmd("CMD TEST_STOP")
 
     @Slot(str)
     def jog_up(self, axis: str):

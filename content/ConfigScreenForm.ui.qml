@@ -102,6 +102,28 @@ Rectangle {
             }
         }
 
+        Item { Layout.fillWidth: true }
+        // Live Temperature Button (for testing) 
+        Button {
+            id: liveTemp
+            text: qsTr("Temp")
+            Layout.preferredWidth: 140
+            Layout.preferredHeight: 44
+
+            background: Rectangle {
+                radius: 12
+                color: parent.pressed ? Constants.accentSky : Constants.accentPrimary
+            }
+            contentItem: Text {
+                text: qsTr("Temp")
+                color: "white"
+                font.pixelSize: 15
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
+        }
+
         // =========================
         // Metric cards row
         // =========================
