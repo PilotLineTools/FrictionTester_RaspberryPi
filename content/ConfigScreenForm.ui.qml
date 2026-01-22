@@ -419,7 +419,7 @@ Rectangle {
                         Button {
                             id: clampToggleButton
                             Layout.fillWidth: true
-                            Layout.fillHeight: 120
+                            Layout.preferredHeight: 120
                             text: qsTr("OPEN CLAMP")
 
                             enabled: root.protocolSelected
