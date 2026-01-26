@@ -541,290 +541,312 @@ Rectangle {
                     }
                 }
 
-                GridLayout {
+                RowLayout {
                     Layout.fillWidth: true
-                    columns: 2
-                    rowSpacing: 16
-                    columnSpacing: 16
+                    spacing: 16
 
-                    ParamCard {
-                        title: qsTr("Test Speed")
-                        valueText: editingProtocol ? editingProtocol.speed.toFixed(1) : "0.0"
-                        unitText: qsTr("cm/s")
-                        accent: Constants.accentSky
-                        from: 0.1
-                        to: 2.5
-                        step: 0.1
-                        sliderValue: editingProtocol ? editingProtocol.speed : 0
-                        minLabel: qsTr("0.1 cm/s")
-                        maxLabel: qsTr("2.5 cm/s")
-                        enabled: editingProtocol && editingProtocol.factory !== true
-                        onValueEdited: (v) => updateField("speed", Math.round(v * 10) / 10)
-                    }
-
-                    ParamCard {
-                        title: qsTr("Stroke Length")
-                        valueText: editingProtocol ? String(editingProtocol.strokeLength) : "0"
-                        unitText: qsTr("mm")
-                        accent: "#4ADE80"
-                        from: 10
-                        to: 150
-                        step: 1
-                        sliderValue: editingProtocol ? editingProtocol.strokeLength : 0
-                        minLabel: qsTr("10 mm")
-                        maxLabel: qsTr("150 mm")
-                        enabled: editingProtocol && editingProtocol.factory !== true
-                        onValueEdited: (v) => updateField("strokeLength", Math.round(v))
-                    }
-
-                    ParamCard {
-                        title: qsTr("Clamp Force")
-                        valueText: editingProtocol ? String(editingProtocol.clampForce) : "0"
-                        unitText: qsTr("g")
-                        accent: "#FBBF24"
-                        from: 50
-                        to: 500
-                        step: 10
-                        sliderValue: editingProtocol ? editingProtocol.clampForce : 0
-                        minLabel: qsTr("50 g")
-                        maxLabel: qsTr("500 g")
-                        enabled: editingProtocol && editingProtocol.factory !== true
-                        onValueEdited: (v) => updateField("clampForce", Math.round(v/10)*10)
-                    }
-
-                    ParamCard {
-                        title: qsTr("Water Temperature")
-                        valueText: editingProtocol ? String(editingProtocol.waterTemp) : "0"
-                        unitText: qsTr("°C")
-                        accent: "#60A5FA"
-                        from: 15
-                        to: 50
-                        step: 1
-                        sliderValue: editingProtocol ? editingProtocol.waterTemp : 0
-                        minLabel: qsTr("15 °C")
-                        maxLabel: qsTr("50 °C")
-                        enabled: editingProtocol && editingProtocol.factory !== true
-                        onValueEdited: (v) => updateField("waterTemp", Math.round(v))
-                    }
-                }
-
-                ParamCardWide {
-                    Layout.fillWidth: true
-                    title: qsTr("Number of Cycles")
-                    valueText: editingProtocol ? String(editingProtocol.cycles) : "1"
-                    unitText: qsTr("cycles")
-                    accent: "#A78BFA"
-                    from: 1
-                    to: 20
-                    step: 1
-                    sliderValue: editingProtocol ? editingProtocol.cycles : 1
-                    leftLabel: qsTr("1")
-                    mid1Label: qsTr("5")
-                    mid2Label: qsTr("10")
-                    mid3Label: qsTr("15")
-                    rightLabel: qsTr("20")
-                    enabled: editingProtocol && editingProtocol.factory !== true
-                    onValueEdited: (v) => updateField("cycles", Math.round(v))
-                }
-
-                // --- Fixed Start Point (toggle + optional jog section) ---
-                Rectangle {
-                    Layout.fillWidth: true
-                    radius: 18
-                    color: Constants.bgCard
-                    border.color: Qt.rgba(1,1,1,0.06)
-                    border.width: 1
-
+                    // -------------------------
+                    // LEFT: Grid + Cycles stack
+                    // -------------------------
                     ColumnLayout {
-                        anchors.fill: parent
-                        anchors.margins: 18
-                        spacing: 14
+                        Layout.fillWidth: true
+                        spacing: 16
 
-                        // Header row: title/subtitle + switch
-                        RowLayout {
+                        GridLayout {
                             Layout.fillWidth: true
-                            spacing: 12
+                            columns: 2
+                            rowSpacing: 16
+                            columnSpacing: 16
 
-                            ColumnLayout {
-                                Layout.fillWidth: true
-                                spacing: 6
-
-                                Text {
-                                    text: qsTr("Fixed Start Point")
-                                    color: Constants.textPrimary
-                                    font.pixelSize: 18
-                                    font.bold: true
-                                }
-
-                                Text {
-                                    text: qsTr("Set a specific starting position for this protocol")
-                                    color: Constants.textSecondary
-                                    font.pixelSize: 13
-                                    wrapMode: Text.WordWrap
-                                }
+                            ParamCard {
+                                title: qsTr("Test Speed")
+                                valueText: editingProtocol ? editingProtocol.speed.toFixed(1) : "0.0"
+                                unitText: qsTr("cm/s")
+                                accent: Constants.accentSky
+                                from: 0.1
+                                to: 2.5
+                                step: 0.1
+                                sliderValue: editingProtocol ? editingProtocol.speed : 0
+                                minLabel: qsTr("0.1 cm/s")
+                                maxLabel: qsTr("2.5 cm/s")
+                                enabled: editingProtocol && editingProtocol.factory !== true
+                                onValueEdited: (v) => updateField("speed", Math.round(v * 10) / 10)
                             }
 
-                            Switch {
-                                id: fixedStartSwitch
-                                checked: editingProtocol ? !!editingProtocol.fixedStartEnabled : false
+                            ParamCard {
+                                title: qsTr("Stroke Length")
+                                valueText: editingProtocol ? String(editingProtocol.strokeLength) : "0"
+                                unitText: qsTr("mm")
+                                accent: "#4ADE80"
+                                from: 10
+                                to: 150
+                                step: 1
+                                sliderValue: editingProtocol ? editingProtocol.strokeLength : 0
+                                minLabel: qsTr("10 mm")
+                                maxLabel: qsTr("150 mm")
                                 enabled: editingProtocol && editingProtocol.factory !== true
+                                onValueEdited: (v) => updateField("strokeLength", Math.round(v))
+                            }
 
-                                // Keep the switch visually “right aligned”
-                                Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+                            ParamCard {
+                                title: qsTr("Clamp Force")
+                                valueText: editingProtocol ? String(editingProtocol.clampForce) : "0"
+                                unitText: qsTr("g")
+                                accent: "#FBBF24"
+                                from: 50
+                                to: 500
+                                step: 10
+                                sliderValue: editingProtocol ? editingProtocol.clampForce : 0
+                                minLabel: qsTr("50 g")
+                                maxLabel: qsTr("500 g")
+                                enabled: editingProtocol && editingProtocol.factory !== true
+                                onValueEdited: (v) => updateField("clampForce", Math.round(v/10)*10)
+                            }
 
-                                onToggled: {
-                                    updateField("fixedStartEnabled", checked)
-
-                                    // optional: when turning on, initialize the fixed start to current position
-                                    if (checked) {
-                                        // replace `currentPositionMm` with your real live position source
-                                        const cur = (typeof currentPositionMm !== "undefined") ? currentPositionMm : 0
-                                        updateField("fixedStartMm", Math.round(cur * 10) / 10)
-                                    }
-                                }
+                            ParamCard {
+                                title: qsTr("Water Temperature")
+                                valueText: editingProtocol ? String(editingProtocol.waterTemp) : "0"
+                                unitText: qsTr("°C")
+                                accent: "#60A5FA"
+                                from: 15
+                                to: 50
+                                step: 1
+                                sliderValue: editingProtocol ? editingProtocol.waterTemp : 0
+                                minLabel: qsTr("15 °C")
+                                maxLabel: qsTr("50 °C")
+                                enabled: editingProtocol && editingProtocol.factory !== true
+                                onValueEdited: (v) => updateField("waterTemp", Math.round(v))
                             }
                         }
 
-                        // Expanded section when enabled
-                        Item {
+                        ParamCardWide {
                             Layout.fillWidth: true
-                            visible: fixedStartSwitch.checked
-                            implicitHeight: contentCol.implicitHeight
+                            title: qsTr("Number of Cycles")
+                            valueText: editingProtocol ? String(editingProtocol.cycles) : "1"
+                            unitText: qsTr("cycles")
+                            accent: "#A78BFA"
+                            from: 1
+                            to: 20
+                            step: 1
+                            sliderValue: editingProtocol ? editingProtocol.cycles : 1
+                            leftLabel: qsTr("1")
+                            mid1Label: qsTr("5")
+                            mid2Label: qsTr("10")
+                            mid3Label: qsTr("15")
+                            rightLabel: qsTr("20")
+                            enabled: editingProtocol && editingProtocol.factory !== true
+                            onValueEdited: (v) => updateField("cycles", Math.round(v))
+                        }
+                    }
 
-                            ColumnLayout {
-                                id: contentCol
+                    // -------------------------
+                    // RIGHT: Fixed Start column
+                    // -------------------------
+                    Rectangle {
+                        id: fixedStartCard
+                        Layout.preferredWidth: 290
+                        Layout.fillHeight: true
+                        Layout.alignment: Qt.AlignTop
+                        radius: 18
+                        color: Constants.bgCard
+                        border.color: Qt.rgba(1,1,1,0.06)
+                        border.width: 1
+
+                        // useful: ensure we have fields even if older protocol objects lack them
+                        readonly property bool fixedEnabled: editingProtocol ? !!editingProtocol.fixedStartEnabled : false
+                        readonly property bool canEdit: editingProtocol && editingProtocol.factory !== true
+
+                        ColumnLayout {
+                            anchors.fill: parent
+                            anchors.margins: 18
+                            spacing: 14
+
+                            RowLayout {
                                 Layout.fillWidth: true
-                                spacing: 14
+                                spacing: 10
 
-                                // Current Position display (big number)
-                                Rectangle {
+                                ColumnLayout {
                                     Layout.fillWidth: true
-                                    Layout.preferredHeight: 140
-                                    radius: 16
-                                    color: Constants.bgPrimary   // slightly darker inset, like your mock
-                                    border.color: Qt.rgba(1,1,1,0.06)
-                                    border.width: 1
-
-                                    Column {
-                                        anchors.centerIn: parent
-                                        spacing: 6
-
-                                        Text {
-                                            text: qsTr("Current Position")
-                                            color: Constants.textSecondary
-                                            font.pixelSize: 14
-                                            horizontalAlignment: Text.AlignHCenter
-                                            anchors.horizontalCenter: parent.horizontalCenter
-                                        }
-
-                                        Text {
-                                            // replace `currentPositionMm` with your actual live position value
-                                            text: (typeof currentPositionMm !== "undefined")
-                                                ? (Math.round(currentPositionMm * 10) / 10).toFixed(1)
-                                                : "0.0"
-                                            color: Constants.accentSky
-                                            font.pixelSize: 44
-                                            font.bold: true
-                                            horizontalAlignment: Text.AlignHCenter
-                                            anchors.horizontalCenter: parent.horizontalCenter
-                                        }
-
-                                        Text {
-                                            text: qsTr("mm")
-                                            color: Constants.textSecondary
-                                            font.pixelSize: 16
-                                            horizontalAlignment: Text.AlignHCenter
-                                            anchors.horizontalCenter: parent.horizontalCenter
-                                        }
-                                    }
-                                }
-
-                                // Jog buttons row
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 14
-
-                                    Button {
-                                        Layout.fillWidth: true
-                                        Layout.preferredHeight: 78
-                                        enabled: editingProtocol && editingProtocol.factory !== true
-                                        text: qsTr("JOG UP")
-
-                                        background: Rectangle {
-                                            radius: 16
-                                            color: Constants.accentSky
-                                            opacity: parent.enabled ? 1.0 : 0.5
-                                        }
-
-                                        contentItem: Text {
-                                            text: control.text
-                                            color: "white"
-                                            font.pixelSize: 18
-                                            font.bold: true
-                                            horizontalAlignment: Text.AlignHCenter
-                                            verticalAlignment: Text.AlignVCenter
-                                        }
-
-                                        onClicked: {
-                                            // TODO: send your jog command
-                                            // e.g. ensureConnectedAndSend(`MOVE_VEL(Z, +${jogVel})`)
-                                        }
-                                    }
-
-                                    Button {
-                                        Layout.fillWidth: true
-                                        Layout.preferredHeight: 78
-                                        enabled: editingProtocol && editingProtocol.factory !== true
-                                        text: qsTr("JOG DOWN")
-
-                                        background: Rectangle {
-                                            radius: 16
-                                            color: Constants.accentSky
-                                            opacity: control.enabled ? 1.0 : 0.5
-                                        }
-
-                                        contentItem: Text {
-                                            text: control.text
-                                            color: "white"
-                                            font.pixelSize: 18
-                                            font.bold: true
-                                            horizontalAlignment: Text.AlignHCenter
-                                            verticalAlignment: Text.AlignVCenter
-                                        }
-
-                                        onClicked: {
-                                            // TODO: send your jog command
-                                            // e.g. ensureConnectedAndSend(`MOVE_VEL(Z, -${jogVel})`)
-                                        }
-                                    }
-                                }
-
-                                // Optional: show / edit the stored fixed start value
-                                // (handy for confirming what will be used)
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    spacing: 10
+                                    spacing: 6
 
                                     Text {
-                                        text: qsTr("Fixed Start:")
-                                        color: Constants.textSecondary
-                                        font.pixelSize: 14
-                                    }
-
-                                    Text {
-                                        Layout.fillWidth: true
-                                        text: editingProtocol ? (Math.round((editingProtocol.fixedStartMm || 0) * 10) / 10).toFixed(1) + " mm" : "0.0 mm"
+                                        text: qsTr("Fixed Start Point")
                                         color: Constants.textPrimary
-                                        font.pixelSize: 14
+                                        font.pixelSize: 18
+                                        font.bold: true
                                     }
 
-                                    Button {
-                                        text: qsTr("Set to Current")
-                                        enabled: editingProtocol && editingProtocol.factory !== true
+                                    Text {
+                                        text: qsTr("Set a specific starting position for this protocol")
+                                        color: Constants.textSecondary
+                                        font.pixelSize: 13
+                                        wrapMode: Text.WordWrap
+                                    }
+                                }
 
-                                        onClicked: {
-                                            const cur = (typeof currentPositionMm !== "undefined") ? currentPositionMm : 0
+                                Switch {
+                                    id: fixedStartSwitch
+                                    checked: fixedStartCard.fixedEnabled
+                                    enabled: fixedStartCard.canEdit
+                                    Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+
+                                    onToggled: {
+                                        updateField("fixedStartEnabled", checked)
+
+                                        // optional: capture current position when enabling
+                                        if (checked) {
+                                            const cur = currentPositionMm   // you define/bind this elsewhere
                                             updateField("fixedStartMm", Math.round(cur * 10) / 10)
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Inner controls are always there; we just gray them out when toggle is off
+                            Item {
+                                Layout.fillWidth: true
+                                Layout.fillHeight: true
+
+                                ColumnLayout {
+                                    anchors.fill: parent
+                                    spacing: 14
+                                    opacity: fixedStartSwitch.checked ? 1.0 : 0.45
+
+                                    Rectangle {
+                                        Layout.fillWidth: true
+                                        Layout.preferredHeight: 140
+                                        radius: 16
+                                        color: Constants.bgPrimary
+                                        border.color: Qt.rgba(1,1,1,0.06)
+                                        border.width: 1
+
+                                        Column {
+                                            anchors.centerIn: parent
+                                            spacing: 6
+
+                                            Text {
+                                                text: qsTr("Current Position")
+                                                color: Constants.textSecondary
+                                                font.pixelSize: 14
+                                                horizontalAlignment: Text.AlignHCenter
+                                                anchors.horizontalCenter: parent.horizontalCenter
+                                            }
+
+                                            Text {
+                                                text: (Math.round(currentPositionMm * 10) / 10).toFixed(1)
+                                                color: Constants.accentSky
+                                                font.pixelSize: 44
+                                                font.bold: true
+                                                horizontalAlignment: Text.AlignHCenter
+                                                anchors.horizontalCenter: parent.horizontalCenter
+                                            }
+
+                                            Text {
+                                                text: qsTr("mm")
+                                                color: Constants.textSecondary
+                                                font.pixelSize: 16
+                                                horizontalAlignment: Text.AlignHCenter
+                                                anchors.horizontalCenter: parent.horizontalCenter
+                                            }
+                                        }
+                                    }
+
+                                    // Spacer so the buttons feel like they sit "lower" as it stretches
+                                    Item { Layout.fillHeight: true }
+
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 12
+
+                                        Button {
+                                            id: jogUpBtn
+                                            Layout.fillWidth: true
+                                            Layout.preferredHeight: 74
+                                            enabled: fixedStartCard.canEdit && fixedStartSwitch.checked
+                                            text: qsTr("JOG UP")
+
+                                            background: Rectangle {
+                                                radius: 16
+                                                color: Constants.accentSky
+                                                opacity: jogUpBtn.enabled ? 1.0 : 0.35
+                                            }
+
+                                            contentItem: Text {
+                                                text: jogUpBtn.text
+                                                color: "white"
+                                                font.pixelSize: 16
+                                                font.bold: true
+                                                horizontalAlignment: Text.AlignHCenter
+                                                verticalAlignment: Text.AlignVCenter
+                                            }
+
+                                            onClicked: {
+                                                // send jog up
+                                            }
+                                        }
+
+                                        Button {
+                                            id: jogDownBtn
+                                            Layout.fillWidth: true
+                                            Layout.preferredHeight: 74
+                                            enabled: fixedStartCard.canEdit && fixedStartSwitch.checked
+                                            text: qsTr("JOG DOWN")
+
+                                            background: Rectangle {
+                                                radius: 16
+                                                color: Constants.accentSky
+                                                opacity: jogDownBtn.enabled ? 1.0 : 0.35
+                                            }
+
+                                            contentItem: Text {
+                                                text: jogDownBtn.text
+                                                color: "white"
+                                                font.pixelSize: 16
+                                                font.bold: true
+                                                horizontalAlignment: Text.AlignHCenter
+                                                verticalAlignment: Text.AlignVCenter
+                                            }
+
+                                            onClicked: {
+                                                // send jog down
+                                            }
+                                        }
+                                    }
+
+                                    RowLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 10
+
+                                        Text {
+                                            text: qsTr("Fixed Start:")
+                                            color: Constants.textSecondary
+                                            font.pixelSize: 13
+                                        }
+
+                                        Text {
+                                            Layout.fillWidth: true
+                                            text: editingProtocol
+                                                ? (Math.round((editingProtocol.fixedStartMm || 0) * 10) / 10).toFixed(1) + " mm"
+                                                : "0.0 mm"
+                                            color: Constants.textPrimary
+                                            font.pixelSize: 13
+                                            elide: Text.ElideRight
+                                        }
+
+                                        Button {
+                                            id: setCurBtn
+                                            text: qsTr("Set")
+                                            enabled: fixedStartCard.canEdit && fixedStartSwitch.checked
+                                            background: Rectangle {
+                                                radius: 10
+                                                color: Constants.bgSurface
+                                                opacity: setCurBtn.enabled ? 1.0 : 0.35
+                                            }
+                                            contentItem: Text { text: setCurBtn.text; color: Constants.textPrimary; font.pixelSize: 13 }
+
+                                            onClicked: {
+                                                updateField("fixedStartMm", Math.round(currentPositionMm * 10) / 10)
+                                            }
                                         }
                                     }
                                 }
