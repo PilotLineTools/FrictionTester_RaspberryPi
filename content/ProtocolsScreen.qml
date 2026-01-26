@@ -31,39 +31,50 @@ Rectangle {
     // crude factory rule (adjust/remove)
     property bool useFactoryTag: true
 
+    // Replace "zPosMm" with whatever your appMachine exposes (or bind to serialController if that's where it lives)
+    property real currentPositionMm: appMachine && appMachine.zPosMm !== undefined ? Number(appMachine.zPosMm) : 0
+
+
     ListModel { id: protocolsModel }
 
     // ---------------------------
     // Backend mapping (FastAPI fields)
     // ---------------------------
     function toUiShape(p) {
-        // p is ProtocolOut from API
         return {
             id: p.id,
             name: p.name,
-            speed: Number(p.speed),                       // cm/s
-            strokeLength: Number(p.stroke_length_mm),     // mm
-            clampForce: Number(p.clamp_force_g),          // g
-            waterTemp: Number(p.water_temp_c),            // C
+            speed: Number(p.speed),
+            strokeLength: Number(p.stroke_length_mm),
+            clampForce: Number(p.clamp_force_g),
+            waterTemp: Number(p.water_temp_c),
             cycles: Number(p.cycles),
+            // NEW
+            fixedStartEnabled: !!p.fixed_start_enabled,
+            fixedStartMm: Number(p.fixed_start_mm || 0),
+
             createdAt: p.created_at || "",
             updatedAt: p.updated_at || "",
-            // optional tag
             factory: useFactoryTag ? (p.id <= 3) : false
         }
     }
 
+
     function toApiCreate(p) {
-        // matches ProtocolIn
         return {
             name: p.name,
             speed: Number(p.speed),
             stroke_length_mm: Number(p.strokeLength),
             clamp_force_g: Number(p.clampForce),
             water_temp_c: Number(p.waterTemp),
-            cycles: Number(p.cycles)
+            cycles: Number(p.cycles),
+
+            // NEW
+            fixed_start_enabled: !!p.fixedStartEnabled,
+            fixed_start_mm: Number(p.fixedStartMm || 0)
         }
     }
+
 
     function loadProtocols() {
         if (!backend) {
@@ -107,7 +118,11 @@ Rectangle {
             strokeLength: 50,
             clampForce: 100,
             waterTemp: 37,
-            cycles: 1
+            cycles: 1,
+
+            // NEW
+            fixedStartEnabled: false,
+            fixedStartMm: 0
         }
         editorOpen = true
     }
@@ -126,10 +141,16 @@ Rectangle {
             clampForce: p.clampForce,
             waterTemp: p.waterTemp,
             cycles: p.cycles,
+
+            // NEW
+            fixedStartEnabled: !!p.fixedStartEnabled,
+            fixedStartMm: Number(p.fixedStartMm || 0),
+
             factory: !!p.factory
         }
         editorOpen = true
     }
+
 
     function updateField(key, value) {
         var p = editingProtocol
@@ -154,7 +175,11 @@ Rectangle {
                 stroke_length_mm: Number(editingProtocol.strokeLength),
                 clamp_force_g: Number(editingProtocol.clampForce),
                 water_temp_c: Number(editingProtocol.waterTemp),
-                cycles: Number(editingProtocol.cycles)
+                cycles: Number(editingProtocol.cycles),
+
+                // NEW
+                fixed_start_enabled: !!editingProtocol.fixedStartEnabled,
+                fixed_start_mm: Number(editingProtocol.fixedStartMm || 0)
             }
 
             backend.request("PUT", "/protocols/" + editingProtocol.id, patch, function(ok, status, data) {
@@ -728,7 +753,7 @@ Rectangle {
                                         background: Rectangle {
                                             radius: 16
                                             color: Constants.accentSky
-                                            opacity: control.enabled ? 1.0 : 0.5
+                                            opacity: parent.enabled ? 1.0 : 0.5
                                         }
 
                                         contentItem: Text {
