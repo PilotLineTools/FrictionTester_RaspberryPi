@@ -617,6 +617,26 @@ Rectangle {
                                 enabled: editingProtocol && editingProtocol.factory !== true
                                 onValueEdited: (v) => updateField("waterTemp", Math.round(v))
                             }
+
+                            ParamCardWide {
+                                Layout.fillWidth: true
+                                Layout.columnSpan: 2
+                                title: qsTr("Number of Cycles")
+                                valueText: editingProtocol ? String(editingProtocol.cycles) : "1"
+                                unitText: qsTr("cycles")
+                                accent: "#A78BFA"
+                                from: 1
+                                to: 20
+                                step: 1
+                                sliderValue: editingProtocol ? editingProtocol.cycles : 1
+                                leftLabel: qsTr("1")
+                                mid1Label: qsTr("5")
+                                mid2Label: qsTr("10")
+                                mid3Label: qsTr("15")
+                                rightLabel: qsTr("20")
+                                enabled: editingProtocol && editingProtocol.factory !== true
+                                onValueEdited: (v) => updateField("cycles", Math.round(v))
+                            }
                         }
 
                         ParamCardWide {
