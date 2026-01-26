@@ -554,7 +554,7 @@ Rectangle {
 
                         GridLayout {
                             Layout.fillWidth: true
-                            columns: 2
+                            columns: 3
                             rowSpacing: 16
                             columnSpacing: 16
 
