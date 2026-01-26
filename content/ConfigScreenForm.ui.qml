@@ -28,7 +28,7 @@ Rectangle {
     property alias cyclesValueText: cyclesValueText
 
     // Controller elements
-    property alias clampToggleButton: clampToggleButton
+    //property alias clampToggleButton: clampToggleButton
     property alias currentTempText: currentTempText
     property alias tempStatusText: tempStatusText
     property alias preheatButton: preheatButton
