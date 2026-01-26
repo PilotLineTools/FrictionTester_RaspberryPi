@@ -474,6 +474,7 @@ Rectangle {
                     // -----------------------------
                     // COL 3: CLAMP CARD
                     // -----------------------------
+                    /*
                     Rectangle {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
@@ -528,6 +529,7 @@ Rectangle {
                             }
                         }
                     }
+                    */
                 }
             }
         }
