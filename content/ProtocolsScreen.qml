@@ -519,7 +519,7 @@ Rectangle {
 
             ColumnLayout {
                 id: editorContent
-                width: Math.min(parent.width, 1120)
+                width: Math.min(parent.width, 900)
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.margins: 28
                 spacing: 18
