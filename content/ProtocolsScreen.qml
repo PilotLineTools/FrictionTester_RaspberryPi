@@ -35,6 +35,25 @@ Rectangle {
     property real currentPositionMm: appMachine && appMachine.zPosMm !== undefined ? Number(appMachine.zPosMm) : 0
 
 
+    // --- Z JOG CONFIG ---
+    property real fixedJogStepMm: 1.0        // value change per tap
+    property real zJogVelocity: 5.0          // mm/s for MOVE_VEL
+    property real fixedStartMinMm: 0
+    property real fixedStartMaxMm: 200
+
+    function clamp(v, lo, hi) {
+        return Math.max(lo, Math.min(hi, v))
+    }
+
+    function adjustFixedStart(deltaMm) {
+        if (!editingProtocol) return
+        var cur = Number(editingProtocol.fixedStartMm || 0)
+        var next = clamp(cur + deltaMm, fixedStartMinMm, fixedStartMaxMm)
+        updateField("fixedStartMm", Math.round(next * 10) / 10)
+    }
+
+
+
     ListModel { id: protocolsModel }
 
     // ---------------------------
@@ -613,7 +632,7 @@ Rectangle {
                                 step: 1
                                 sliderValue: editingProtocol ? editingProtocol.waterTemp : 0
                                 minLabel: qsTr("15 °C")
-                                maxLabel: qsTr("50 °C")
+                                maxLabel: qsTr("40 °C")
                                 enabled: editingProtocol && editingProtocol.factory !== true
                                 onValueEdited: (v) => updateField("waterTemp", Math.round(v))
                             }
@@ -639,7 +658,7 @@ Rectangle {
                             }
                         }
 
-                        // REPLACES the bottom "Number of Cycles" ParamCardWide
+                        //
                         Rectangle {
                             id: fixedStartWide
                             Layout.fillWidth: true
@@ -652,6 +671,14 @@ Rectangle {
 
                             readonly property bool canEdit: editingProtocol && editingProtocol.factory !== true
                             readonly property bool fixedOn: editingProtocol ? !!editingProtocol.fixedStartEnabled : false
+
+                            Timer {
+                                id: fixedJogRepeat
+                                interval: 120
+                                repeat: true
+                                property int dir: 0
+                                onTriggered: adjustFixedStart(dir * fixedJogStepMm)
+                            }
 
                             ColumnLayout {
                                 anchors.fill: parent
@@ -759,6 +786,7 @@ Rectangle {
                                             color: Constants.accentSky
                                             opacity: jogUpBtn.enabled ? 1.0 : 0.35
                                         }
+
                                         contentItem: Text {
                                             text: jogUpBtn.text
                                             color: "white"
@@ -768,10 +796,23 @@ Rectangle {
                                             verticalAlignment: Text.AlignVCenter
                                         }
 
-                                        onClicked: {
-                                            // TODO: send jog up
+                                        TapHandler {
+                                            onPressedChanged: {
+                                                if (!jogUpBtn.enabled) return
+
+                                                if (pressed) {
+                                                    adjustFixedStart(+fixedJogStepMm)
+                                                    fixedJogRepeat.dir = +1
+                                                    fixedJogRepeat.start()
+                                                    serialController.jog_up("Z")
+                                                } else {
+                                                    fixedJogRepeat.stop()
+                                                    serialController.stop_jog("Z")
+                                                }
+                                            }
                                         }
                                     }
+
 
                                     Button {
                                         id: jogDownBtn
@@ -785,6 +826,7 @@ Rectangle {
                                             color: Constants.accentSky
                                             opacity: jogDownBtn.enabled ? 1.0 : 0.35
                                         }
+
                                         contentItem: Text {
                                             text: jogDownBtn.text
                                             color: "white"
@@ -794,10 +836,24 @@ Rectangle {
                                             verticalAlignment: Text.AlignVCenter
                                         }
 
-                                        onClicked: {
-                                            // TODO: send jog down
+                                        TapHandler {
+                                            onPressedChanged: {
+                                                if (!jogDownBtn.enabled) return
+
+                                                if (pressed) {
+                                                    adjustFixedStart(-fixedJogStepMm)
+                                                    fixedJogRepeat.dir = -1
+                                                    fixedJogRepeat.start()
+                                                    serialController.jog_down("Z")
+                                                } else {
+                                                    fixedJogRepeat.stop()
+                                                    serialController.stop_jog("Z")
+                                                }
+
+                                            }
                                         }
                                     }
+
                                 }
 
                                 // Optional helper line
