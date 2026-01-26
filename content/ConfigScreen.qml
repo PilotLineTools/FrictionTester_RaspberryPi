@@ -17,7 +17,7 @@ ConfigScreenForm {
     signal runTestRequested(var protocol)
 
     // internal clamp ui state (until you have real feedback)
-    property bool clampOpen: true
+    //property bool clampOpen: true
 
     // optional: hold last known Z position from device (mm)
     property real zPosMm: 0.0
@@ -91,7 +91,7 @@ ConfigScreenForm {
         refreshProtocolUI()
 
         // initial clamp button text
-        clampToggleButton.text = clampOpen ? "OPEN CLAMP" : "CLOSE CLAMP"
+        //clampToggleButton.text = clampOpen ? "OPEN CLAMP" : "CLOSE CLAMP"
 
         // initial lock state if no protocol
         protocolSelected = !!currentProto()
@@ -130,6 +130,7 @@ ConfigScreenForm {
     chooseProtocolButton.onClicked: chooseProtocolRequested()
 
     // ===== Clamp Toggle =====
+    /*
     clampToggleButton.onClicked: {
         clampOpen = !clampOpen
         clampToggleButton.text = clampOpen ? "OPEN CLAMP" : "CLOSE CLAMP"
@@ -140,6 +141,7 @@ ConfigScreenForm {
             console.warn("serialController.set_clamp missing")
         }
     }
+    */
 
     // ===== Preheat =====
     preheatButton.onClicked: {
