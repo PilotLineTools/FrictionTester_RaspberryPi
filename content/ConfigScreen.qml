@@ -150,6 +150,7 @@ ConfigScreenForm {
         // Example (adjust to your API):
         if (serialController && serialController.set_heater && p.water_temp_c !== undefined) {
             serialController.set_heater(p.water_temp_c)
+            console.log("Preheat set to", p.water_temp_c, "°C")
         } else {
             console.log("Preheat pressed (wire serialController.set_heater when available)")
         }
