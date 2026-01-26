@@ -9,27 +9,32 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional, List, Dict
 
+# -------------------------
+# Project-local data paths
+# -------------------------
+
 DEFAULT_DATA_DIR = Path("/home/pilotline/projects/FrictionTester_RaspberryPi/data")
+
+# Optional override (keep if you ever want to change location without editing code)
 DATA_DIR = Path(os.environ.get("FRICTIONTESTER_DATA_DIR", str(DEFAULT_DATA_DIR)))
 
 DB_PATH = DATA_DIR / "db" / "frictiontester.db"
-TRIALS_DIR = DATA_DIR / "runs"
+TRIALS_DIR = DATA_DIR / "runs"   
 
 def _utc_now_iso() -> str:
     return datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
 
+
 def connect() -> sqlite3.Connection:
-    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    TRIALS_DIR.mkdir(parents=True, exist_ok=True)
+    # Ensure folders exist
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)   # data/db
+    TRIALS_DIR.mkdir(parents=True, exist_ok=True)       # data/trials
 
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON;")
     return conn
 
-def _has_column(conn: sqlite3.Connection, table: str, column: str) -> bool:
-    rows = conn.execute(f"PRAGMA table_info({table});").fetchall()
-    return any(r["name"] == column for r in rows)
 
 def init_db(conn: sqlite3.Connection) -> None:
     conn.executescript(
@@ -62,12 +67,8 @@ def init_db(conn: sqlite3.Connection) -> None:
         CREATE INDEX IF NOT EXISTS idx_runs_protocol_id ON runs(protocol_id);
         """
     )
-
-    # ---- lightweight migration (add engineer_lock if missing) ----
-    if not _has_column(conn, "protocols", "engineer_lock"):
-        conn.execute("ALTER TABLE protocols ADD COLUMN engineer_lock INTEGER NOT NULL DEFAULT 0;")
-
     conn.commit()
+
 
 @dataclass
 class Protocol:
@@ -75,10 +76,9 @@ class Protocol:
     name: str
     speed: float                 # cm/s
     stroke_length_mm: int
-    clamp_force_g: int            # g
-    water_temp_c: int             # C
+    clamp_force_g: int
+    water_temp_c: int
     cycles: int
-    engineer_lock: int = 0        # 0/1 in sqlite (treat as bool in UI)
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
 
@@ -94,41 +94,37 @@ class RunRow:
     notes: Optional[str]
 
 def list_protocols(conn: sqlite3.Connection) -> List[Protocol]:
-    rows = conn.execute("SELECT * FROM protocols ORDER BY updated_at DESC").fetchall()
+    rows = conn.execute(
+        "SELECT * FROM protocols ORDER BY updated_at DESC"
+    ).fetchall()
     return [Protocol(**dict(r)) for r in rows]
+
 
 def get_protocol(conn: sqlite3.Connection, protocol_id: int) -> Optional[Protocol]:
     row = conn.execute("SELECT * FROM protocols WHERE id = ?", (protocol_id,)).fetchone()
     return Protocol(**dict(row)) if row else None
 
+
 def create_protocol(conn: sqlite3.Connection, p: Protocol) -> int:
     now = _utc_now_iso()
     cur = conn.execute(
         """
-        INSERT INTO protocols
-          (name, speed, stroke_length_mm, clamp_force_g, water_temp_c, cycles, engineer_lock, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO protocols (name, speed, stroke_length_mm, clamp_force_g, water_temp_c, cycles, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """,
-        (p.name, p.speed, p.stroke_length_mm, p.clamp_force_g, p.water_temp_c, p.cycles, int(p.engineer_lock), now, now),
+        (p.name, p.speed, p.stroke_length_mm, p.clamp_force_g, p.water_temp_c, p.cycles, now, now),
     )
     conn.commit()
     return int(cur.lastrowid)
 
+
 def update_protocol(conn: sqlite3.Connection, protocol_id: int, fields: Dict[str, Any]) -> None:
-    allowed = {
-        "name", "speed", "stroke_length_mm", "clamp_force_g", "water_temp_c", "cycles",
-        "engineer_lock",
-    }
+    allowed = {"name", "speed", "stroke_length_mm", "clamp_force_g", "water_temp_c", "cycles"}
     bad = set(fields.keys()) - allowed
     if bad:
         raise ValueError(f"Invalid protocol fields: {sorted(bad)}")
 
     fields = dict(fields)
-
-    # Normalize engineer_lock if present
-    if "engineer_lock" in fields:
-        fields["engineer_lock"] = int(bool(fields["engineer_lock"]))
-
     fields["updated_at"] = _utc_now_iso()
 
     sets = ", ".join([f"{k} = ?" for k in fields.keys()])
@@ -136,12 +132,18 @@ def update_protocol(conn: sqlite3.Connection, protocol_id: int, fields: Dict[str
     conn.execute(f"UPDATE protocols SET {sets} WHERE id = ?", vals)
     conn.commit()
 
+
 def delete_protocol(conn: sqlite3.Connection, protocol_id: int) -> None:
     conn.execute("DELETE FROM protocols WHERE id = ?", (protocol_id,))
     conn.commit()
 
-# ---- runs logic unchanged below ----
+
 def create_run(conn: sqlite3.Connection, protocol: Protocol, notes: str | None = None) -> int:
+    """
+    Creates a new run folder under:
+      /home/pilotline/projects/FrictionTester_RaspberryPi/data/trials/<timestamp>_<protocol>/
+    and inserts the run record in the DB.
+    """
     safe_name = "".join([c if c.isalnum() or c in "-_ " else "_" for c in protocol.name]).strip().replace(" ", "-")
     run_stamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
     run_dir = TRIALS_DIR / f"{run_stamp}_{safe_name}"
@@ -159,6 +161,7 @@ def create_run(conn: sqlite3.Connection, protocol: Protocol, notes: str | None =
     )
     conn.commit()
     return int(cur.lastrowid)
+
 
 def mark_run_status(conn: sqlite3.Connection, run_id: int, status: str) -> None:
     allowed = {"queued", "running", "completed", "aborted", "failed"}
@@ -180,13 +183,25 @@ def mark_run_status(conn: sqlite3.Connection, run_id: int, status: str) -> None:
 
     conn.commit()
 
+def _run_protocol_name(run: RunRow) -> str:
+    try:
+        snap = json.loads(run.protocol_snapshot_json or "{}")
+        return snap.get("name") or f"Protocol {run.protocol_id}"
+    except Exception:
+        return f"Protocol {run.protocol_id}"
+
+
 def list_runs(conn: sqlite3.Connection) -> List[RunRow]:
-    rows = conn.execute("SELECT * FROM runs ORDER BY id DESC").fetchall()
+    rows = conn.execute(
+        "SELECT * FROM runs ORDER BY id DESC"
+    ).fetchall()
     return [RunRow(**dict(r)) for r in rows]
+
 
 def get_run(conn: sqlite3.Connection, run_id: int) -> Optional[RunRow]:
     row = conn.execute("SELECT * FROM runs WHERE id = ?", (run_id,)).fetchone()
     return RunRow(**dict(row)) if row else None
+
 
 def delete_run(conn: sqlite3.Connection, run_id: int, delete_files: bool = False) -> None:
     r = get_run(conn, run_id)
@@ -197,11 +212,13 @@ def delete_run(conn: sqlite3.Connection, run_id: int, delete_files: bool = False
     conn.commit()
 
     if delete_files:
+        # optional: remove run directory contents
         try:
             import shutil
             shutil.rmtree(r.run_dir, ignore_errors=True)
         except Exception:
             pass
+
 
 def get_run_snapshot(run: RunRow) -> Dict[str, Any]:
     try:
@@ -209,7 +226,15 @@ def get_run_snapshot(run: RunRow) -> Dict[str, Any]:
     except Exception:
         return {}
 
+
 def export_run_csv(conn: sqlite3.Connection, run_id: int) -> str:
+    """
+    Export CSV from a standard JSON file if it exists in run_dir.
+    You can change this to whatever format you actually save.
+
+    Expected file (example): <run_dir>/points.json
+      [{"t":0.0,"pos":0.0,"force":0.1}, ...]
+    """
     r = get_run(conn, run_id)
     if not r:
         raise ValueError("Run not found")
@@ -224,6 +249,7 @@ def export_run_csv(conn: sqlite3.Connection, run_id: int) -> str:
         except Exception:
             points = []
 
+    # Header + rows
     lines = ["t_s,position_mm,force_n"]
     for p in points:
         t = p.get("t", 0)
@@ -233,7 +259,11 @@ def export_run_csv(conn: sqlite3.Connection, run_id: int) -> str:
 
     return "\n".join(lines)
 
+
 def write_export_file(conn: sqlite3.Connection, run_id: int, fmt: str = "csv") -> str:
+    """
+    Writes an export file into the run_dir and returns the full path.
+    """
     r = get_run(conn, run_id)
     if not r:
         raise ValueError("Run not found")

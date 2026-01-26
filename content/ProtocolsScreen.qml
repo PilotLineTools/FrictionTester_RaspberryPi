@@ -19,26 +19,6 @@ Rectangle {
     // parent (NavShell) decides what to do after selection
     signal protocolChosen(var protocolObj)
 
-    // =========================
-    // Engineer Lock / Code Gate
-    // =========================
-    // TODO: replace with your real code source (settings/backend/secure store)
-    readonly property string engineerCode: "1234"
-
-    // editor lock state (per editor session)
-    property bool editorUnlocked: false
-    property bool pendingLockValue: false
-    property string pendingAction: ""     // "toggleLock" | "unlockEditor" | "delete"
-    property int pendingDeleteIndex: -1
-
-    function isLockedProtocol(p) {
-        return !!(p && p.engineerLock)
-    }
-
-    function canEditProtocolNow() {
-        return !!editingProtocol && (!isLockedProtocol(editingProtocol) || editorUnlocked)
-    }
-
     // UI state
     property bool editorOpen: false
     property bool editingExisting: false
@@ -48,12 +28,16 @@ Rectangle {
     property bool busy: false
     property string loadError: ""
 
+    // crude factory rule (adjust/remove)
+    property bool useFactoryTag: true
+
     ListModel { id: protocolsModel }
 
     // ---------------------------
     // Backend mapping (FastAPI fields)
     // ---------------------------
     function toUiShape(p) {
+        // p is ProtocolOut from API
         return {
             id: p.id,
             name: p.name,
@@ -64,21 +48,20 @@ Rectangle {
             cycles: Number(p.cycles),
             createdAt: p.created_at || "",
             updatedAt: p.updated_at || "",
-            // NEW: engineer lock (backend field suggested: engineer_lock)
-            engineerLock: !!p.engineer_lock
+            // optional tag
+            factory: useFactoryTag ? (p.id <= 3) : false
         }
     }
 
     function toApiCreate(p) {
+        // matches ProtocolIn
         return {
             name: p.name,
             speed: Number(p.speed),
             stroke_length_mm: Number(p.strokeLength),
             clamp_force_g: Number(p.clampForce),
             water_temp_c: Number(p.waterTemp),
-            cycles: Number(p.cycles),
-            // NEW
-            engineer_lock: !!p.engineerLock
+            cycles: Number(p.cycles)
         }
     }
 
@@ -124,10 +107,8 @@ Rectangle {
             strokeLength: 50,
             clampForce: 100,
             waterTemp: 37,
-            cycles: 1,
-            engineerLock: false
+            cycles: 1
         }
-        editorUnlocked = true // new protocol is editable
         editorOpen = true
     }
 
@@ -145,11 +126,8 @@ Rectangle {
             clampForce: p.clampForce,
             waterTemp: p.waterTemp,
             cycles: p.cycles,
-            engineerLock: !!p.engineerLock
+            factory: !!p.factory
         }
-
-        // If locked -> start read-only until code entered
-        editorUnlocked = !editingProtocol.engineerLock
         editorOpen = true
     }
 
@@ -163,19 +141,20 @@ Rectangle {
     function saveProtocol() {
         if (!backend) return
         if (!editingProtocol || !editingProtocol.name || editingProtocol.name.trim().length === 0) return
-        if (!canEditProtocolNow()) return
+        if (editingProtocol.factory === true) return
 
         busy = true
 
         if (editingExisting && editingProtocol.id !== null) {
+            // FastAPI update expects dict[str,Any] of fields to update
+            // Send only the API field names
             var patch = {
                 name: editingProtocol.name,
                 speed: Number(editingProtocol.speed),
                 stroke_length_mm: Number(editingProtocol.strokeLength),
                 clamp_force_g: Number(editingProtocol.clampForce),
                 water_temp_c: Number(editingProtocol.waterTemp),
-                cycles: Number(editingProtocol.cycles),
-                engineer_lock: !!editingProtocol.engineerLock
+                cycles: Number(editingProtocol.cycles)
             }
 
             backend.request("PUT", "/protocols/" + editingProtocol.id, patch, function(ok, status, data) {
@@ -206,14 +185,7 @@ Rectangle {
         if (idx < 0 || idx >= protocolsModel.count) return
 
         var p = protocolsModel.get(idx)
-
-        // If locked, require code
-        if (p.engineerLock === true) {
-            pendingAction = "delete"
-            pendingDeleteIndex = idx
-            engineerCodeDialog.open()
-            return
-        }
+        if (p.factory === true) return
 
         busy = true
         backend.request("DELETE", "/protocols/" + p.id, null, function(ok, status, data) {
@@ -238,8 +210,7 @@ Rectangle {
             stroke_length_mm: Number(p.strokeLength),
             clamp_force_g: Number(p.clampForce),
             water_temp_c: Number(p.waterTemp),
-            cycles: Number(p.cycles),
-            engineer_lock: !!p.engineerLock
+            cycles: Number(p.cycles)
         }
 
         busy = true
@@ -251,118 +222,6 @@ Rectangle {
             }
             loadProtocols()
         })
-    }
-
-    // =========================
-    // Engineer code dialog
-    // =========================
-    Dialog {
-        id: engineerCodeDialog
-        modal: true
-        dim: true
-        title: qsTr("Engineer Code Required")
-        standardButtons: Dialog.NoButton
-        x: Math.round((root.width - width) / 2)
-        y: Math.round((root.height - height) / 2)
-
-        property string errorText: ""
-
-        onOpened: {
-            errorText = ""
-            engineerCodeField.text = ""
-            engineerCodeField.forceActiveFocus()
-        }
-
-        contentItem: ColumnLayout {
-            width: 380
-            spacing: 12
-
-            Text {
-                text: qsTr("Enter engineer code to continue.")
-                color: Constants.textSecondary
-                wrapMode: Text.WordWrap
-            }
-
-            TextField {
-                id: engineerCodeField
-                Layout.fillWidth: true
-                placeholderText: qsTr("Numeric code")
-                echoMode: TextInput.Password
-                inputMethodHints: Qt.ImhDigitsOnly
-                validator: RegularExpressionValidator { regularExpression: /^[0-9]{0,8}$/ }
-            }
-
-            Text {
-                visible: engineerCodeDialog.errorText !== ""
-                text: engineerCodeDialog.errorText
-                color: "#F87171"
-                font.pixelSize: 12
-            }
-
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 10
-
-                Item { Layout.fillWidth: true }
-
-                Button {
-                    text: qsTr("Cancel")
-                    onClicked: engineerCodeDialog.close()
-                    background: Rectangle { radius: 10; color: Constants.bgSurface }
-                    contentItem: Text { text: qsTr("Cancel"); color: Constants.textPrimary; font.pixelSize: 14 }
-                }
-
-                Button {
-                    text: qsTr("Confirm")
-                    background: Rectangle { radius: 10; color: Constants.accentPrimary }
-                    contentItem: Text {
-                        text: qsTr("Confirm")
-                        color: "white"
-                        font.pixelSize: 14
-                        font.bold: true
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                    }
-
-                    onClicked: {
-                        if (engineerCodeField.text !== root.engineerCode) {
-                            engineerCodeDialog.errorText = qsTr("Incorrect code.")
-                            return
-                        }
-
-                        // success
-                        engineerCodeDialog.close()
-
-                        if (pendingAction === "toggleLock") {
-                            // allow toggle + editing
-                            editorUnlocked = true
-                            updateField("engineerLock", pendingLockValue)
-                        } else if (pendingAction === "unlockEditor") {
-                            editorUnlocked = true
-                        } else if (pendingAction === "delete") {
-                            var idx = pendingDeleteIndex
-                            pendingDeleteIndex = -1
-                            pendingAction = ""
-                            // proceed delete now that code is ok
-                            var p = protocolsModel.get(idx)
-                            busy = true
-                            backend.request("DELETE", "/protocols/" + p.id, null, function(ok, status, data) {
-                                busy = false
-                                if (!ok) {
-                                    console.error("DELETE /protocols failed:", status, data)
-                                    return
-                                }
-                                editorOpen = false
-                                loadProtocols()
-                            })
-                            return
-                        }
-
-                        pendingAction = ""
-                    }
-                }
-            }
-        }
     }
 
     // ---------------------------
@@ -382,6 +241,7 @@ Rectangle {
             spacing: 12
 
             Button {
+                // Visible as "Back" in selectOnly mode, or "Cancel" when editing
                 visible: (root.mode === "selectOnly") || editorOpen
                 text: editorOpen ? "Cancel" : "Back"
                 Layout.preferredWidth: 120
@@ -389,9 +249,11 @@ Rectangle {
                     if (editorOpen) {
                         editorOpen = false
                     } else {
+                        // go back to HomeScreen
                         root.stack.pop()
                     }
                 }
+                //onClicked: { if (editorOpen) editorOpen = false }
                 background: Rectangle { radius: 10; color: "transparent" }
                 contentItem: Text { text: parent.text; color: Constants.textPrimary; font.pixelSize: 16 }
             }
@@ -429,7 +291,7 @@ Rectangle {
                 visible: editorOpen
                 text: "Save"
                 Layout.preferredWidth: 120
-                enabled: !busy && canEditProtocolNow()
+                enabled: !busy && editingProtocol && editingProtocol.factory !== true
                 onClicked: saveProtocol()
                 background: Rectangle { radius: 10; color: Constants.accentPrimary }
                 contentItem: Text {
@@ -466,6 +328,7 @@ Rectangle {
                 visible: busy
             }
 
+            // Error state
             Column {
                 anchors.centerIn: parent
                 spacing: 10
@@ -475,6 +338,7 @@ Rectangle {
                 Button { text: "Retry"; onClicked: loadProtocols() }
             }
 
+            // Empty state (center of content area)
             Column {
                 anchors.centerIn: parent
                 spacing: 8
@@ -534,9 +398,8 @@ Rectangle {
                                 elide: Text.ElideRight
                             }
 
-                            // NEW: LOCKED badge
                             Rectangle {
-                                visible: engineerLock === true
+                                visible: factory === true
                                 radius: 8
                                 color: Constants.bgSurface
                                 border.color: Constants.borderDefault
@@ -546,8 +409,8 @@ Rectangle {
 
                                 Text {
                                     anchors.centerIn: parent
-                                    text: "LOCKED"
-                                    color: "#FBBF24"
+                                    text: "FACTORY"
+                                    color: Constants.accentSky
                                     font.pixelSize: 12
                                     font.bold: true
                                 }
@@ -579,7 +442,7 @@ Rectangle {
 
                             Button {
                                 text: "Edit"
-                                enabled: !busy
+                                enabled: factory !== true && !busy
                                 onClicked: root.openEditProtocol(index)
                                 background: Rectangle { radius: 10; color: Constants.bgSurface }
                                 contentItem: Text {
@@ -599,7 +462,7 @@ Rectangle {
 
                             Button {
                                 text: "🗑"
-                                enabled: !busy
+                                enabled: factory !== true && !busy
                                 onClicked: root.deleteProtocol(index)
                                 background: Rectangle {
                                     radius: 10
@@ -619,7 +482,7 @@ Rectangle {
             }
         }
 
-        // EDITOR
+        // EDITOR (old right-side look)
         Flickable {
             anchors.fill: parent
             visible: editorOpen
@@ -636,117 +499,20 @@ Rectangle {
                 anchors.margins: 28
                 spacing: 18
 
-                // -------------------------
-                // Header row: Name + Engineer Lock
-                // -------------------------
-                RowLayout {
+                Item {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 52
-                    spacing: 12
+                    height: 52
 
                     TextField {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-
+                        anchors.fill: parent
                         placeholderText: qsTr("Protocol Name")
                         text: editingProtocol ? editingProtocol.name : ""
                         font.pixelSize: 28
                         font.bold: true
                         color: Constants.textPrimary
                         background: Rectangle { color: "transparent" }
-
-                        enabled: canEditProtocolNow()
+                        enabled: editingProtocol && editingProtocol.factory !== true
                         onTextEdited: updateField("name", text)
-                    }
-
-                    Rectangle {
-                        Layout.preferredWidth: 220
-                        Layout.fillHeight: true
-                        radius: 12
-                        color: Constants.bgCard
-                        border.color: Constants.borderDefault
-                        border.width: 1
-
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.margins: 10
-                            spacing: 10
-
-                            Text {
-                                text: "🔒"
-                                font.pixelSize: 18
-                                color: Constants.textSecondary
-                            }
-
-                            Text {
-                                text: qsTr("Engineer Lock")
-                                color: Constants.textPrimary
-                                font.pixelSize: 14
-                                font.bold: true
-                                Layout.fillWidth: true
-                                elide: Text.ElideRight
-                            }
-
-                            Switch {
-                                id: engineerLockSwitch
-                                checked: editingProtocol ? !!editingProtocol.engineerLock : false
-                                enabled: !busy && !!editingProtocol
-
-                                onToggled: {
-                                    // Don't allow silent toggle; require code.
-                                    pendingLockValue = checked
-                                    pendingAction = "toggleLock"
-
-                                    // snap UI back until confirmed
-                                    checked = editingProtocol ? !!editingProtocol.engineerLock : false
-
-                                    engineerCodeDialog.open()
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // If locked and not unlocked, show an unlock banner
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: (!canEditProtocolNow() && isLockedProtocol(editingProtocol)) ? 56 : 0
-                    visible: (!canEditProtocolNow() && isLockedProtocol(editingProtocol))
-                    radius: 12
-                    color: Constants.bgSurface
-                    border.color: Constants.borderDefault
-                    border.width: 1
-
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.margins: 12
-                        spacing: 10
-
-                        Text {
-                            text: qsTr("This protocol is engineer locked.")
-                            color: Constants.textSecondary
-                            font.pixelSize: 14
-                            Layout.fillWidth: true
-                            elide: Text.ElideRight
-                        }
-
-                        Button {
-                            text: qsTr("Unlock")
-                            enabled: !busy
-                            onClicked: {
-                                pendingAction = "unlockEditor"
-                                engineerCodeDialog.open()
-                            }
-                            background: Rectangle { radius: 10; color: Constants.accentPrimary }
-                            contentItem: Text {
-                                text: qsTr("Unlock")
-                                color: "white"
-                                font.pixelSize: 14
-                                font.bold: true
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
-                            }
-                        }
                     }
                 }
 
@@ -767,7 +533,7 @@ Rectangle {
                         sliderValue: editingProtocol ? editingProtocol.speed : 0
                         minLabel: qsTr("0.1 cm/s")
                         maxLabel: qsTr("2.5 cm/s")
-                        enabled: canEditProtocolNow()
+                        enabled: editingProtocol && editingProtocol.factory !== true
                         onValueEdited: (v) => updateField("speed", Math.round(v * 10) / 10)
                     }
 
@@ -782,7 +548,7 @@ Rectangle {
                         sliderValue: editingProtocol ? editingProtocol.strokeLength : 0
                         minLabel: qsTr("10 mm")
                         maxLabel: qsTr("150 mm")
-                        enabled: canEditProtocolNow()
+                        enabled: editingProtocol && editingProtocol.factory !== true
                         onValueEdited: (v) => updateField("strokeLength", Math.round(v))
                     }
 
@@ -797,7 +563,7 @@ Rectangle {
                         sliderValue: editingProtocol ? editingProtocol.clampForce : 0
                         minLabel: qsTr("50 g")
                         maxLabel: qsTr("500 g")
-                        enabled: canEditProtocolNow()
+                        enabled: editingProtocol && editingProtocol.factory !== true
                         onValueEdited: (v) => updateField("clampForce", Math.round(v/10)*10)
                     }
 
@@ -812,7 +578,7 @@ Rectangle {
                         sliderValue: editingProtocol ? editingProtocol.waterTemp : 0
                         minLabel: qsTr("15 °C")
                         maxLabel: qsTr("50 °C")
-                        enabled: canEditProtocolNow()
+                        enabled: editingProtocol && editingProtocol.factory !== true
                         onValueEdited: (v) => updateField("waterTemp", Math.round(v))
                     }
                 }
@@ -832,7 +598,7 @@ Rectangle {
                     mid2Label: qsTr("10")
                     mid3Label: qsTr("15")
                     rightLabel: qsTr("20")
-                    enabled: canEditProtocolNow()
+                    enabled: editingProtocol && editingProtocol.factory !== true
                     onValueEdited: (v) => updateField("cycles", Math.round(v))
                 }
 
@@ -865,6 +631,7 @@ Rectangle {
                 enabled: (root.selectedIndex >= 0 && !editorOpen && !busy)
                 onClicked: {
                     var p = protocolsModel.get(root.selectedIndex)
+                    // emit protocol in API field names so NavShell can store directly
                     protocolChosen({
                         id: p.id,
                         name: p.name,
@@ -872,8 +639,7 @@ Rectangle {
                         stroke_length_mm: p.strokeLength,
                         clamp_force_g: p.clampForce,
                         water_temp_c: p.waterTemp,
-                        cycles: p.cycles,
-                        engineer_lock: !!p.engineerLock
+                        cycles: p.cycles
                     })
                 }
             }
@@ -899,7 +665,7 @@ Rectangle {
     }
 
     // ---------------------------
-    // Reusable components (same)
+    // Reusable components (unchanged)
     // ---------------------------
     component ParamCard: Rectangle {
         property string title: ""
@@ -1008,6 +774,7 @@ Rectangle {
                 Text { text: leftLabel; color: Constants.textMuted; font.pixelSize: 10; Layout.fillWidth: true }
                 Text { text: mid1Label; color: Constants.textMuted; font.pixelSize: 10; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
                 Text { text: mid2Label; color: Constants.textMuted; font.pixelSize: 10; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
+                Text { text: mid3Label; color: Constants.textMuted; font.pixelSize: 10; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
                 Text { text: mid3Label; color: Constants.textMuted; font.pixelSize: 10; Layout.fillWidth: true; horizontalAlignment: Text.AlignHCenter }
                 Text { text: rightLabel; color: Constants.textMuted; font.pixelSize: 10; horizontalAlignment: Text.AlignRight }
             }
