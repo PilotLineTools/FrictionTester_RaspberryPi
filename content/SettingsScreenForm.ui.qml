@@ -14,14 +14,13 @@ Rectangle {
     readonly property int rowH: 56
     readonly property int radius: 14
 
-    // ===== Page layout =====
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: root.pad
         spacing: root.gap
 
         // =========================
-        // Header (Sketch B vibe: title left, status/icon right)
+        // Header (Sketch B vibe)
         // =========================
         RowLayout {
             Layout.fillWidth: true
@@ -45,7 +44,6 @@ Rectangle {
 
             Item { Layout.fillWidth: true }
 
-            // Optional: small pill badge (e.g., CONNECTED)
             Rectangle {
                 radius: 999
                 color: Constants.bgSurface
@@ -57,7 +55,6 @@ Rectangle {
                 Row {
                     anchors.centerIn: parent
                     spacing: 8
-
                     Rectangle { width: 10; height: 10; radius: 5; color: "#22C55E" }
                     Text {
                         text: qsTr("CONNECTED")
@@ -78,18 +75,19 @@ Rectangle {
             clip: true
 
             ColumnLayout {
-                width: parent.width
+                width: parent.availableWidth
                 spacing: root.gap
 
-                // ---------- Section: Account / Operator ----------
                 SettingsSectionCard {
                     title: qsTr("Operator")
+
                     SettingsRowButton {
                         title: qsTr("Profile")
                         subtitle: qsTr("Name, role, permissions")
                         rightText: qsTr("Mario")
                         onClicked: console.log("Profile")
                     }
+
                     SettingsRowButton {
                         title: qsTr("Engineer Mode")
                         subtitle: qsTr("Requires engineer code")
@@ -98,36 +96,39 @@ Rectangle {
                     }
                 }
 
-                // ---------- Section: Display ----------
                 SettingsSectionCard {
                     title: qsTr("Display")
+
                     SettingsRowToggle {
                         title: qsTr("Dark Mode")
                         subtitle: qsTr("Reduce glare in low light")
                         checked: true
-                        onToggled: console.log("Dark Mode:", checked)
+                        onToggled: (v) => console.log("Dark Mode:", v)
                     }
+
                     SettingsRowToggle {
                         title: qsTr("Large Text")
                         subtitle: qsTr("Improve readability")
                         checked: false
-                        onToggled: console.log("Large Text:", checked)
+                        onToggled: (v) => console.log("Large Text:", v)
                     }
                 }
 
-                // ---------- Section: Machine ----------
                 SettingsSectionCard {
                     title: qsTr("Machine")
+
                     SettingsRowButton {
                         title: qsTr("Calibration")
                         subtitle: qsTr("Clamp, axis, sensors")
                         onClicked: console.log("Calibration")
                     }
+
                     SettingsRowButton {
                         title: qsTr("I/O & Ports")
                         subtitle: qsTr("Serial, peripherals, USB")
                         onClicked: console.log("IO & Ports")
                     }
+
                     SettingsRowButton {
                         title: qsTr("Data & Export")
                         subtitle: qsTr("CSV export, storage")
@@ -135,15 +136,16 @@ Rectangle {
                     }
                 }
 
-                // ---------- Section: System ----------
                 SettingsSectionCard {
                     title: qsTr("System")
+
                     SettingsRowButton {
                         title: qsTr("Network")
                         subtitle: qsTr("Wi-Fi, IP address")
                         rightText: qsTr("Wi-Fi")
                         onClicked: console.log("Network")
                     }
+
                     SettingsRowButton {
                         title: qsTr("About")
                         subtitle: qsTr("Version, device info")
@@ -152,17 +154,17 @@ Rectangle {
                     }
                 }
 
-                // bottom breathing room
                 Item { Layout.preferredHeight: 8 }
             }
         }
     }
 
     // =========================================================
-    // Reusable building blocks (layout-only, “Sketch B” style)
+    // Building blocks
     // =========================================================
 
     component SettingsSectionCard: Rectangle {
+        id: sectionCard
         default property alias content: body.data
         property string title: ""
 
@@ -179,7 +181,7 @@ Rectangle {
             spacing: 10
 
             Text {
-                text: parent.parent.title
+                text: sectionCard.title
                 color: Constants.textSecondary
                 font.pixelSize: 12
                 font.bold: true
@@ -188,6 +190,7 @@ Rectangle {
     }
 
     component SettingsRowButton: Rectangle {
+        id: rowBtn
         signal clicked()
 
         property string title: ""
@@ -203,7 +206,7 @@ Rectangle {
 
         MouseArea {
             anchors.fill: parent
-            onClicked: parent.clicked()
+            onClicked: rowBtn.clicked()
         }
 
         RowLayout {
@@ -216,23 +219,25 @@ Rectangle {
                 Layout.fillWidth: true
 
                 Text {
-                    text: parent.parent.title
+                    text: rowBtn.title
                     color: Constants.textPrimary
                     font.pixelSize: 15
                     font.bold: true
                     elide: Text.ElideRight
                 }
+
                 Text {
-                    visible: parent.parent.subtitle.length > 0
-                    text: parent.parent.subtitle
+                    visible: rowBtn.subtitle.length > 0
+                    text: rowBtn.subtitle
                     color: Constants.textMuted
                     font.pixelSize: 12
                     elide: Text.ElideRight
                 }
             }
 
-            if (rightText.length > 0) Text {
-                text: rightText
+            Text {
+                visible: rowBtn.rightText.length > 0
+                text: rowBtn.rightText
                 color: Constants.textSecondary
                 font.pixelSize: 13
                 font.bold: true
@@ -247,6 +252,7 @@ Rectangle {
     }
 
     component SettingsRowToggle: Rectangle {
+        id: rowTog
         property string title: ""
         property string subtitle: ""
         property bool checked: false
@@ -269,15 +275,16 @@ Rectangle {
                 Layout.fillWidth: true
 
                 Text {
-                    text: parent.parent.title
+                    text: rowTog.title
                     color: Constants.textPrimary
                     font.pixelSize: 15
                     font.bold: true
                     elide: Text.ElideRight
                 }
+
                 Text {
-                    visible: parent.parent.subtitle.length > 0
-                    text: parent.parent.subtitle
+                    visible: rowTog.subtitle.length > 0
+                    text: rowTog.subtitle
                     color: Constants.textMuted
                     font.pixelSize: 12
                     elide: Text.ElideRight
@@ -285,10 +292,10 @@ Rectangle {
             }
 
             Switch {
-                checked: parent.parent.checked
+                checked: rowTog.checked
                 onToggled: {
-                    parent.parent.checked = checked
-                    parent.parent.toggled(checked)
+                    rowTog.checked = checked
+                    rowTog.toggled(checked)
                 }
             }
         }
