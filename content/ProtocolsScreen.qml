@@ -602,6 +602,213 @@ Rectangle {
                     onValueEdited: (v) => updateField("cycles", Math.round(v))
                 }
 
+                // --- Fixed Start Point (toggle + optional jog section) ---
+                Rectangle {
+                    Layout.fillWidth: true
+                    radius: 18
+                    color: Constants.bgCard
+                    border.color: Qt.rgba(1,1,1,0.06)
+                    border.width: 1
+
+                    ColumnLayout {
+                        anchors.fill: parent
+                        anchors.margins: 18
+                        spacing: 14
+
+                        // Header row: title/subtitle + switch
+                        RowLayout {
+                            Layout.fillWidth: true
+                            spacing: 12
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 6
+
+                                Text {
+                                    text: qsTr("Fixed Start Point")
+                                    color: Constants.textPrimary
+                                    font.pixelSize: 18
+                                    font.bold: true
+                                }
+
+                                Text {
+                                    text: qsTr("Set a specific starting position for this protocol")
+                                    color: Constants.textSecondary
+                                    font.pixelSize: 13
+                                    wrapMode: Text.WordWrap
+                                }
+                            }
+
+                            Switch {
+                                id: fixedStartSwitch
+                                checked: editingProtocol ? !!editingProtocol.fixedStartEnabled : false
+                                enabled: editingProtocol && editingProtocol.factory !== true
+
+                                // Keep the switch visually “right aligned”
+                                Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+
+                                onToggled: {
+                                    updateField("fixedStartEnabled", checked)
+
+                                    // optional: when turning on, initialize the fixed start to current position
+                                    if (checked) {
+                                        // replace `currentPositionMm` with your real live position source
+                                        const cur = (typeof currentPositionMm !== "undefined") ? currentPositionMm : 0
+                                        updateField("fixedStartMm", Math.round(cur * 10) / 10)
+                                    }
+                                }
+                            }
+                        }
+
+                        // Expanded section when enabled
+                        Item {
+                            Layout.fillWidth: true
+                            visible: fixedStartSwitch.checked
+                            implicitHeight: contentCol.implicitHeight
+
+                            ColumnLayout {
+                                id: contentCol
+                                Layout.fillWidth: true
+                                spacing: 14
+
+                                // Current Position display (big number)
+                                Rectangle {
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: 140
+                                    radius: 16
+                                    color: Constants.bgPrimary   // slightly darker inset, like your mock
+                                    border.color: Qt.rgba(1,1,1,0.06)
+                                    border.width: 1
+
+                                    Column {
+                                        anchors.centerIn: parent
+                                        spacing: 6
+
+                                        Text {
+                                            text: qsTr("Current Position")
+                                            color: Constants.textSecondary
+                                            font.pixelSize: 14
+                                            horizontalAlignment: Text.AlignHCenter
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                        }
+
+                                        Text {
+                                            // replace `currentPositionMm` with your actual live position value
+                                            text: (typeof currentPositionMm !== "undefined")
+                                                ? (Math.round(currentPositionMm * 10) / 10).toFixed(1)
+                                                : "0.0"
+                                            color: Constants.accentSky
+                                            font.pixelSize: 44
+                                            font.bold: true
+                                            horizontalAlignment: Text.AlignHCenter
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                        }
+
+                                        Text {
+                                            text: qsTr("mm")
+                                            color: Constants.textSecondary
+                                            font.pixelSize: 16
+                                            horizontalAlignment: Text.AlignHCenter
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                        }
+                                    }
+                                }
+
+                                // Jog buttons row
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 14
+
+                                    Button {
+                                        Layout.fillWidth: true
+                                        Layout.preferredHeight: 78
+                                        enabled: editingProtocol && editingProtocol.factory !== true
+                                        text: qsTr("JOG UP")
+
+                                        background: Rectangle {
+                                            radius: 16
+                                            color: Constants.accentSky
+                                            opacity: control.enabled ? 1.0 : 0.5
+                                        }
+
+                                        contentItem: Text {
+                                            text: control.text
+                                            color: "white"
+                                            font.pixelSize: 18
+                                            font.bold: true
+                                            horizontalAlignment: Text.AlignHCenter
+                                            verticalAlignment: Text.AlignVCenter
+                                        }
+
+                                        onClicked: {
+                                            // TODO: send your jog command
+                                            // e.g. ensureConnectedAndSend(`MOVE_VEL(Z, +${jogVel})`)
+                                        }
+                                    }
+
+                                    Button {
+                                        Layout.fillWidth: true
+                                        Layout.preferredHeight: 78
+                                        enabled: editingProtocol && editingProtocol.factory !== true
+                                        text: qsTr("JOG DOWN")
+
+                                        background: Rectangle {
+                                            radius: 16
+                                            color: Constants.accentSky
+                                            opacity: control.enabled ? 1.0 : 0.5
+                                        }
+
+                                        contentItem: Text {
+                                            text: control.text
+                                            color: "white"
+                                            font.pixelSize: 18
+                                            font.bold: true
+                                            horizontalAlignment: Text.AlignHCenter
+                                            verticalAlignment: Text.AlignVCenter
+                                        }
+
+                                        onClicked: {
+                                            // TODO: send your jog command
+                                            // e.g. ensureConnectedAndSend(`MOVE_VEL(Z, -${jogVel})`)
+                                        }
+                                    }
+                                }
+
+                                // Optional: show / edit the stored fixed start value
+                                // (handy for confirming what will be used)
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 10
+
+                                    Text {
+                                        text: qsTr("Fixed Start:")
+                                        color: Constants.textSecondary
+                                        font.pixelSize: 14
+                                    }
+
+                                    Text {
+                                        Layout.fillWidth: true
+                                        text: editingProtocol ? (Math.round((editingProtocol.fixedStartMm || 0) * 10) / 10).toFixed(1) + " mm" : "0.0 mm"
+                                        color: Constants.textPrimary
+                                        font.pixelSize: 14
+                                    }
+
+                                    Button {
+                                        text: qsTr("Set to Current")
+                                        enabled: editingProtocol && editingProtocol.factory !== true
+
+                                        onClicked: {
+                                            const cur = (typeof currentPositionMm !== "undefined") ? currentPositionMm : 0
+                                            updateField("fixedStartMm", Math.round(cur * 10) / 10)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+
                 Item { Layout.preferredHeight: 12 }
             }
         }
