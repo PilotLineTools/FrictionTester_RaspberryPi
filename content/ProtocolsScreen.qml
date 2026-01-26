@@ -644,7 +644,7 @@ Rectangle {
                     // -------------------------
                     Rectangle {
                         id: fixedStartCard
-                        Layout.preferredWidth: 290
+                        Layout.fillWidth: true
                         Layout.fillHeight: true
                         Layout.alignment: Qt.AlignTop
                         radius: 18
