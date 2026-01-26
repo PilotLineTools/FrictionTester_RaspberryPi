@@ -289,7 +289,7 @@ class SerialController(QObject):
         Args:
             setpoint (float): Desired temperature setpoint in degrees.
         """
-        self.send_cmd(f"CMD SET_HEATER setpoint={setpoint:.1f}")
+        self.send_cmd(f"CMD HEATER_SET setpoint={setpoint:.1f}")
 
     @Slot(int)
     def set_fan(self, pwm: int):
