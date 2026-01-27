@@ -36,6 +36,10 @@ def connect() -> sqlite3.Connection:
     return conn
 
 
+def _column_exists(conn: sqlite3.Connection, table: str, column: str) -> bool:
+    rows = conn.execute(f"PRAGMA table_info({table})").fetchall()
+    return any(r["name"] == column for r in rows)
+
 def init_db(conn: sqlite3.Connection) -> None:
     conn.executescript(
         """
@@ -47,6 +51,10 @@ def init_db(conn: sqlite3.Connection) -> None:
             clamp_force_g INTEGER NOT NULL,
             water_temp_c INTEGER NOT NULL,
             cycles INTEGER NOT NULL,
+
+            fixed_start_enabled INTEGER NOT NULL DEFAULT 0,
+            fixed_start_mm REAL NOT NULL DEFAULT 0,
+
             created_at TEXT NOT NULL,
             updated_at TEXT NOT NULL
         );
@@ -67,8 +75,14 @@ def init_db(conn: sqlite3.Connection) -> None:
         CREATE INDEX IF NOT EXISTS idx_runs_protocol_id ON runs(protocol_id);
         """
     )
-    conn.commit()
 
+    # --- ✅ MIGRATION for existing DBs (if table existed before new columns) ---
+    if not _column_exists(conn, "protocols", "fixed_start_enabled"):
+        conn.execute("ALTER TABLE protocols ADD COLUMN fixed_start_enabled INTEGER NOT NULL DEFAULT 0;")
+    if not _column_exists(conn, "protocols", "fixed_start_mm"):
+        conn.execute("ALTER TABLE protocols ADD COLUMN fixed_start_mm REAL NOT NULL DEFAULT 0;")
+
+    conn.commit()
 
 @dataclass
 class Protocol:
@@ -79,8 +93,14 @@ class Protocol:
     clamp_force_g: int
     water_temp_c: int
     cycles: int
+
+    # ✅ NEW
+    fixed_start_enabled: int = 0   # store as 0/1 for sqlite
+    fixed_start_mm: float = 0.0
+
     created_at: Optional[str] = None
     updated_at: Optional[str] = None
+
 
 @dataclass
 class RunRow:
@@ -109,29 +129,52 @@ def create_protocol(conn: sqlite3.Connection, p: Protocol) -> int:
     now = _utc_now_iso()
     cur = conn.execute(
         """
-        INSERT INTO protocols (name, speed, stroke_length_mm, clamp_force_g, water_temp_c, cycles, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO protocols (
+            name, speed, stroke_length_mm, clamp_force_g, water_temp_c, cycles,
+            fixed_start_enabled, fixed_start_mm,
+            created_at, updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
-        (p.name, p.speed, p.stroke_length_mm, p.clamp_force_g, p.water_temp_c, p.cycles, now, now),
+        (
+            p.name,
+            p.speed,
+            p.stroke_length_mm,
+            p.clamp_force_g,
+            p.water_temp_c,
+            p.cycles,
+            int(p.fixed_start_enabled),
+            float(p.fixed_start_mm),
+            now,
+            now,
+        ),
     )
     conn.commit()
     return int(cur.lastrowid)
 
 
 def update_protocol(conn: sqlite3.Connection, protocol_id: int, fields: Dict[str, Any]) -> None:
-    allowed = {"name", "speed", "stroke_length_mm", "clamp_force_g", "water_temp_c", "cycles"}
+    allowed = {
+        "name", "speed", "stroke_length_mm", "clamp_force_g", "water_temp_c", "cycles",
+        "fixed_start_enabled", "fixed_start_mm",
+    }
     bad = set(fields.keys()) - allowed
     if bad:
         raise ValueError(f"Invalid protocol fields: {sorted(bad)}")
 
     fields = dict(fields)
+
+    if "fixed_start_enabled" in fields:
+        fields["fixed_start_enabled"] = int(bool(fields["fixed_start_enabled"]))
+    if "fixed_start_mm" in fields:
+        fields["fixed_start_mm"] = float(fields["fixed_start_mm"])
+
     fields["updated_at"] = _utc_now_iso()
 
     sets = ", ".join([f"{k} = ?" for k in fields.keys()])
     vals = list(fields.values()) + [protocol_id]
     conn.execute(f"UPDATE protocols SET {sets} WHERE id = ?", vals)
     conn.commit()
-
 
 def delete_protocol(conn: sqlite3.Connection, protocol_id: int) -> None:
     conn.execute("DELETE FROM protocols WHERE id = ?", (protocol_id,))

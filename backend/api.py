@@ -26,6 +26,8 @@ class ProtocolIn(BaseModel):
     clamp_force_g: int
     water_temp_c: int
     cycles: int
+    fixed_start_enabled: bool = False
+    fixed_start_mm: float = 0.0
 
 class ProtocolOut(ProtocolIn):
     id: int
@@ -86,6 +88,8 @@ def api_create_protocol(p: ProtocolIn):
             clamp_force_g=p.clamp_force_g,
             water_temp_c=p.water_temp_c,
             cycles=p.cycles,
+            fixed_start_enabled=p.fixed_start_enabled,
+            fixed_start_mm=p.fixed_start_mm,
         ))
         return {"id": pid}
     finally:

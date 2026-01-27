@@ -16,6 +16,12 @@ Rectangle {
     // ===== STATE (set by ConfigScreen.qml) =====
     property bool protocolSelected: false
 
+    // Start-position telemetry + fixed-start gating (set by ConfigScreen.qml)
+    property real currentPositionMm: 0.0
+    property bool fixedStartEnabled: false
+    property real fixedStartMm: 0.0
+    property bool atFixedStart: true
+
     // ===== EXPOSE UI ELEMENTS (to ConfigScreen.qml wrapper) =====
     property alias protocolTitleText: protocolTitleText
     property alias chooseProtocolButton: chooseProtocolButton
@@ -28,7 +34,6 @@ Rectangle {
     property alias cyclesValueText: cyclesValueText
 
     // Controller elements
-    //property alias clampToggleButton: clampToggleButton
     property alias currentTempText: currentTempText
     property alias tempStatusText: tempStatusText
     property alias preheatButton: preheatButton
@@ -38,6 +43,10 @@ Rectangle {
     property alias zPositionField: zPositionField
 
     property alias runTestButton: runTestButton
+
+    // Optional message area hooks (wrapper can set visible/text)
+    property alias messageBanner: messageBanner
+    property alias messageText: messageText
 
     readonly property int pad: 16
     readonly property int gap: 14
@@ -116,7 +125,7 @@ Rectangle {
         }
 
         // ==================================
-        // 2) PROTOCOL SUMMARY (two columns, full width)
+        // 2) PROTOCOL SUMMARY
         // ==================================
         Rectangle {
             Layout.fillWidth: true
@@ -143,9 +152,7 @@ Rectangle {
                     columns: 2
                     rowSpacing: 10
                     columnSpacing: 22
-                    
 
-                    // Left column
                     RowLayout {
                         Layout.fillWidth: true
                         Layout.minimumWidth: parent.width / 2 - 11
@@ -153,6 +160,15 @@ Rectangle {
                         Item { Layout.fillWidth: true }
                         Text { id: speedValueText; text: qsTr("-"); color: Constants.textPrimary; font.pixelSize: 13; font.bold: true }
                     }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.minimumWidth: parent.width / 2 - 11
+                        Text { text: qsTr("Stroke"); color: Constants.textMuted; font.pixelSize: 13 }
+                        Item { Layout.fillWidth: true }
+                        Text { id: strokeValueText; text: qsTr("-"); color: Constants.textPrimary; font.pixelSize: 13; font.bold: true }
+                    }
+
                     RowLayout {
                         Layout.fillWidth: true
                         Layout.minimumWidth: parent.width / 2 - 11
@@ -161,14 +177,6 @@ Rectangle {
                         Text { id: clampForceValueText; text: qsTr("-"); color: Constants.textPrimary; font.pixelSize: 13; font.bold: true }
                     }
 
-                    // Right column
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Layout.minimumWidth: parent.width / 2 - 11
-                        Text { text: qsTr("Stroke"); color: Constants.textMuted; font.pixelSize: 13 }
-                        Item { Layout.fillWidth: true }
-                        Text { id: strokeValueText; text: qsTr("-"); color: Constants.textPrimary; font.pixelSize: 13; font.bold: true }
-                    }
                     RowLayout {
                         Layout.fillWidth: true
                         Layout.minimumWidth: parent.width / 2 - 11
@@ -177,7 +185,6 @@ Rectangle {
                         Text { id: waterTempValueText; text: qsTr("-"); color: Constants.textPrimary; font.pixelSize: 13; font.bold: true }
                     }
 
-                    
                     RowLayout {
                         Layout.fillWidth: true
                         Layout.minimumWidth: parent.width / 2 - 11
@@ -192,7 +199,7 @@ Rectangle {
         }
 
         // ==================================
-        // 3) MACHINE CONTROLLER (3 columns as 3 rectangles)
+        // 3) MACHINE CONTROLLER
         // ==================================
         Rectangle {
             Layout.fillWidth: true
@@ -220,7 +227,7 @@ Rectangle {
                     spacing: 12
 
                     // -----------------------------
-                    // COL 1: TEMP CARD 
+                    // COL 1: TEMP CARD
                     // -----------------------------
                     Rectangle {
                         Layout.fillWidth: true
@@ -236,7 +243,6 @@ Rectangle {
                             anchors.margins: 14
                             spacing: 10
 
-                            // Header
                             Text {
                                 text: qsTr("Temperature")
                                 color: Constants.textSecondary
@@ -249,13 +255,11 @@ Rectangle {
 
                             Item { Layout.fillHeight: true }
 
-                            // Centered 2-column temp block
                             RowLayout {
                                 Layout.fillWidth: true
                                 Layout.alignment: Qt.AlignHCenter
                                 spacing: 28
 
-                                // ---- Current column ----
                                 ColumnLayout {
                                     Layout.alignment: Qt.AlignHCenter
                                     spacing: 6
@@ -280,7 +284,6 @@ Rectangle {
                                     }
                                 }
 
-                                // ---- Target column ----
                                 ColumnLayout {
                                     Layout.alignment: Qt.AlignHCenter
                                     spacing: 6
@@ -296,9 +299,7 @@ Rectangle {
 
                                     Text {
                                         id: tempStatusText
-                                        text: root.protocolSelected
-                                            ? (waterTempValueText.text + " °C")
-                                            : qsTr("-- °C")
+                                        text: root.protocolSelected ? (waterTempValueText.text + " °C") : qsTr("-- °C")
                                         color: Constants.textPrimary
                                         font.pixelSize: 36
                                         font.bold: true
@@ -310,11 +311,8 @@ Rectangle {
 
                             Item { Layout.fillHeight: true }
 
-                            // Centered helper message (wraps nicely)
                             Text {
-                                text: root.protocolSelected
-                                    ? qsTr("Preheating is recommended before running the test.")
-                                    : ""
+                                text: root.protocolSelected ? qsTr("Preheating is recommended before running the test.") : ""
                                 visible: root.protocolSelected
                                 Layout.fillWidth: true
                                 Layout.alignment: Qt.AlignHCenter
@@ -324,7 +322,6 @@ Rectangle {
                                 font.pixelSize: 12
                             }
 
-                            // Centered button (not full width)
                             Button {
                                 id: preheatButton
                                 Layout.preferredWidth: 260
@@ -356,9 +353,8 @@ Rectangle {
                         }
                     }
 
-
                     // -----------------------------
-                    // COL 2: JOG CARD (stacked)
+                    // COL 2: START POSITION CARD (2 columns)
                     // -----------------------------
                     Rectangle {
                         Layout.fillWidth: true
@@ -374,8 +370,6 @@ Rectangle {
                             anchors.margins: 14
                             spacing: 12
 
-                            // Header
-                            // Header stays the same
                             Text {
                                 text: qsTr("Start Position")
                                 color: Constants.textSecondary
@@ -386,15 +380,12 @@ Rectangle {
                                 Layout.fillWidth: true
                             }
 
-                            // --- New 2-column content row ---
                             RowLayout {
                                 Layout.fillWidth: true
                                 Layout.fillHeight: true
                                 spacing: 12
 
-                                // -----------------------------
-                                // LEFT: Jog controls (existing)
-                                // -----------------------------
+                                // LEFT: Jog controls
                                 ColumnLayout {
                                     Layout.fillWidth: true
                                     Layout.fillHeight: true
@@ -433,11 +424,7 @@ Rectangle {
                                         id: zPositionField
                                         Layout.fillWidth: true
                                         Layout.preferredHeight: 52
-
-                                        // If you have a live z value, bind it here; otherwise keep your text()
-                                        text: (root.currentPositionMm !== undefined)
-                                            ? (Math.round(root.currentPositionMm * 100) / 100).toFixed(2)
-                                            : qsTr("0.00")
+                                        text: Number(root.currentPositionMm).toFixed(2)
 
                                         enabled: root.protocolSelected
                                         opacity: root.lockedOpacity()
@@ -490,9 +477,7 @@ Rectangle {
                                     Item { Layout.fillHeight: true }
                                 }
 
-                                // -----------------------------
-                                // RIGHT: Status / Target / Message
-                                // -----------------------------
+                                // RIGHT: Status / Target / Guidance
                                 Rectangle {
                                     id: startStatusCard
                                     Layout.fillWidth: true
@@ -504,19 +489,9 @@ Rectangle {
                                     border.width: 1
                                     opacity: root.lockedOpacity()
 
-                                    // You can replace these with whatever your “selected protocol” object is
-                                    // Assumes root.selectedProtocol has fixed_start_enabled + fixed_start_mm
-                                    // If you don’t have that yet, set these values from NavShell when selecting.
-                                    property bool hasTarget: root.selectedProtocol
-                                                            && !!root.selectedProtocol.fixed_start_enabled
-                                    property real targetMm: hasTarget
-                                                            ? Number(root.selectedProtocol.fixed_start_mm || 0)
-                                                            : 0
-
-                                    property real tolMm: 0.5
-                                    property bool atTarget: hasTarget
-                                                            ? (Math.abs((root.currentPositionMm || 0) - targetMm) <= tolMm)
-                                                            : true
+                                    property bool hasTarget: root.fixedStartEnabled
+                                    property real targetMm: Number(root.fixedStartMm || 0)
+                                    property bool atTarget: root.atFixedStart
 
                                     ColumnLayout {
                                         anchors.fill: parent
@@ -529,14 +504,15 @@ Rectangle {
                                             font.pixelSize: 11
                                         }
 
-                                        // Status pill
                                         Rectangle {
                                             Layout.fillWidth: true
                                             Layout.preferredHeight: 34
                                             radius: 10
                                             color: startStatusCard.hasTarget
-                                                ? (startStatusCard.atTarget ? Qt.rgba(0.16, 0.75, 0.35, 0.25) : Qt.rgba(0.98, 0.70, 0.17, 0.25))
-                                                : Qt.rgba(0.56, 0.56, 0.56, 0.18)
+                                                ? (startStatusCard.atTarget
+                                                    ? Qt.rgba(0.16, 0.75, 0.35, 0.25)   // green-ish
+                                                    : Qt.rgba(0.98, 0.70, 0.17, 0.25))  // amber-ish
+                                                : Qt.rgba(0.56, 0.56, 0.56, 0.18)      // gray-ish
                                             border.color: Constants.borderDefault
                                             border.width: 1
 
@@ -551,7 +527,6 @@ Rectangle {
                                             }
                                         }
 
-                                        // Target row
                                         ColumnLayout {
                                             Layout.fillWidth: true
                                             spacing: 4
@@ -572,7 +547,6 @@ Rectangle {
                                             }
                                         }
 
-                                        // Guidance message
                                         Text {
                                             Layout.fillWidth: true
                                             wrapMode: Text.WordWrap
@@ -581,7 +555,7 @@ Rectangle {
                                             text: (!startStatusCard.hasTarget || startStatusCard.atTarget)
                                                 ? qsTr("")
                                                 : qsTr("Move to %1 mm to start.")
-                                                        .arg((Math.round(startStatusCard.targetMm * 100) / 100).toFixed(2))
+                                                    .arg((Math.round(startStatusCard.targetMm * 100) / 100).toFixed(2))
                                             visible: startStatusCard.hasTarget && !startStatusCard.atTarget
                                         }
 
@@ -590,92 +564,34 @@ Rectangle {
                                 }
                             }
 
-
                             Item { Layout.fillHeight: true }
                         }
                     }
 
-                    // -----------------------------
-                    // COL 3: CLAMP CARD
-                    // -----------------------------
-                    /*
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        Layout.preferredWidth: 1
-                        radius: 14
-                        color: Constants.bgSurface
-                        border.color: Constants.borderDefault
-                        border.width: 1
-
-                        ColumnLayout {
-                            anchors.fill: parent
-                            anchors.margins: 14
-                            spacing: 12
-
-                            // Header
-                            Text {
-                                text: qsTr("Clamp")
-                                color: Constants.textSecondary
-                                font.pixelSize: 13
-                                font.bold: true
-                                Layout.alignment: Qt.AlignHCenter
-                                horizontalAlignment: Text.AlignHCenter
-                                Layout.fillWidth: true
-                            }
-                            
-                            Button {
-                                id: clampToggleButton
-                                Layout.fillWidth: true
-                                Layout.fillHeight: true
-                                text: qsTr("OPEN CLAMP")
-
-                                enabled: root.protocolSelected
-                                opacity: root.lockedOpacity()
-
-                                background: Rectangle {
-                                    radius: 14
-                                    color: parent.enabled
-                                           ? (parent.pressed ? Constants.accentSky : Constants.accentPrimary)
-                                           : Constants.bgPrimary
-                                    border.color: Constants.borderDefault
-                                    border.width: 1
-                                }
-
-                                contentItem: Text {
-                                    text: clampToggleButton.text
-                                    color: Constants.textPrimary
-                                    font.pixelSize: 22
-                                    font.bold: true
-                                    horizontalAlignment: Text.AlignHCenter
-                                    verticalAlignment: Text.AlignVCenter
-                                }
-                            }
-                        }
-                    }
-                    */
+                    // COL 3: (Clamp card removed/commented in your original)
                 }
             }
         }
 
         // ==================================
-        // 4) Fine print MESSAGE AREA (info/warning) that only is visible when there is a message to show
+        // 4) MESSAGE BANNER (wrapper controls visible/text)
         // ==================================
         Rectangle {
+            id: messageBanner
             Layout.fillWidth: true
             Layout.preferredHeight: 60
             radius: 12
-            color: "#FEF3C7"   // yellow-100
-            border.color: "#F59E0B"  // yellow-500
+            color: "#FEF3C7"        // yellow-100
+            border.color: "#F59E0B" // yellow-500
             border.width: 1
-            visible: false   // set to true by ConfigScreen.qml when there is a message to show
+            visible: false
 
             Text {
                 id: messageText
                 anchors.fill: parent
                 anchors.margins: 12
-                text: qsTr("This is a warning or info message.")
-                color: "#92400E"  // yellow-800
+                text: qsTr("")
+                color: "#92400E"     // yellow-800
                 font.pixelSize: 14
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
@@ -684,7 +600,7 @@ Rectangle {
         }
 
         // ==================================
-        // 5) RUN TEST (locked until protocol chosen)
+        // 5) RUN TEST (locked until protocol chosen + (optional) fixed-start satisfied)
         // ==================================
         Button {
             id: runTestButton
@@ -692,14 +608,14 @@ Rectangle {
             Layout.preferredHeight: 72
             text: qsTr("▶  RUN TEST")
 
-            enabled: root.protocolSelected
-            opacity: root.protocolSelected ? 1.0 : 0.4
+            enabled: root.protocolSelected && (!root.fixedStartEnabled || root.atFixedStart)
+            opacity: enabled ? 1.0 : 0.4
 
             background: Rectangle {
                 radius: 16
                 color: parent.enabled
-                       ? (parent.pressed ? "#059669" : "#10B981")
-                       : "#064E3B"
+                    ? (parent.pressed ? "#059669" : "#10B981")
+                    : "#064E3B"
             }
 
             contentItem: Text {
