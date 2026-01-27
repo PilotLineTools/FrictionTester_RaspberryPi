@@ -911,7 +911,10 @@ Rectangle {
                         stroke_length_mm: p.strokeLength,
                         clamp_force_g: p.clampForce,
                         water_temp_c: p.waterTemp,
-                        cycles: p.cycles
+                        cycles: p.cycles,
+
+                        fixed_start_enabled: !!p.fixedStartEnabled,
+                        fixed_start_mm: Number(p.fixedStartMm || 0)
                     })
                 }
             }

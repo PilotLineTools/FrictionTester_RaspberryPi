@@ -375,6 +375,7 @@ Rectangle {
                             spacing: 12
 
                             // Header
+                            // Header stays the same
                             Text {
                                 text: qsTr("Start Position")
                                 color: Constants.textSecondary
@@ -385,87 +386,210 @@ Rectangle {
                                 Layout.fillWidth: true
                             }
 
-                            Button {
-                                id: jogUpButton
+                            // --- New 2-column content row ---
+                            RowLayout {
                                 Layout.fillWidth: true
-                                Layout.preferredHeight: 100
-                                text: qsTr("▲  UP")
+                                Layout.fillHeight: true
+                                spacing: 12
 
-                                enabled: root.protocolSelected
-                                opacity: root.lockedOpacity()
+                                // -----------------------------
+                                // LEFT: Jog controls (existing)
+                                // -----------------------------
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    Layout.preferredWidth: 1
+                                    spacing: 12
 
-                                background: Rectangle {
-                                    radius: 14
-                                    color: parent.enabled
-                                           ? (parent.pressed ? Constants.accentSky : Constants.accentPrimary)
-                                           : Constants.bgPrimary
-                                    border.color: Constants.borderDefault
-                                    border.width: 1
+                                    Button {
+                                        id: jogUpButton
+                                        Layout.fillWidth: true
+                                        Layout.preferredHeight: 100
+                                        text: qsTr("▲  UP")
+
+                                        enabled: root.protocolSelected
+                                        opacity: root.lockedOpacity()
+
+                                        background: Rectangle {
+                                            radius: 14
+                                            color: parent.enabled
+                                                ? (parent.pressed ? Constants.accentSky : Constants.accentPrimary)
+                                                : Constants.bgPrimary
+                                            border.color: Constants.borderDefault
+                                            border.width: 1
+                                        }
+
+                                        contentItem: Text {
+                                            text: qsTr("▲  UP")
+                                            color: Constants.textPrimary
+                                            font.pixelSize: 22
+                                            font.bold: true
+                                            horizontalAlignment: Text.AlignHCenter
+                                            verticalAlignment: Text.AlignVCenter
+                                        }
+                                    }
+
+                                    TextField {
+                                        id: zPositionField
+                                        Layout.fillWidth: true
+                                        Layout.preferredHeight: 52
+
+                                        // If you have a live z value, bind it here; otherwise keep your text()
+                                        text: (root.currentPositionMm !== undefined)
+                                            ? (Math.round(root.currentPositionMm * 100) / 100).toFixed(2)
+                                            : qsTr("0.00")
+
+                                        enabled: root.protocolSelected
+                                        opacity: root.lockedOpacity()
+
+                                        inputMethodHints: Qt.ImhFormattedNumbersOnly
+                                        validator: DoubleValidator { bottom: -9999; top: 9999; decimals: 2 }
+
+                                        background: Rectangle {
+                                            radius: 12
+                                            color: Constants.bgSurface
+                                            border.color: Constants.borderDefault
+                                            border.width: 1
+                                        }
+
+                                        color: Constants.textPrimary
+                                        font.pixelSize: 18
+                                        font.bold: true
+                                        horizontalAlignment: Text.AlignHCenter
+                                        verticalAlignment: Text.AlignVCenter
+                                    }
+
+                                    Button {
+                                        id: jogDownButton
+                                        Layout.fillWidth: true
+                                        Layout.preferredHeight: 100
+                                        text: qsTr("▼  DOWN")
+
+                                        enabled: root.protocolSelected
+                                        opacity: root.lockedOpacity()
+
+                                        background: Rectangle {
+                                            radius: 14
+                                            color: parent.enabled
+                                                ? (parent.pressed ? Constants.accentSky : Constants.accentPrimary)
+                                                : Constants.bgPrimary
+                                            border.color: Constants.borderDefault
+                                            border.width: 1
+                                        }
+
+                                        contentItem: Text {
+                                            text: qsTr("▼  DOWN")
+                                            color: Constants.textPrimary
+                                            font.pixelSize: 22
+                                            font.bold: true
+                                            horizontalAlignment: Text.AlignHCenter
+                                            verticalAlignment: Text.AlignVCenter
+                                        }
+                                    }
+
+                                    Item { Layout.fillHeight: true }
                                 }
 
-                                contentItem: Text {
-                                    text: qsTr("▲  UP")
-                                    color: Constants.textPrimary
-                                    font.pixelSize: 22
-                                    font.bold: true
-                                    horizontalAlignment: Text.AlignHCenter
-                                    verticalAlignment: Text.AlignVCenter
-                                }
-                            }
-
-                            TextField {
-                                id: zPositionField
-                                Layout.fillWidth: true
-                                Layout.preferredHeight: 52
-                                text: qsTr("0.00")
-
-                                enabled: root.protocolSelected
-                                opacity: root.lockedOpacity()
-
-                                inputMethodHints: Qt.ImhFormattedNumbersOnly
-                                validator: DoubleValidator { bottom: -9999; top: 9999; decimals: 2 }
-
-                                background: Rectangle {
+                                // -----------------------------
+                                // RIGHT: Status / Target / Message
+                                // -----------------------------
+                                Rectangle {
+                                    id: startStatusCard
+                                    Layout.fillWidth: true
+                                    Layout.fillHeight: true
+                                    Layout.preferredWidth: 1
                                     radius: 12
-                                    color: Constants.bgSurface
+                                    color: Constants.bgPrimary
                                     border.color: Constants.borderDefault
                                     border.width: 1
-                                }
+                                    opacity: root.lockedOpacity()
 
-                                color: Constants.textPrimary
-                                font.pixelSize: 18
-                                font.bold: true
-                                horizontalAlignment: Text.AlignHCenter
-                                verticalAlignment: Text.AlignVCenter
+                                    // You can replace these with whatever your “selected protocol” object is
+                                    // Assumes root.selectedProtocol has fixed_start_enabled + fixed_start_mm
+                                    // If you don’t have that yet, set these values from NavShell when selecting.
+                                    property bool hasTarget: root.selectedProtocol
+                                                            && !!root.selectedProtocol.fixed_start_enabled
+                                    property real targetMm: hasTarget
+                                                            ? Number(root.selectedProtocol.fixed_start_mm || 0)
+                                                            : 0
+
+                                    property real tolMm: 0.5
+                                    property bool atTarget: hasTarget
+                                                            ? (Math.abs((root.currentPositionMm || 0) - targetMm) <= tolMm)
+                                                            : true
+
+                                    ColumnLayout {
+                                        anchors.fill: parent
+                                        anchors.margins: 12
+                                        spacing: 10
+
+                                        Text {
+                                            text: qsTr("Status")
+                                            color: Constants.textSecondary
+                                            font.pixelSize: 11
+                                        }
+
+                                        // Status pill
+                                        Rectangle {
+                                            Layout.fillWidth: true
+                                            Layout.preferredHeight: 34
+                                            radius: 10
+                                            color: startStatusCard.hasTarget
+                                                ? (startStatusCard.atTarget ? Qt.rgba(0.16, 0.75, 0.35, 0.25) : Qt.rgba(0.98, 0.70, 0.17, 0.25))
+                                                : Qt.rgba(0.56, 0.56, 0.56, 0.18)
+                                            border.color: Constants.borderDefault
+                                            border.width: 1
+
+                                            Text {
+                                                anchors.centerIn: parent
+                                                text: !startStatusCard.hasTarget
+                                                    ? qsTr("NO TARGET")
+                                                    : (startStatusCard.atTarget ? qsTr("READY") : qsTr("NOT READY"))
+                                                color: Constants.textPrimary
+                                                font.pixelSize: 13
+                                                font.bold: true
+                                            }
+                                        }
+
+                                        // Target row
+                                        ColumnLayout {
+                                            Layout.fillWidth: true
+                                            spacing: 4
+
+                                            Text {
+                                                text: qsTr("Target Z")
+                                                color: Constants.textSecondary
+                                                font.pixelSize: 11
+                                            }
+
+                                            Text {
+                                                text: startStatusCard.hasTarget
+                                                    ? (Math.round(startStatusCard.targetMm * 100) / 100).toFixed(2) + qsTr(" mm")
+                                                    : qsTr("—")
+                                                color: Constants.accentSky
+                                                font.pixelSize: 22
+                                                font.bold: true
+                                            }
+                                        }
+
+                                        // Guidance message
+                                        Text {
+                                            Layout.fillWidth: true
+                                            wrapMode: Text.WordWrap
+                                            color: Constants.textMuted
+                                            font.pixelSize: 12
+                                            text: (!startStatusCard.hasTarget || startStatusCard.atTarget)
+                                                ? qsTr("")
+                                                : qsTr("Move to %1 mm to start.")
+                                                        .arg((Math.round(startStatusCard.targetMm * 100) / 100).toFixed(2))
+                                            visible: startStatusCard.hasTarget && !startStatusCard.atTarget
+                                        }
+
+                                        Item { Layout.fillHeight: true }
+                                    }
+                                }
                             }
 
-                            Button {
-                                id: jogDownButton
-                                Layout.fillWidth: true
-                                Layout.preferredHeight: 100
-                                text: qsTr("▼  DOWN")
-
-                                enabled: root.protocolSelected
-                                opacity: root.lockedOpacity()
-
-                                background: Rectangle {
-                                    radius: 14
-                                    color: parent.enabled
-                                           ? (parent.pressed ? Constants.accentSky : Constants.accentPrimary)
-                                           : Constants.bgPrimary
-                                    border.color: Constants.borderDefault
-                                    border.width: 1
-                                }
-
-                                contentItem: Text {
-                                    text: qsTr("▼  DOWN")
-                                    color: Constants.textPrimary
-                                    font.pixelSize: 22
-                                    font.bold: true
-                                    horizontalAlignment: Text.AlignHCenter
-                                    verticalAlignment: Text.AlignVCenter
-                                }
-                            }
 
                             Item { Layout.fillHeight: true }
                         }
